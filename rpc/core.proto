@@ -1,0 +1,260 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "./core";
+
+message IDRequest {
+  uint64 id = 1;
+}
+
+message IDSRequest {
+  repeated uint64 ids = 1;
+}
+
+message UUIDRequest {
+  string id = 1;
+}
+
+message ID32Request {
+  uint32 id = 1;
+}
+
+message UUIDSRequest {
+  repeated string ids = 1;
+}
+
+message EmptyRequest {}
+
+
+message BaseResponse {
+  string message = 1;
+}
+
+message BasePageRequest {
+  uint32 page_number = 1;
+  uint32 page_size = 2;
+}
+
+message BasePageResp {
+  uint64 total = 1;
+  uint32 page_number = 2;
+  uint32 page_size = 3;
+}
+
+message ApiInfo {
+  optional uint32 id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional string name = 4;
+  optional string method = 5;
+  optional string path = 6;
+  optional string description = 7;
+  optional bool is_required = 8;
+  optional string service_name = 9;
+  optional string api_group = 10;
+}
+
+
+
+message ApiListRequest {
+  // 分页信息
+  BasePageRequest page = 1;
+  // 服务名
+  optional string service_name = 2;
+  // API分组
+  optional string api_group = 3;
+  // 所属方法
+  optional string method = 4;
+  // 描述
+  optional string description = 5;
+}
+
+message ApiListResponse {
+  BasePageResp page = 1;
+  repeated ApiInfo list = 2;
+}
+
+service ApiService {
+  // 创建或更新API
+  rpc CreateOrUpdateApi(ApiInfo) returns (ApiInfo);
+  // 删除API
+  rpc DeleteApi(ID32Request) returns (BaseResponse);
+  // 获取API
+  rpc GetApi(ID32Request) returns (ApiInfo);
+  // 获取API列表
+  rpc ListApi(ApiListRequest) returns (ApiListResponse);
+}
+
+
+
+
+message DictInfo {
+  optional uint32 id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional string name = 4;
+  optional string code = 5;
+  optional string description = 6;
+  optional bool state = 7;
+}
+
+message DictListRequest {
+  // 分页信息
+  BasePageRequest page = 1;
+  // 字典名
+  optional string name = 2;
+  // 字典编码
+  optional string code = 3;
+  // 描述
+  optional string description = 4;
+}
+
+message DictListResponse {
+  BasePageResp page = 1;
+  repeated DictInfo list = 2;
+}
+
+message DictItemInfo {
+  optional uint32 id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional string label = 4;
+  optional string value = 5;
+  optional string color = 6;
+  optional string css = 7;
+  optional int32 sort_order = 8;
+  optional string description = 9;
+  optional bool state = 10;
+}
+
+message DictItemListRequest {
+  // 分页信息
+  BasePageRequest page = 1;
+  // 字典ID
+  optional uint64 dict_id = 2;
+  // 字典子项标签
+  optional string label = 3;
+  // 字典子项值
+  optional string value = 4;
+}
+
+message DictItemListResponse {
+  BasePageResp page = 1;
+  repeated DictItemInfo list = 2;
+}
+
+service DictService {
+  // 创建或更新字典
+  rpc CreateOrUpdateDict(DictInfo) returns (DictInfo);
+  // 删除字典
+  rpc DeleteDict(ID32Request) returns (BaseResponse);
+  // 获取字典
+  rpc GetDict(ID32Request) returns (DictInfo);
+  // 获取字典列表
+  rpc ListDict(DictListRequest) returns (DictListResponse);
+  // 创建或更新字典子项
+  rpc CreateOrUpdateDictItem(DictItemInfo) returns (DictItemInfo);
+  // 删除字典子项
+  rpc DeleteDictItem(ID32Request) returns (BaseResponse);
+  // 获取字典子项
+  rpc GetDictItem(ID32Request) returns (DictItemInfo);
+  // 获取字典子项列表
+  rpc ListDictItem(DictItemListRequest) returns (DictItemListResponse);
+}
+
+message RoleInfo {
+  optional uint32 id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional uint32 tenant_id = 4;
+  optional string role_name = 5;
+  optional string role_code = 6;
+  optional string description = 7;
+  optional bool state = 8;
+  optional bool is_system = 9;
+}
+
+message RoleListRequest {
+  // 分页信息
+  BasePageRequest page = 1;
+  // 租户ID
+  optional uint32 tenant_id = 2;
+  // 角色名称
+  optional string role_name = 3;
+  // 角色编码
+  optional string role_code = 4;
+}
+
+message RoleListResponse {
+  BasePageResp page = 1;
+  repeated RoleInfo list = 2;
+}
+
+service RoleService {
+  // 创建或更新角色
+  rpc CreateOrUpdateRole(RoleInfo) returns (RoleInfo);
+  // 删除角色
+  rpc DeleteRole(IDRequest) returns (BaseResponse);
+  // 获取角色
+  rpc GetRole(IDRequest) returns (RoleInfo);
+  // 获取角色列表
+  rpc ListRole(RoleListRequest) returns (RoleListResponse);
+}
+
+
+message MenuMeta {
+  optional string title = 1;
+  optional string icon = 2;
+  optional string permission = 3;
+  optional bool is_hidden = 4;
+  optional bool is_breadcrumb = 5;
+  optional bool is_cache = 6;
+  optional bool is_tab = 7;
+  optional bool is_affix = 8;;
+
+}
+
+message MenuInfo {
+  optional uint32  id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional string menu_code = 4;
+  optional string menu_name = 5;
+  optional uint32 parent_id = 6;
+  optional string menu_path = 7;
+  optional bool state = 8;
+  optional int32 sort = 9;
+  optional string menu_type = 10;
+  optional string description = 11;
+  optional string component = 12;
+  optional string redirect =13;
+  optional string service_name = 14;
+  optional string frame_src = 15;
+  optional MenuMeta meta = 16;
+}
+
+message MenuListRequest {
+  // 分页信息
+  BasePageRequest page = 1;
+  // 菜单名称
+  optional string menu_name = 2;
+  // 菜单编码
+  optional string menu_code = 3;
+}
+
+message MenuListResponse {
+  BasePageResp page = 1;
+  repeated MenuInfo list = 2;
+}
+
+service MenuService {
+  // 创建或更新菜单
+  rpc CreateOrUpdateMenu(MenuInfo) returns (MenuInfo);
+  // 删除菜单
+  rpc DeleteMenu(IDRequest) returns (BaseResponse);
+  // 获取菜单
+  rpc GetMenu(IDRequest) returns (MenuInfo);
+  // 获取菜单列表
+  rpc ListMenu(MenuListRequest) returns (MenuListResponse);
+}
