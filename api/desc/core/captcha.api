@@ -1,0 +1,53 @@
+syntax = "v1"
+
+info (
+	title:   "验证码相关接口"
+	desc:    "验证码相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	GenerateCaptchaInfo {
+		ID         string `json:"id"` // 验证码ID
+		Base64Blob string `json:"base64Blob"` // Base64编码的验证码图片/音频
+		CaptchaType string `json:"captchaType"` // 验证码类型(digit, string, math, chinese, audio, random)
+	}
+	GenerateCaptchaResp {
+		BaseDataInfo
+		Data GenerateCaptchaInfo `json:"data"` // 验证码信息 / Captcha information
+	}
+	SendSmsCaptchaReq {
+		Phone string `json:"phone" validate:"required,numeric"` // 手机号
+	}
+	SendEmailCaptchaReq {
+		Email string `json:"email" validate:"required,email"` // 邮箱
+	}
+)
+
+@server (
+	prefix:     /captcha
+	group:      captcha
+	tags:       "验证码,鉴权"
+)
+service Core {
+	@doc (
+		summary: "生成验证码"
+	)
+	@handler GenerateCaptchaHandler
+	get /generate returns (GenerateCaptchaResp)
+
+	@doc (
+		summary: "发送短信验证码"
+	)
+	@handler SmsCaptchaHandler
+	post /sms (SendSmsCaptchaReq) returns (BaseResponse)
+
+	@doc (
+		summary: "邮箱验证码"
+	)
+	@handler EmailCaptchaHandler
+	post /email (SendEmailCaptchaReq) returns (BaseResponse)
+}
+

@@ -1,0 +1,281 @@
+{{ define "pagination" }}
+    {{- /*gotype: entgo.io/ent/entc/gen.Graph*/ -}}
+
+    {{ template "header" $ }}
+    {{ $pkg := base $.Config.Package }}
+    {{ template "import" $ }}
+
+    // Pagination constants
+    const (
+        errInvalidPage       = "INVALID_PAGE"
+        errInvalidPagination = "INVALID_PAGINATION"
+        listField            = "list"
+        pageNumField         = "pageNum"
+        pageSizeField        = "pageSize"
+        defaultPageSize      = 10
+        maxPageSize          = 1000
+    )
+
+    // PageDetails contains pagination metadata
+    type PageDetails struct {
+        Page  uint32 `json:"page"`
+        Size  uint32 `json:"size"`
+        Total uint64 `json:"total"`
+        Pages uint32 `json:"pages"`
+    }
+
+    // OrderDirection defines the directions in which to order a list of items.
+    type OrderDirection string
+
+    const (
+        // OrderDirectionAsc specifies an ascending order.
+        OrderDirectionAsc OrderDirection = "ASC"
+        // OrderDirectionDesc specifies a descending order.
+        OrderDirectionDesc OrderDirection = "DESC"
+    )
+
+    // Validate the order direction value.
+    func (o OrderDirection) Validate() error {
+        if o != OrderDirectionAsc && o != OrderDirectionDesc {
+            return fmt.Errorf("%s is not a valid OrderDirection", o)
+        }
+        return nil
+    }
+
+    // String implements fmt.Stringer interface.
+    func (o OrderDirection) String() string {
+        return string(o)
+    }
+
+    // Reverse returns the opposite direction.
+    func (o OrderDirection) Reverse() OrderDirection {
+        if o == OrderDirectionDesc {
+            return OrderDirectionAsc
+        }
+        return OrderDirectionDesc
+    }
+
+    // ValidatePageParams validates pagination parameters
+    func ValidatePageParams(pageNum, pageSize uint32) error {
+        if pageNum < 1 {
+            return fmt.Errorf("%s: page number must be greater than 0", errInvalidPage)
+        }
+        if pageSize < 1 {
+            return fmt.Errorf("%s: page size must be greater than 0", errInvalidPagination)
+        }
+        if pageSize > maxPageSize {
+            return fmt.Errorf("%s: page size cannot exceed %d", errInvalidPagination, maxPageSize)
+        }
+        return nil
+    }
+
+    // CalculateOffset calculates the offset for pagination
+    func CalculateOffset(pageNum, pageSize uint32) int {
+        return int((pageNum - 1) * pageSize)
+    }
+
+    // CalculatePages calculates total pages from total count and page size
+    func CalculatePages(total uint64, pageSize uint32) uint32 {
+        if total == 0 || pageSize == 0 {
+            return 0
+        }
+        return uint32((total + uint64(pageSize) - 1) / uint64(pageSize))
+    }
+
+    {{ range $node := $.Nodes -}}
+        {{- if ne $node.Name "CasbinRule" }}
+        {{ $pager := print $node.Name "Pager" }}
+        {{ $order := print $node.Name "Order"}}
+        {{ $query := $node.QueryName }}
+        {{ $orderField := print $node.Name "OrderField"}}
+        
+        // {{ $pager }} provides pagination functionality for {{ $node.Name }}
+        type {{ $pager }} struct {
+            Order  {{ lower $node.Name }}.OrderOption
+            Filter func(*{{ $query }}) (*{{ $query }}, error)
+        }
+
+        {{ $opt := print $node.Name "PaginateOption" }}
+        // {{ $opt }} enables pagination customization.
+        type {{ $opt }} func(*{{ $pager }})
+
+        {{ $newPager := print "New" $node.Name "Pager" -}}
+        {{- $defaultOrder := print "Default" $node.Name "Order" }}
+
+        {{- range $f := $node.Fields -}}
+            {{- if eq $node.HasOneFieldID true}}
+        // {{ $defaultOrder }} is the default ordering of {{ $node.Name }}.
+        var {{ $defaultOrder }} = Desc({{ lower $node.Name }}.FieldID)
+                {{- break}}
+            {{- else}}
+        // {{ $defaultOrder }} is the default ordering of {{ $node.Name }}.
+        var {{ $defaultOrder }} = Desc({{ lower $node.Name }}.Field{{ $f.StructField }})
+                {{- break}}
+            {{- end}}
+        {{- end}}
+
+        // {{ $newPager }} creates a new pager with the given options
+        func {{ $newPager }}(opts ...{{ $opt }}) (*{{ $pager }}, error) {
+            pager := &{{ $pager }}{}
+            for _, opt := range opts {
+                opt(pager)
+            }
+            if pager.Order == nil {
+                pager.Order = {{ $defaultOrder }}
+            }
+            return pager, nil
+        }
+
+        // WithOrder sets the order option for {{ $node.Name }} pagination
+        func With{{ $node.Name }}Order(order {{ lower $node.Name }}.OrderOption) {{ $opt }} {
+            return func(p *{{ $pager }}) {
+                p.Order = order
+            }
+        }
+
+        // WithFilter sets the filter function for {{ $node.Name }} pagination
+        func With{{ $node.Name }}Filter(filter func(*{{ $query }}) (*{{ $query }}, error)) {{ $opt }} {
+            return func(p *{{ $pager }}) {
+                p.Filter = filter
+            }
+        }
+
+        // ApplyFilter applies the filter to the query if set
+        func (p *{{ $pager }}) ApplyFilter(query *{{ $query }}) (*{{ $query }}, error) {
+            if p.Filter != nil {
+                return p.Filter(query)
+            }
+            return query, nil
+        }
+
+        {{ $pageList := print $node.Name "PageList" -}}
+        {{ $name := $node.Name }}
+
+        // {{ $pageList }} is {{ $name }} PageList result.
+        type {{ $pageList }} struct {
+            List        []*{{ $name }}   `json:"list"`
+            PageDetails *PageDetails     `json:"pageDetails"`
+        }
+
+        {{ $r := $node.Receiver -}}
+        {{ $queryName := $node.QueryName -}}
+
+        // Page performs paginated query for {{ $node.Name }}
+        func ({{ $r }} *{{ $queryName }}) Page(
+            ctx context.Context, pageNum uint32, pageSize uint32, opts ...{{ $opt }},
+        ) (*{{ $pageList }}, error) {
+            // Validate pagination parameters
+            if err := ValidatePageParams(pageNum, pageSize); err != nil {
+                return nil, err
+            }
+
+            // Create pager with options
+            pager, err := {{ $newPager }}(opts...)
+            if err != nil {
+                return nil, err
+            }
+
+            // Apply filter if set
+            if {{ $r }}, err = pager.ApplyFilter({{ $r }}); err != nil {
+                return nil, err
+            }
+
+            ret := &{{ $pageList }}{}
+            ret.PageDetails = &PageDetails{
+                Page: pageNum,
+                Size: pageSize,
+            }
+
+            // Get total count
+            countQuery := {{ $r }}.Clone()
+            countQuery.ctx.Fields = nil
+            count, err := countQuery.Count(ctx)
+            if err != nil {
+                return nil, fmt.Errorf("failed to count {{ lower $node.Name }}: %w", err)
+            }
+
+            ret.PageDetails.Total = uint64(count)
+            ret.PageDetails.Pages = CalculatePages(ret.PageDetails.Total, pageSize)
+
+            // If no records, return empty list
+            if count == 0 {
+                ret.List = []*{{ $name }}{}
+                return ret, nil
+            }
+
+            // Apply ordering
+            if pager.Order != nil {
+                {{ $r }} = {{ $r }}.Order(pager.Order)
+            } else {
+                {{ $r }} = {{ $r }}.Order({{ $defaultOrder }})
+            }
+
+            // Apply pagination
+            offset := CalculateOffset(pageNum, pageSize)
+            {{ $r }} = {{ $r }}.Offset(offset).Limit(int(pageSize))
+            
+            list, err := {{ $r }}.All(ctx)
+            if err != nil {
+                return nil, fmt.Errorf("failed to query {{ lower $node.Name }}: %w", err)
+            }
+            
+            ret.List = list
+            return ret, nil
+        }
+
+        // PageWithCount performs paginated query with pre-calculated count for {{ $node.Name }}
+        func ({{ $r }} *{{ $queryName }}) PageWithCount(
+            ctx context.Context, pageNum uint32, pageSize uint32, totalCount uint64, opts ...{{ $opt }},
+        ) (*{{ $pageList }}, error) {
+            // Validate pagination parameters
+            if err := ValidatePageParams(pageNum, pageSize); err != nil {
+                return nil, err
+            }
+
+            // Create pager with options
+            pager, err := {{ $newPager }}(opts...)
+            if err != nil {
+                return nil, err
+            }
+
+            // Apply filter if set
+            if {{ $r }}, err = pager.ApplyFilter({{ $r }}); err != nil {
+                return nil, err
+            }
+
+            ret := &{{ $pageList }}{}
+            ret.PageDetails = &PageDetails{
+                Page:  pageNum,
+                Size:  pageSize,
+                Total: totalCount,
+                Pages: CalculatePages(totalCount, pageSize),
+            }
+
+            // If no records, return empty list
+            if totalCount == 0 {
+                ret.List = []*{{ $name }}{}
+                return ret, nil
+            }
+
+            // Apply ordering
+            if pager.Order != nil {
+                {{ $r }} = {{ $r }}.Order(pager.Order)
+            } else {
+                {{ $r }} = {{ $r }}.Order({{ $defaultOrder }})
+            }
+
+            // Apply pagination
+            offset := CalculateOffset(pageNum, pageSize)
+            {{ $r }} = {{ $r }}.Offset(offset).Limit(int(pageSize))
+            
+            list, err := {{ $r }}.All(ctx)
+            if err != nil {
+                return nil, fmt.Errorf("failed to query {{ lower $node.Name }}: %w", err)
+            }
+            
+            ret.List = list
+            return ret, nil
+        }
+    {{- end}}
+    {{- end}}
+{{- end}}

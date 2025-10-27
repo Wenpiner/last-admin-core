@@ -1,0 +1,617 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证"
+        ],
+        "summary": "账号密码登录",
+        "operationId": "publicUserLoginByPasswordHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "value",
+                "password",
+                "username"
+              ],
+              "properties": {
+                "id": {
+                  "description": "验证码ID / Captcha ID",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "密码 / Password",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "用户名 / Username",
+                  "type": "string"
+                },
+                "value": {
+                  "description": "验证码值 / Captcha value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "登录信息 / Login information",
+                  "type": "object",
+                  "required": [
+                    "accessToken"
+                  ],
+                  "properties": {
+                    "accessToken": {
+                      "description": "访问令牌 / Access token",
+                      "type": "string"
+                    },
+                    "twoFactorExpire": {
+                      "description": "二次认证过期时间 / Two factor authentication expiration time",
+                      "type": "integer"
+                    },
+                    "twoFactorKey": {
+                      "description": "二次认证Key / Two factor authentication key",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/oauth/callback": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证"
+        ],
+        "summary": "Oauth 回调",
+        "operationId": "publicUserOauthCallbackHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "用户信息 / User information",
+                  "type": "object",
+                  "required": [
+                    "userId",
+                    "accessToken",
+                    "expiresAt"
+                  ],
+                  "properties": {
+                    "accessToken": {
+                      "description": "访问令牌 / Access token",
+                      "type": "string"
+                    },
+                    "expiresAt": {
+                      "description": "过期时间 / Expiration time",
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "description": "用户ID / User ID",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/oauth/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证"
+        ],
+        "summary": "Oauth 登录",
+        "operationId": "publicUserOauthLoginHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "provider",
+                "state"
+              ],
+              "properties": {
+                "provider": {
+                  "description": "Oauth 提供商 / Oauth provider",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "重定向地址 / Redirect url",
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证"
+        ],
+        "summary": "注册用户",
+        "operationId": "publicUserRegisterUserHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "value",
+                "password",
+                "username"
+              ],
+              "properties": {
+                "id": {
+                  "description": "验证码ID / Captcha ID",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "密码 / Password",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "用户名 / Username",
+                  "type": "string"
+                },
+                "value": {
+                  "description": "验证码值 / Captcha value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/totp/verify": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "认证"
+        ],
+        "summary": "Totp 校验: 返回值遵循调用方的格式，如登录则验证后会返回登录接口的Response",
+        "operationId": "publicUserTotpVerifyHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "description": "认证码 / Authentication code",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "认证ID / Authentication ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "认证后返回值 / Data after authentication",
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captcha/email": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "验证码",
+          "鉴权"
+        ],
+        "summary": "邮箱验证码",
+        "operationId": "captchaEmailCaptchaHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email"
+              ],
+              "properties": {
+                "email": {
+                  "description": "邮箱",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captcha/generate": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "验证码",
+          "鉴权"
+        ],
+        "summary": "生成验证码",
+        "operationId": "captchaGenerateCaptchaHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "验证码信息 / Captcha information",
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "base64Blob"
+                  ],
+                  "properties": {
+                    "base64Blob": {
+                      "description": "Base64编码的验证码图片/音频",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "验证码ID",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/captcha/sms": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "验证码",
+          "鉴权"
+        ],
+        "summary": "发送短信验证码",
+        "operationId": "captchaSmsCaptchaHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "phone"
+              ],
+              "properties": {
+                "phone": {
+                  "description": "手机号",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/init": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "InitHandler",
+        "operationId": "baseInitHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/info": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取用户信息",
+        "operationId": "userGetUserInfoHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "用户信息 / User information",
+                  "type": "object",
+                  "properties": {
+                    "avatar": {
+                      "description": "头像URL / Avatar URL",
+                      "type": "string"
+                    },
+                    "desc": {
+                      "description": "用户描述 / User description",
+                      "type": "string"
+                    },
+                    "homePath": {
+                      "description": "首页地址 / Home page address",
+                      "type": "string"
+                    },
+                    "realName": {
+                      "description": "用户全名 / User full name",
+                      "type": "string"
+                    },
+                    "roles": {
+                      "description": "用户角色 / User roles",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "token": {
+                      "description": "访问令牌 / Access token",
+                      "type": "string"
+                    },
+                    "userId": {
+                      "description": "用户ID / User ID",
+                      "type": "string"
+                    },
+                    "username": {
+                      "description": "用户名 / Username",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-date": "2025-10-16 16:15:28",
+  "x-description": "This is a goctl generated swagger file.",
+  "x-github": "https://github.com/zeromicro/go-zero",
+  "x-go-zero-doc": "https://go-zero.dev/",
+  "x-goctl-version": "1.9.0"
+}

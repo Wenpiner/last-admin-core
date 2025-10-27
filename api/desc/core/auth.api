@@ -1,0 +1,115 @@
+import "../base.api"
+
+info (
+	title:   "认证相关接口"
+	desc:    "认证相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	CaptchaInfo {
+		ID    string `json:"id" validate:"required"` // 验证码ID / Captcha ID
+		Value string `json:"value" validate:"required"` // 验证码值 / Captcha value
+	}
+	LoginRequest {
+		Captcha  CaptchaInfo `json:"captcha"` // 验证码 / Captcha
+		Password string      `json:"password" validate:"required,min=6,max=16"` // 密码 / Password
+		Username string      `json:"username" validate:"required,min=4,max=16"` // 用户名 / Username
+		TotpCode *string     `json:"totpCode,optional"` // TOTP认证 / TOTP authentication
+	}
+	LoginInfo {
+		AccessToken string `json:"accessToken"` // 访问令牌 / Access token
+	}
+	LoginResponse {
+		BaseDataInfo
+		Data LoginInfo `json:"data"` // 登录信息 / Login information
+	}
+	RegisterRequest {
+		CaptchaInfo
+		Password string `json:"password" validate:"required,min=6,max=16"` // 密码 / Password
+		Username string `json:"username" validate:"required,min=4,max=16"` // 用户名 / Username
+	}
+	OauthLoginRequest {
+		Provider string `json:"provider" validate:"required"` // Oauth 提供商 / Oauth provider
+		State    string `json:"state" validate:"required,len=32"` // 状态 / State
+	}
+	OauthRedirectResponse {
+		BaseDataInfo
+		Data string `json:"data"` // 重定向地址 / Redirect url
+	}
+	CallbackInfo {
+		UserID    string `json:"userId"` // 用户ID / User ID
+		Token     string `json:"accessToken"` // 访问令牌 / Access token
+		ExpiresAt int64  `json:"expiresAt"` // 过期时间 / Expiration time
+	}
+	CallbackResponse {
+		BaseDataInfo
+		Data CallbackInfo `json:"data"` // 用户信息 / User information
+	}
+	TotpVerifyRequest {
+		ID   string `json:"id" validate:"required"` // 认证ID / Authentication ID
+		Code string `json:"code" validate:"required,len=6"` // 认证码 / Authentication code
+	}
+	TotpVerifyResponse {
+		BaseDataInfo
+		Data map[string]interface{} `json:"data"` // 认证后返回值 / Data after authentication
+	}
+)
+
+@server (
+	prefix: /auth
+	group:  public_user
+	tags:   "认证"
+)
+service Core {
+	@doc (
+		summary: "账号密码登录"
+	)
+	@handler LoginByPasswordHandler
+	post /login (LoginRequest) returns (LoginResponse)
+
+	@doc (
+		summary: "注册用户"
+	)
+	@handler RegisterUserHandler
+	post /register (RegisterRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "Oauth 登录"
+	)
+	@handler OauthLoginHandler
+	post /oauth/login (OauthLoginRequest) returns (OauthRedirectResponse)
+
+	@doc (
+		summary: "Oauth 回调"
+	)
+	@handler OauthCallbackHandler
+	get /oauth/callback returns (CallbackResponse)
+	
+}
+
+type (
+	AccessCodesResponse {
+		BaseDataInfo
+		Data []string `json:"data"` // 权限码 / Access codes
+	}
+)
+
+@server(
+	prefix: /auth
+	group:  auth
+	tags:   "权限"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取用户权限码(通过Menu获取按钮级别的权限)"
+	)
+	@handler GetAccessCodesHandler
+	get /codes returns (AccessCodesResponse)
+}
+
+

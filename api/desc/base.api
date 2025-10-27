@@ -1,0 +1,50 @@
+syntax = "v1"
+
+type BaseDataInfo {
+	Code int32  `json:"code"`
+	Message string `json:"message"`
+	Data string `json:"data"`
+}
+
+type BaseListInfo {
+	Total uint64   `json:"total"`
+	List  []string `json:"list"`
+}
+
+type PageRequest {
+	PageNumer uint32 `json:"pageNumber" validate:"required,number,gt=0"`
+	PageSize  uint32 `json:"pageSize" validate:"required,number,lt=100000"`
+}
+
+type BaseID32Info {
+	ID        uint32 `json:"id"`
+	CreatedAt *int64 `json:"createdAt"`
+	UpdatedAt *int64 `json:"updatedAt"`
+}
+
+type BaseID64Info {
+	ID        uint64 `json:"id"`
+	CreatedAt *int64 `json:"createdAt"`
+	UpdatedAt *int64 `json:"updatedAt"`
+}
+
+type BaseUUIDInfo {
+	ID        string `json:"id"`
+	CreatedAt *int64 `json:"createdAt"`
+	UpdatedAt *int64 `json:"updatedAt"`
+}
+
+type BaseResponse {
+	Code int32  `json:"code"`
+	Message string `json:"message"`
+}
+
+@server (
+	group: base
+)
+service Core {
+	// 初始化相关服务数据，如数据库
+	@handler InitHandler
+	get /init returns (BaseDataInfo)
+}
+

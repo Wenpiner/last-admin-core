@@ -1,0 +1,63 @@
+syntax = "v1"
+
+info (
+	title:   "菜单相关接口"
+	desc:    "菜单相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	MenuInfo {
+		Path       string     `json:"path"` // 菜单路径 / Menu path
+		Name       string     `json:"name"` // 菜单名称 / Menu name
+		Redirect   *string    `json:"redirect,optional"` // 重定向地址 / Redirect path
+		Component  *string    `json:"component,optional"` // 组件 / Component
+		Meta       Meta       `json:"meta"` // 菜单元数据 / Menu meta data
+		ParentId   *uint32    `json:"parentId,optional"` // 父级菜单ID / Parent menu ID
+		ID         uint32     `json:"id"` // 菜单ID / Menu ID
+		Children   []MenuInfo `json:"children,optional"` // 子菜单 / Children menu
+		State      *bool      `json:"state"` // 菜单状态 / Menu state
+		Service    string     `json:"service"` // 服务名称 / Service name
+		Permission *string    `json:"permission"` // 权限标识 / Permission identifier
+		CreatedAt  *int64     `json:"createdAt"` // 创建时间 / Creation time
+	}
+	Meta {
+		Title         string  `json:"title,optional"` // 菜单标题 / Menu title
+		Icon          string  `json:"icon,optional"` // 菜单图标 / Menu icon
+		Order         *int32  `json:"order,optional"` // 菜单排序 / Menu order
+		HideInMenu    *bool   `json:"hideInMenu,optional"` // 是否在菜单中隐藏 / Whether to hide in menu
+		AffixTab      *bool   `json:"affixTab,optional"` // 是否固定在标签栏 / Whether to fix in tabbar
+		AffixTabOrder *int32  `json:"affixTabOrder,optional"` // 标签栏固定顺序 / Tabbar fix order
+		Link          *string `json:"link,optional"` // 外链地址 / Link address
+		IframeSrc     *string `json:"iframeSrc,optional"` // 内嵌iframe地址 / Embedded iframe address
+		KeepAlive     *bool   `json:"keepAlive,optional"` // 是否缓存 / Whether to cache
+	}
+	MenuListResponse {
+		BaseDataInfo
+		Data []MenuInfo `json:"data"` // 菜单列表 / Menu list
+	}
+)
+
+@server (
+	prefix:     /menu
+	group:      menu
+	tags:       "菜单"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取用户角色当前所有菜单"
+	)
+	@handler GetAllMenusByRoleHandler
+	get /all returns (MenuListResponse)
+
+	@doc (
+		summary: "获取所有菜单"
+	)
+	@handler GetAllMenusHandler
+	get /all-menus returns (MenuListResponse)
+}
+

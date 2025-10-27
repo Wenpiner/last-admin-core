@@ -12,7 +12,7 @@ type TenantMixin struct {
 
 func (TenantMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("tenant_id").
+		field.Uint32("tenant_id").
 			Comment("租户ID / Tenant ID"),
 	}
 }

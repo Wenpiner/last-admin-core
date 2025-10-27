@@ -1,0 +1,150 @@
+Name: core.api
+Host: 0.0.0.0
+Port: 8888
+
+# 认证配置
+Auth:
+  AccessSecret: "2Av^fwbPzdcJyt&&EjFmZVk5BmZDbTVo"
+  AccessExpire: 3600
+
+I18nConf:
+  Dir: ""
+
+# 项目配置
+ProjectConf:
+  OpenRegister: true # 是否开启注册
+  OpenInit: true # 是否开启初始化
+  RegisterRoleValue: "super" # 注册用户默认角色
+
+# 验证码配置
+CaptchaConf:
+  # 验证码类型: digit(数字), string(字符串), math(数学), chinese(中文), audio(音频), random(随机)
+  Type: random
+
+  # 数字验证码配置
+  Digit:
+    Height: 80
+    Width: 240
+    Length: 5
+    MaxSkew: 0.7
+    DotCount: 80
+
+  # 字符串验证码配置
+  String:
+    Height: 60
+    Width: 240
+    NoiseCount: 0
+    ShowLineOptions: 0
+    Length: 4
+    Source: "1234567890qwertyuioplkjhgfdsazxcvbnm"
+    BgColor:
+      R: 254
+      G: 254
+      B: 254
+      A: 254
+    Fonts:
+      - "wqy-microhei.ttc"
+      - "3Dumb.ttf"
+      - "ApothecaryFont.ttf"
+      - "Comismsh.ttf"
+      - "DENNEthree-dee.ttf"
+      - "DeborahFancyDress.ttf"
+      - "Flim-Flam.ttf"
+      - "RitaSmith.ttf"
+      - "actionj.ttf"
+      - "chromohv.ttf"
+
+  # 数学验证码配置
+  Math:
+    Height: 60
+    Width: 240
+    NoiseCount: 0
+    ShowLineOptions: 0
+    BgColor:
+      R: 254
+      G: 254
+      B: 254
+      A: 254
+    Fonts:
+      - "wqy-microhei.ttc"
+      - "3Dumb.ttf"
+      - "ApothecaryFont.ttf"
+      - "Comismsh.ttf"
+      - "DENNEthree-dee.ttf"
+      - "DeborahFancyDress.ttf"
+      - "Flim-Flam.ttf"
+      - "RitaSmith.ttf"
+      - "actionj.ttf"
+      - "chromohv.ttf"
+
+  # 中文验证码配置
+  Chinese:
+    Height: 60
+    Width: 240
+    NoiseCount: 0
+    ShowLineOptions: 0
+    Length: 2
+    Source: "设想你在处理消费者的音频输出音频可能无论什么都没有任何输出或者它可能是单声道立体声或是环绕立体声的假设我们需要不同类型的音频输出来处理不同的情况"
+    BgColor:
+      R: 254
+      G: 254
+      B: 254
+      A: 254
+    Fonts:
+      - "wqy-microhei.ttc"
+
+  # 音频验证码配置
+  Audio:
+    Length: 4
+    Language: "zh"
+
+  # 随机验证码配置
+  Random:
+    # 启用的验证码类型
+    EnabledTypes:
+      - "digit"
+      - "string"
+      - "math"
+      - "chinese"
+    # 是否排除音频验证码
+    ExcludeAudio: true
+
+  # 存储配置
+  Store:
+    # 存储类型: memory(内存), redis(Redis)
+    Type: redis
+    # 过期时间 (分钟)
+    Expire: "5m"
+    # Key前缀
+    KeyPrefix: "captcha:"
+    # Redis配置
+    Redis:
+      Addr: "127.0.0.1:6379"
+      Password: "redis123"
+      DB: 0
+      PoolSize: 10
+
+# Redis配置
+RedisConf:
+  Host: "127.0.0.1:6379"
+  Password: "redis123"
+  DB: 0
+  PoolSize: 10
+
+# Rpc 服务
+CoreRpc:
+  Target: "127.0.0.1:8080"
+
+# Casbin数据库配置
+CasbinDatabaseConf:
+  Host: "127.0.0.1"
+  Port: 5432
+  Username: "postgres"
+  Password: "postgres"
+  DatabaseName: "last_admin"
+  SSLMode: "disable"
+  DBType: "postgres"
+  MaxOpenConns: 100
+  MaxIdleConns: 10
+  CacheTime: 300
+  DBPath: ""

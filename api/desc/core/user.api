@@ -1,9 +1,43 @@
-syntax = "v1"
+import "../base.api"
 
-info(
-    title: "type title here"
-    desc: "type desc here"
-    author: "type author here"
-    email: "type email here"
-    version: "type version here"
+info (
+	title:   "用户相关接口"
+	desc:    "用户相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
 )
+
+type (
+	UserInfo {
+		Avatar         string   `json:"avatar,optional"` // 头像URL / Avatar URL
+		RealName       string   `json:"realName,optional"` // 用户全名 / User full name
+		Roles          []string `json:"roles,optional"` // 用户角色 / User roles
+		UserId         string   `json:"userId,optional"` // 用户ID / User ID
+		Username       string   `json:"username,optional"` // 用户名 / Username
+		Desc           string   `json:"desc,optional"` // 用户描述 / User description
+		HomePath       string   `json:"homePath,optional"` // 首页地址 / Home page address
+		Email          string   `json:"email,optional"` // 邮箱 / Email
+		RoleNames      []string `json:"roleNames,optional"` // 用户角色名称 / User role names
+		DepartmentName string   `json:"departmentName,optional"` // 用户部门名称 / User department name
+	}
+	UserInfoResponse {
+		BaseDataInfo
+		Data UserInfo `json:"data"` // 用户信息 / User information
+	}
+)
+
+@server (
+	prefix:     /user
+	group:      user
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取用户信息"
+	)
+	@handler GetUserInfoHandler
+	get /info returns (UserInfoResponse)
+}
+

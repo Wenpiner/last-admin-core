@@ -1,0 +1,54 @@
+{
+    "common": {
+        "targetNotExist": "目标不存在",
+        "dataConflict": "数据冲突",
+        "validationFailed": "校验失败",
+        "consistencyCheckFailed": "数据一致性校验失败",
+        "databaseError": "数据库错误",
+        "deleteSuccess": "删除成功",
+        "forbidden": "没有权限访问",
+        "api-forbidden": "您当前没有权限访问该资源"
+    },
+    "captcha": {
+        "generateCaptchaFailed": "生成验证码失败",
+        "verifyFailed": "验证码校验失败"
+    },
+    "register": {
+        "registerClosed": "注册已关闭",
+        "registerSuccess": "注册成功"
+    },
+    "login": {
+        "passwordError": "用户名或密码不正确",
+        "success": "登录成功"
+    },
+    "user": {
+        "disabled": "用户已被禁用"
+    },
+    "totp": {
+        "notEnabled": "TOTP未启用",
+        "alreadyEnabled": "TOTP已启用",
+        "enableSuccess": "TOTP启用成功",
+        "setupSuccess": "TOTP设置成功",
+        "verifySuccess": "TOTP验证成功",
+        "verifyFailed": "TOTP验证失败",
+        "disableSuccess": "TOTP禁用成功",
+        "accountLocked": "账户已被锁定，请稍后再试",
+        "codeAlreadyUsed": "验证码已被使用，请使用新的验证码",
+        "backupCodesRegenerated": "备用恢复码已重新生成",
+        "backupCodeUsed": "备用恢复码使用成功",
+        "noBackupCodes": "没有可用的备用恢复码",
+        "backupCodesError": "备用恢复码数据错误",
+        "invalidBackupCode": "无效的备用恢复码",
+        "generateSecretFailed": "生成TOTP密钥失败",
+        "generateBackupCodesFailed": "生成备用恢复码失败",
+        "updateRecordFailed": "更新TOTP记录失败",
+        "verifyExpired": "TOTP验证已过期"
+    },
+    "token": {
+        "generateTokenFailed": "凭证生成失败"
+    },
+    "init": {
+        "pending": "正在初始化中...",
+        "failed": "初始化失败"
+    }
+}
