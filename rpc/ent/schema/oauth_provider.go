@@ -79,7 +79,7 @@ func (OauthProvider) Fields() []ent.Field {
 // Edges of the OauthProvider.
 func (OauthProvider) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("oauths", UserOauth.Type).Ref("provider"),
+		edge.From("tokens", Token.Type).Ref("provider"),
 	}
 }
 

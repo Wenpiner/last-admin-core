@@ -63,7 +63,7 @@ CasbinConf:
 
 # Redis配置
 RedisConf:
-  Host: "127.0.0.1:6379"
+  Host: "127.0.0.1:16379"
   Password: "redis123"
   DB: 0
   PoolSize: 10

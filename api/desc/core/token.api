@@ -1,0 +1,102 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "Token相关接口"
+	desc:    "Token相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	TokenInfo {
+		Id           *uint32 `json:"id,optional"` // Token ID / Token ID
+		CreatedAt    *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt    *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		State        *bool   `json:"state,optional"` // 状态 / State
+		TokenValue   *string `json:"tokenValue,optional"` // 令牌值 / Token value
+		TokenType    *string `json:"tokenType,optional"` // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+		UserId       *string `json:"userId,optional"` // 用户ID / User ID
+		ExpiresAt    *int64  `json:"expiresAt,optional"` // 过期时间 / Expiration time
+		DeviceInfo   *string `json:"deviceInfo,optional"` // 设备信息 / Device information
+		IpAddress    *string `json:"ipAddress,optional"` // IP地址 / IP address
+		LastUsedAt   *int64  `json:"lastUsedAt,optional"` // 最后使用时间 / Last used time
+		UserAgent    *string `json:"userAgent,optional"` // 用户代理 / User agent
+		Metadata     *string `json:"metadata,optional"` // 元数据 / Metadata (JSON format)
+		ProviderId   *uint32 `json:"providerId,optional"` // 提供商ID / Provider ID
+		Username     *string `json:"username,optional"` // 用户名 / Username
+		ProviderName *string `json:"providerName,optional"` // 提供商名称 / Provider name
+		FullName     *string `json:"fullName,optional"` // 用户全名 / User full name
+	}
+	TokenListRequest {
+		PageRequest
+		TokenType  *string `json:"tokenType,optional"` // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+		UserId     *string `json:"userId,optional"` // 用户ID / User ID
+		IsRevoked  *bool   `json:"isRevoked,optional"` // 是否已撤销 / Whether revoked
+		IpAddress  *string `json:"ipAddress,optional"` // IP地址 / IP address
+		DeviceInfo *string `json:"deviceInfo,optional"` // 设备信息 / Device information
+		ProviderId *uint32 `json:"providerId,optional"` // 提供商ID / Provider ID
+	}
+	TokenInfoList {
+		BaseListInfo
+		List []TokenInfo `json:"list"` // 令牌列表 / Token list
+	}
+	TokenListResponse {
+		BaseDataInfo
+		Data TokenInfoList `json:"data"` // 令牌列表 / Token list
+	}
+	CleanExpiredTokensRequest {
+		TokenType  *string `json:"tokenType,optional"` // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+		BeforeTime *int64  `json:"beforeTime,optional"` // 清理指定时间之前的token，如果不指定则清理所有过期token / Clean up tokens before the specified time, if not specified, clean up all expired tokens
+	}
+	CleanExpiredTokensResponse {
+		Message      string `json:"message"` // 消息 / Message
+		CleanedCount int64  `json:"cleanedCount"` // 清理的令牌数量 / Number of cleaned tokens
+	}
+	// 拉黑某一个令牌
+	BlockTokenRequest {
+		ID uint32 `json:"id"` // 令牌ID / Token ID
+	}
+)
+
+@server (
+	prefix:     /token
+	group:      token
+	tags:       "令牌"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取令牌列表"
+	)
+	@handler ListTokenHandler
+	post /list (TokenListRequest) returns (TokenListResponse)
+
+	@doc (
+		summary: "删除令牌"
+	)
+	@handler DeleteTokenHandler
+	delete /:id (ID32Request) returns (BaseResponse)
+
+	@doc (
+		summary: "清理过期令牌"
+	)
+	@handler CleanExpiredTokensHandler
+	post /clean (CleanExpiredTokensRequest) returns (CleanExpiredTokensResponse)
+
+	@doc (
+		summary: "拉黑某一个令牌"
+	)
+	@handler BlockTokenHandler
+	post /block (BlockTokenRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "解封某一个令牌"
+	)
+	@handler UnblockTokenHandler
+	post /unblock (BlockTokenRequest) returns (BaseResponse)
+}
+

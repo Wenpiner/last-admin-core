@@ -40,14 +40,14 @@ func (l *RegenerateBackupCodesLogic) RegenerateBackupCodes(in *core.UUIDRequest)
 
 	// 查询用户的TOTP记录
 	totpRecord, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
 
 	// 检查TOTP是否已启用
-	if !totpRecord.IsEnabled {
+	if !totpRecord.State {
 		return &core.BackupCodesResponse{
 			BackupCodes: []string{},
 			Message:     "totp.notEnabled",

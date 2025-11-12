@@ -50,5 +50,18 @@
     "init": {
         "pending": "正在初始化中...",
         "failed": "初始化失败"
+    },
+    "menu": {
+        "hasChildren": "当前菜单存在子菜单，请先删除子菜单"
+    },
+    "block": {
+        "token": {
+            "success": "拉黑成功"
+        }
+    },
+    "unblock": {
+        "token": {
+            "success": "解封成功"
+        }
     }
 }

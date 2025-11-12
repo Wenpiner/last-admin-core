@@ -28,8 +28,6 @@ const (
 	FieldUserID = "user_id"
 	// FieldExpiresAt holds the string denoting the expires_at field in the database.
 	FieldExpiresAt = "expires_at"
-	// FieldIsRevoked holds the string denoting the is_revoked field in the database.
-	FieldIsRevoked = "is_revoked"
 	// FieldDeviceInfo holds the string denoting the device_info field in the database.
 	FieldDeviceInfo = "device_info"
 	// FieldIPAddress holds the string denoting the ip_address field in the database.
@@ -40,10 +38,12 @@ const (
 	FieldUserAgent = "user_agent"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
-	// FieldRefreshTokenID holds the string denoting the refresh_token_id field in the database.
-	FieldRefreshTokenID = "refresh_token_id"
+	// FieldProviderID holds the string denoting the provider_id field in the database.
+	FieldProviderID = "provider_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeProvider holds the string denoting the provider edge name in mutations.
+	EdgeProvider = "provider"
 	// Table holds the table name of the token in the database.
 	Table = "sys_tokens"
 	// UserTable is the table that holds the user relation/edge.
@@ -53,6 +53,13 @@ const (
 	UserInverseTable = "sys_users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// ProviderTable is the table that holds the provider relation/edge.
+	ProviderTable = "sys_tokens"
+	// ProviderInverseTable is the table name for the OauthProvider entity.
+	// It exists in this package in order to avoid circular dependency with the "oauthprovider" package.
+	ProviderInverseTable = "sys_oauth_providers"
+	// ProviderColumn is the table column denoting the provider relation/edge.
+	ProviderColumn = "provider_id"
 )
 
 // Columns holds all SQL columns for token fields.
@@ -65,13 +72,12 @@ var Columns = []string{
 	FieldTokenType,
 	FieldUserID,
 	FieldExpiresAt,
-	FieldIsRevoked,
 	FieldDeviceInfo,
 	FieldIPAddress,
 	FieldLastUsedAt,
 	FieldUserAgent,
 	FieldMetadata,
-	FieldRefreshTokenID,
+	FieldProviderID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -97,16 +103,12 @@ var (
 	TokenValueValidator func(string) error
 	// TokenTypeValidator is a validator for the "token_type" field. It is called by the builders before save.
 	TokenTypeValidator func(string) error
-	// DefaultIsRevoked holds the default value on creation for the "is_revoked" field.
-	DefaultIsRevoked bool
 	// DeviceInfoValidator is a validator for the "device_info" field. It is called by the builders before save.
 	DeviceInfoValidator func(string) error
 	// IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
 	IPAddressValidator func(string) error
 	// UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
 	UserAgentValidator func(string) error
-	// RefreshTokenIDValidator is a validator for the "refresh_token_id" field. It is called by the builders before save.
-	RefreshTokenIDValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -154,11 +156,6 @@ func ByExpiresAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpiresAt, opts...).ToFunc()
 }
 
-// ByIsRevoked orders the results by the is_revoked field.
-func ByIsRevoked(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsRevoked, opts...).ToFunc()
-}
-
 // ByDeviceInfo orders the results by the device_info field.
 func ByDeviceInfo(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeviceInfo, opts...).ToFunc()
@@ -184,9 +181,9 @@ func ByMetadata(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMetadata, opts...).ToFunc()
 }
 
-// ByRefreshTokenID orders the results by the refresh_token_id field.
-func ByRefreshTokenID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRefreshTokenID, opts...).ToFunc()
+// ByProviderID orders the results by the provider_id field.
+func ByProviderID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProviderID, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.
@@ -195,10 +192,24 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByProviderField orders the results by provider field.
+func ByProviderField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProviderStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+	)
+}
+func newProviderStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProviderInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, ProviderTable, ProviderColumn),
 	)
 }

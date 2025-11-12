@@ -945,21 +945,21 @@ func AuthStyleLTE(v uint8) predicate.OauthProvider {
 	return predicate.OauthProvider(sql.FieldLTE(FieldAuthStyle, v))
 }
 
-// HasOauths applies the HasEdge predicate on the "oauths" edge.
-func HasOauths() predicate.OauthProvider {
+// HasTokens applies the HasEdge predicate on the "tokens" edge.
+func HasTokens() predicate.OauthProvider {
 	return predicate.OauthProvider(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, OauthsTable, OauthsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, TokensTable, TokensColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasOauthsWith applies the HasEdge predicate on the "oauths" edge with a given conditions (other predicates).
-func HasOauthsWith(preds ...predicate.UserOauth) predicate.OauthProvider {
+// HasTokensWith applies the HasEdge predicate on the "tokens" edge with a given conditions (other predicates).
+func HasTokensWith(preds ...predicate.Token) predicate.OauthProvider {
 	return predicate.OauthProvider(func(s *sql.Selector) {
-		step := newOauthsStep()
+		step := newTokensStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -40,7 +40,7 @@ func (l *UseBackupCodeLogic) UseBackupCode(in *core.UseBackupCodeRequest) (*core
 
 	// 查询用户的TOTP记录
 	totpRecord, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
 	if err != nil {
 		return &core.BaseResponse{
@@ -49,18 +49,12 @@ func (l *UseBackupCodeLogic) UseBackupCode(in *core.UseBackupCodeRequest) (*core
 	}
 
 	// 检查TOTP是否已启用和验证
-	if !totpRecord.IsEnabled || !totpRecord.IsVerified {
+	if !totpRecord.State || !totpRecord.IsVerified {
 		return &core.BaseResponse{
 			Message: "totp.notEnabled",
 		}, nil
 	}
 
-	// 检查账户是否被锁定
-	if totpRecord.LockedUntil != nil && time.Now().Before(*totpRecord.LockedUntil) {
-		return &core.BaseResponse{
-			Message: "totp.accountLocked",
-		}, nil
-	}
 
 	// 解析备用恢复码
 	if totpRecord.BackupCodes == nil {
@@ -109,9 +103,7 @@ func (l *UseBackupCodeLogic) UseBackupCode(in *core.UseBackupCodeRequest) (*core
 	// 更新TOTP记录
 	_, err = tx.UserTotp.UpdateOneID(totpRecord.ID).
 		SetBackupCodes(string(newBackupCodesJSON)).
-		SetFailureCount(0).
 		SetLastUsedAt(time.Now()).
-		ClearLockedUntil().
 		Save(l.ctx)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)

@@ -76,6 +76,8 @@ message ApiListRequest {
   optional string method = 4;
   // 描述
   optional string description = 5;
+  // 路径
+  optional string path = 6;
 }
 
 message ApiListResponse {
@@ -196,6 +198,26 @@ message RoleListResponse {
   repeated RoleInfo list = 2;
 }
 
+message RoleMenuRequest {
+  optional uint32 role_id = 1;
+  repeated uint32 menu_ids = 2;
+}
+
+message RoleApiRequest {
+  optional uint32 role_id = 1;
+  repeated uint32 api_ids = 2;
+}
+
+message RoleMenuListResponse {
+  repeated uint32 list = 1;
+}
+
+message RoleApiListResponse {
+  repeated uint32 list = 1;
+}
+
+
+
 service RoleService {
   // 创建或更新角色
   rpc CreateOrUpdateRole(RoleInfo) returns (RoleInfo);
@@ -207,6 +229,12 @@ service RoleService {
   rpc ListRole(RoleListRequest) returns (RoleListResponse);
   // 通过值获取角色
   rpc GetRoleByValue(StringRequest) returns (RoleInfo);
+  // 为角色分配菜单
+  rpc AssignMenu(RoleMenuRequest) returns (BaseResponse);
+  // 为角色分配API
+  rpc AssignApi(RoleApiRequest) returns (BaseResponse);
+  // 获取角色菜单
+  rpc GetMenu(ID32Request) returns (RoleMenuListResponse);
 }
 
 
@@ -286,9 +314,12 @@ message DepartmentInfo {
   optional string dept_code = 5;
   optional uint32 parent_id = 6;
   optional int32 sort_order = 7;
-  optional uint32 leader_user_id = 8;
+  optional string leader_user_id = 8;
   optional bool state = 9;
   optional string description = 10;
+  optional string lader_username = 11;
+  optional string lader_phone = 12;
+  optional string lader_email = 13;
 }
 
 message DepartmentListRequest {
@@ -351,6 +382,20 @@ service PositionService {
   rpc ListPosition(PositionListRequest) returns (PositionListResponse);
 }
 
+
+message TotpInfo {
+  optional string id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional bool state = 4;
+  optional bool is_verified = 5;
+  optional int64 last_used_at = 6;
+  optional string last_used_code = 7;
+  optional string device_name = 8;
+  optional string issuer = 9;
+}
+
+
 // 用户信息
 message UserInfo {
   optional string id = 1;
@@ -377,16 +422,20 @@ message UserInfo {
   // 岗位信息
   repeated uint32 position_ids = 17;
 
-  // TOTP相关信息
-  optional bool totp_enabled = 18;
-  optional bool totp_verified = 19;
 
-  optional string home_path = 20;
+  optional string home_path = 18;
 
   // 角色名称,号分割
-  repeated string role_names = 21;
+  repeated string role_names = 19;
   // 部门名称
-  optional string department_name = 22;
+  optional string department_name = 20;
+  // 岗位名称,号分割
+  repeated string position_names = 21;
+
+
+
+  optional uint32 provider_id = 22;
+  optional TotpInfo totp_info = 23;
 }
 
 message UserListRequest {
@@ -440,18 +489,14 @@ message VerifyTotpCodeRequest {
 message VerifyTotpCodeResponse {
   bool is_valid = 1;
   string message = 2;
-  optional int32 remaining_attempts = 3;
-  optional int64 locked_until = 4;
 }
 
 message TotpStatusResponse {
-  bool is_enabled = 1;
+  bool state = 1;
   bool is_verified = 2;
   optional string device_name = 3;
   optional int64 last_used_at = 4;
   int32 backup_codes_count = 5;
-  int32 failure_count = 6;
-  optional int64 locked_until = 7;
 }
 
 message BackupCodesResponse {
@@ -541,6 +586,8 @@ message OauthProviderListRequest {
   optional string provider_name = 2;
   // 提供商编码
   optional string provider_code = 3;
+  // 状态
+  optional bool state = 4;
 }
 
 message OauthProviderListResponse {
@@ -589,13 +636,15 @@ message TokenInfo {
   optional string token_type = 7;
   optional string user_id = 8;
   optional int64 expires_at = 9;
-  optional bool is_revoked = 10;
-  optional string device_info = 11;
-  optional string ip_address = 12;
-  optional int64 last_used_at = 13;
-  optional string user_agent = 14;
-  optional string metadata = 15;
-  optional string refresh_token_id = 16;
+  optional string device_info = 10;
+  optional string ip_address = 11;
+  optional int64 last_used_at = 12;
+  optional string user_agent = 13;
+  optional string metadata = 14;
+  optional uint32 provider_id = 15;
+  optional string username = 16;
+  optional string provider_name = 17;
+  optional string full_name = 18;
 }
 
 // Token列表请求
@@ -606,12 +655,12 @@ message TokenListRequest {
   optional string user_id = 2;
   // Token类型
   optional string token_type = 3;
-  // 是否已撤销
-  optional bool is_revoked = 4;
   // IP地址
-  optional string ip_address = 5;
+  optional string ip_address = 4;
   // 设备信息
-  optional string device_info = 6;
+  optional string device_info = 5;
+  // 提供商ID
+  optional uint32 provider_id = 6;  
 }
 
 // Token列表响应
@@ -630,34 +679,13 @@ message CreateTokenRequest {
   optional string ip_address = 6;
   optional string user_agent = 7;
   optional string metadata = 8;
-  optional string refresh_token_id = 9;
+  optional uint32 provider_id = 9;
 }
 
-// 验证Token请求
-message ValidateTokenRequest {
-  string token_value = 1;
-  optional string token_type = 2;
-}
 
-// 验证Token响应
-message ValidateTokenResponse {
-  bool is_valid = 1;
-  optional TokenInfo token_info = 2;
-  optional string message = 3;
-}
 
-// 撤销Token请求
-message RevokeTokenRequest {
-  string token_value = 1;
-}
 
-// 根据用户撤销Token请求
-message RevokeUserTokensRequest {
-  string user_id = 1;
-  optional string token_type = 2;// 如果不指定，则撤销该用户所有类型的token
-  optional bool exclude_current = 3;// 是否排除当前token
-  optional string current_token = 4;// 当前token值，用于排除
-}
+
 
 // 清理过期Token请求
 message CleanExpiredTokensRequest {
@@ -677,24 +705,14 @@ message UpdateTokenLastUsedRequest {
   optional string ip_address = 2;
 }
 
-// 根据刷新Token获取访问Token请求
-message GetTokenByRefreshTokenRequest {
-  string refresh_token_id = 1;
-}
 
 // Token服务
 service TokenService {
   // 创建Token
   rpc CreateToken(CreateTokenRequest) returns (TokenInfo);
 
-  // 获取Token
-  rpc GetToken(ID32Request) returns (TokenInfo);
-
   // 根据Token值获取Token信息
   rpc GetTokenByValue(StringRequest) returns (TokenInfo);
-
-  // 验证Token
-  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
 
   // 更新Token
   rpc UpdateToken(TokenInfo) returns (TokenInfo);
@@ -702,11 +720,6 @@ service TokenService {
   // 删除Token
   rpc DeleteToken(ID32Request) returns (BaseResponse);
 
-  // 撤销Token
-  rpc RevokeToken(RevokeTokenRequest) returns (BaseResponse);
-
-  // 撤销用户的所有Token（除了blockUserAllToken功能）
-  rpc RevokeUserTokens(RevokeUserTokensRequest) returns (BaseResponse);
 
   // 获取Token列表
   rpc ListToken(TokenListRequest) returns (TokenListResponse);
@@ -717,8 +730,6 @@ service TokenService {
   // 更新Token最后使用时间
   rpc UpdateTokenLastUsed(UpdateTokenLastUsedRequest) returns (BaseResponse);
 
-  // 根据刷新Token ID获取相关的访问Token
-  rpc GetTokenByRefreshToken(GetTokenByRefreshTokenRequest) returns (TokenInfo);
 }
 
 

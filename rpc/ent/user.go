@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-core/rpc/ent/department"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
+	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
 // 用户表 / User table
@@ -62,10 +63,10 @@ type UserEdges struct {
 	Positions []*Position `json:"positions,omitempty"`
 	// Department holds the value of the department edge.
 	Department *Department `json:"department,omitempty"`
-	// Oauths holds the value of the oauths edge.
-	Oauths []*UserOauth `json:"oauths,omitempty"`
+	// LeaderDepartment holds the value of the leader_department edge.
+	LeaderDepartment []*Department `json:"leader_department,omitempty"`
 	// Totp holds the value of the totp edge.
-	Totp []*UserTotp `json:"totp,omitempty"`
+	Totp *UserTotp `json:"totp,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [5]bool
@@ -100,20 +101,22 @@ func (e UserEdges) DepartmentOrErr() (*Department, error) {
 	return nil, &NotLoadedError{edge: "department"}
 }
 
-// OauthsOrErr returns the Oauths value or an error if the edge
+// LeaderDepartmentOrErr returns the LeaderDepartment value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) OauthsOrErr() ([]*UserOauth, error) {
+func (e UserEdges) LeaderDepartmentOrErr() ([]*Department, error) {
 	if e.loadedTypes[3] {
-		return e.Oauths, nil
+		return e.LeaderDepartment, nil
 	}
-	return nil, &NotLoadedError{edge: "oauths"}
+	return nil, &NotLoadedError{edge: "leader_department"}
 }
 
 // TotpOrErr returns the Totp value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) TotpOrErr() ([]*UserTotp, error) {
-	if e.loadedTypes[4] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) TotpOrErr() (*UserTotp, error) {
+	if e.Totp != nil {
 		return e.Totp, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: usertotp.Label}
 	}
 	return nil, &NotLoadedError{edge: "totp"}
 }
@@ -267,9 +270,9 @@ func (_m *User) QueryDepartment() *DepartmentQuery {
 	return NewUserClient(_m.config).QueryDepartment(_m)
 }
 
-// QueryOauths queries the "oauths" edge of the User entity.
-func (_m *User) QueryOauths() *UserOauthQuery {
-	return NewUserClient(_m.config).QueryOauths(_m)
+// QueryLeaderDepartment queries the "leader_department" edge of the User entity.
+func (_m *User) QueryLeaderDepartment() *DepartmentQuery {
+	return NewUserClient(_m.config).QueryLeaderDepartment(_m)
 }
 
 // QueryTotp queries the "totp" edge of the User entity.

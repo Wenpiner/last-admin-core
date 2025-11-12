@@ -38,7 +38,7 @@ func (l *DisableTotpLogic) DisableTotp(in *core.DisableTotpRequest) (*core.BaseR
 
 	// 查询用户的TOTP记录
 	totpRecord, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
 	if err != nil {
 		return &core.BaseResponse{

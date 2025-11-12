@@ -29,7 +29,7 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New).
-			Comment("用户ID / User ID"),
+			Comment("用户ID / User ID").StorageKey("id"),
 		field.String("username").
 			MaxLen(50).
 			NotEmpty().
@@ -83,8 +83,10 @@ func (User) Edges() []ent.Edge {
 		edge.To("department", Department.Type).
 			Field("department_id").
 			Unique(),
-		edge.From("oauths", UserOauth.Type).Ref("user"),
-		edge.From("totp", UserTotp.Type).Ref("user"),
+		edge.From("leader_department", Department.Type).Ref("leader"),
+
+		edge.To("totp", UserTotp.Type).
+			Unique(),
 	}
 }
 

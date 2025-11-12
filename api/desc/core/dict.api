@@ -1,0 +1,128 @@
+syntax = "v1"
+
+info (
+	title:   "字典相关接口"
+	desc:    "字典相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	DictInfo {
+		ID          *uint32 `json:"id,optional"` // 字典ID / Dictionary ID
+		CreatedAt   *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt   *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		Name        string  `json:"name"` // 字典名称 / Dictionary name
+		Code        string  `json:"code"` // 字典编码 / Dictionary code
+		Description string  `json:"description,optional"` // 描述 / Description
+		State       *bool   `json:"state,optional"` // 状态 / State
+	}
+	DictListRequest {
+		PageRequest
+		Name        string `json:"name,optional"` // 字典名称 / Dictionary name
+		Code        string `json:"code,optional"` // 字典编码 / Dictionary code
+		Description string `json:"description,optional"` // 描述 / Description
+	}
+	DictListInfo {
+		BaseListInfo
+		List []DictInfo `json:"list"` // 字典列表 / Dictionary list
+	}
+	DictListResponse {
+		BaseDataInfo
+		Data DictListInfo `json:"data"` // 字典列表 / Dictionary list
+	}
+	DictItemInfo {
+		ID          *uint32 `json:"id,optional"` // 字典子项ID / Dictionary item ID
+		CreatedAt   *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt   *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		Label       string  `json:"label"` // 字典子项标签 / Dictionary item label
+		Value       string  `json:"value"` // 字典子项值 / Dictionary item value
+		Color       string  `json:"color,optional"` // 字典子项颜色 / Dictionary item color
+		Css         string  `json:"css,optional"` // 字典子项CSS / Dictionary item CSS
+		SortOrder   int32   `json:"sortOrder"` // 排序 / Sort order
+		Description string  `json:"description,optional"` // 描述 / Description
+		State       *bool   `json:"state,optional"` // 状态 / State
+		DictID      uint32  `json:"dictId"` // 字典类型ID / Dictionary type ID
+	}
+	DictItemListRequest {
+		PageRequest
+		DictId uint32 `json:"dictId,optional"` // 字典ID / Dictionary ID
+		Label  string `json:"label,optional"` // 字典子项标签 / Dictionary item label
+		Value  string `json:"value,optional"` // 字典子项值 / Dictionary item value
+	}
+	DictItemListInfo {
+		BaseListInfo
+		List []DictItemInfo `json:"list"` // 字典子项列表 / Dictionary item list
+	}
+	DictItemListResponse {
+		BaseDataInfo
+		Data DictItemListInfo `json:"data"` // 字典子项列表 / Dictionary item list
+	}
+	DictItemResponse {
+		BaseDataInfo
+		Data DictItemInfo `json:"data"` // 字典子项 / Dictionary item
+	}
+	DictInfoResponse {
+		BaseDataInfo
+		Data DictInfo `json:"data"` // 字典 / Dictionary
+	}
+)
+
+@server (
+	prefix:     /dict
+	group:      dict
+	tags:       "字典"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取字典列表"
+	)
+	@handler ListDictHandler
+	post /list (DictListRequest) returns (DictListResponse)
+
+	@doc (
+		summary: "创建或更新字典"
+	)
+	@handler CreateOrUpdateDictHandler
+	post /createOrUpdate (DictInfo) returns (DictInfoResponse)
+
+	@doc (
+		summary: "删除字典"
+	)
+	@handler DeleteDictHandler
+	post /delete (ID32Request) returns (BaseResponse)
+
+	@doc (
+		summary: "获取字典"
+	)
+	@handler GetDictHandler
+	post /get (ID32Request) returns (DictInfoResponse)
+
+	@doc (
+		summary: "获取字典子项列表"
+	)
+	@handler ListDictItemHandler
+	post /item/list (DictItemListRequest) returns (DictItemListResponse)
+
+	@doc (
+		summary: "创建或更新字典子项"
+	)
+	@handler CreateOrUpdateDictItemHandler
+	post /item/createOrUpdate (DictItemInfo) returns (DictItemResponse)
+
+	@doc (
+		summary: "删除字典子项"
+	)
+	@handler DeleteDictItemHandler
+	post /item/delete (ID32Request) returns (BaseResponse)
+
+	@doc (
+		summary: "获取字典子项"
+	)
+	@handler GetDictItemHandler
+	post /item/get (ID32Request) returns (DictItemResponse)
+}
+

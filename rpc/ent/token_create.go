@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
 )
@@ -96,20 +97,6 @@ func (_c *TokenCreate) SetExpiresAt(v time.Time) *TokenCreate {
 	return _c
 }
 
-// SetIsRevoked sets the "is_revoked" field.
-func (_c *TokenCreate) SetIsRevoked(v bool) *TokenCreate {
-	_c.mutation.SetIsRevoked(v)
-	return _c
-}
-
-// SetNillableIsRevoked sets the "is_revoked" field if the given value is not nil.
-func (_c *TokenCreate) SetNillableIsRevoked(v *bool) *TokenCreate {
-	if v != nil {
-		_c.SetIsRevoked(*v)
-	}
-	return _c
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_c *TokenCreate) SetDeviceInfo(v string) *TokenCreate {
 	_c.mutation.SetDeviceInfo(v)
@@ -180,16 +167,16 @@ func (_c *TokenCreate) SetNillableMetadata(v *string) *TokenCreate {
 	return _c
 }
 
-// SetRefreshTokenID sets the "refresh_token_id" field.
-func (_c *TokenCreate) SetRefreshTokenID(v string) *TokenCreate {
-	_c.mutation.SetRefreshTokenID(v)
+// SetProviderID sets the "provider_id" field.
+func (_c *TokenCreate) SetProviderID(v uint32) *TokenCreate {
+	_c.mutation.SetProviderID(v)
 	return _c
 }
 
-// SetNillableRefreshTokenID sets the "refresh_token_id" field if the given value is not nil.
-func (_c *TokenCreate) SetNillableRefreshTokenID(v *string) *TokenCreate {
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (_c *TokenCreate) SetNillableProviderID(v *uint32) *TokenCreate {
 	if v != nil {
-		_c.SetRefreshTokenID(*v)
+		_c.SetProviderID(*v)
 	}
 	return _c
 }
@@ -203,6 +190,11 @@ func (_c *TokenCreate) SetID(v uint32) *TokenCreate {
 // SetUser sets the "user" edge to the User entity.
 func (_c *TokenCreate) SetUser(v *User) *TokenCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// SetProvider sets the "provider" edge to the OauthProvider entity.
+func (_c *TokenCreate) SetProvider(v *OauthProvider) *TokenCreate {
+	return _c.SetProviderID(v.ID)
 }
 
 // Mutation returns the TokenMutation object of the builder.
@@ -252,10 +244,6 @@ func (_c *TokenCreate) defaults() {
 		v := token.DefaultState
 		_c.mutation.SetState(v)
 	}
-	if _, ok := _c.mutation.IsRevoked(); !ok {
-		v := token.DefaultIsRevoked
-		_c.mutation.SetIsRevoked(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -285,9 +273,6 @@ func (_c *TokenCreate) check() error {
 	if _, ok := _c.mutation.ExpiresAt(); !ok {
 		return &ValidationError{Name: "expires_at", err: errors.New(`ent: missing required field "Token.expires_at"`)}
 	}
-	if _, ok := _c.mutation.IsRevoked(); !ok {
-		return &ValidationError{Name: "is_revoked", err: errors.New(`ent: missing required field "Token.is_revoked"`)}
-	}
 	if v, ok := _c.mutation.DeviceInfo(); ok {
 		if err := token.DeviceInfoValidator(v); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "Token.device_info": %w`, err)}
@@ -301,11 +286,6 @@ func (_c *TokenCreate) check() error {
 	if v, ok := _c.mutation.UserAgent(); ok {
 		if err := token.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "Token.user_agent": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.RefreshTokenID(); ok {
-		if err := token.RefreshTokenIDValidator(v); err != nil {
-			return &ValidationError{Name: "refresh_token_id", err: fmt.Errorf(`ent: validator failed for field "Token.refresh_token_id": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -369,10 +349,6 @@ func (_c *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 		_spec.SetField(token.FieldExpiresAt, field.TypeTime, value)
 		_node.ExpiresAt = value
 	}
-	if value, ok := _c.mutation.IsRevoked(); ok {
-		_spec.SetField(token.FieldIsRevoked, field.TypeBool, value)
-		_node.IsRevoked = value
-	}
 	if value, ok := _c.mutation.DeviceInfo(); ok {
 		_spec.SetField(token.FieldDeviceInfo, field.TypeString, value)
 		_node.DeviceInfo = &value
@@ -393,10 +369,6 @@ func (_c *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 		_spec.SetField(token.FieldMetadata, field.TypeString, value)
 		_node.Metadata = &value
 	}
-	if value, ok := _c.mutation.RefreshTokenID(); ok {
-		_spec.SetField(token.FieldRefreshTokenID, field.TypeString, value)
-		_node.RefreshTokenID = &value
-	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -412,6 +384,23 @@ func (_c *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProviderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   token.ProviderTable,
+			Columns: []string{token.ProviderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthprovider.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ProviderID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

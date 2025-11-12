@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
 )
@@ -27,14 +28,12 @@ type Token struct {
 	State bool `json:"state,omitempty"`
 	// 令牌值 / Token value
 	TokenValue string `json:"token_value,omitempty"`
-	// 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+	// 令牌类型 / Token type (access_token)
 	TokenType string `json:"token_type,omitempty"`
 	// 用户ID / User ID
 	UserID *uuid.UUID `json:"user_id,omitempty"`
 	// 过期时间 / Expiration time
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
-	// 是否已撤销 / Whether revoked
-	IsRevoked bool `json:"is_revoked,omitempty"`
 	// 设备信息 / Device information
 	DeviceInfo *string `json:"device_info,omitempty"`
 	// 创建时IP地址 / IP address when created
@@ -45,8 +44,8 @@ type Token struct {
 	UserAgent *string `json:"user_agent,omitempty"`
 	// 元数据 / Metadata (JSON format)
 	Metadata *string `json:"metadata,omitempty"`
-	// 关联的刷新令牌ID / Associated refresh token ID
-	RefreshTokenID *string `json:"refresh_token_id,omitempty"`
+	// 提供商ID / Provider ID
+	ProviderID *uint32 `json:"provider_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TokenQuery when eager-loading is set.
 	Edges        TokenEdges `json:"edges"`
@@ -57,9 +56,11 @@ type Token struct {
 type TokenEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// Provider holds the value of the provider edge.
+	Provider *OauthProvider `json:"provider,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -73,6 +74,17 @@ func (e TokenEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// ProviderOrErr returns the Provider value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TokenEdges) ProviderOrErr() (*OauthProvider, error) {
+	if e.Provider != nil {
+		return e.Provider, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: oauthprovider.Label}
+	}
+	return nil, &NotLoadedError{edge: "provider"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Token) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -80,11 +92,11 @@ func (*Token) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case token.FieldUserID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case token.FieldState, token.FieldIsRevoked:
+		case token.FieldState:
 			values[i] = new(sql.NullBool)
-		case token.FieldID:
+		case token.FieldID, token.FieldProviderID:
 			values[i] = new(sql.NullInt64)
-		case token.FieldTokenValue, token.FieldTokenType, token.FieldDeviceInfo, token.FieldIPAddress, token.FieldUserAgent, token.FieldMetadata, token.FieldRefreshTokenID:
+		case token.FieldTokenValue, token.FieldTokenType, token.FieldDeviceInfo, token.FieldIPAddress, token.FieldUserAgent, token.FieldMetadata:
 			values[i] = new(sql.NullString)
 		case token.FieldCreatedAt, token.FieldUpdatedAt, token.FieldExpiresAt, token.FieldLastUsedAt:
 			values[i] = new(sql.NullTime)
@@ -152,12 +164,6 @@ func (_m *Token) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ExpiresAt = value.Time
 			}
-		case token.FieldIsRevoked:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_revoked", values[i])
-			} else if value.Valid {
-				_m.IsRevoked = value.Bool
-			}
 		case token.FieldDeviceInfo:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field device_info", values[i])
@@ -193,12 +199,12 @@ func (_m *Token) assignValues(columns []string, values []any) error {
 				_m.Metadata = new(string)
 				*_m.Metadata = value.String
 			}
-		case token.FieldRefreshTokenID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field refresh_token_id", values[i])
+		case token.FieldProviderID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field provider_id", values[i])
 			} else if value.Valid {
-				_m.RefreshTokenID = new(string)
-				*_m.RefreshTokenID = value.String
+				_m.ProviderID = new(uint32)
+				*_m.ProviderID = uint32(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -216,6 +222,11 @@ func (_m *Token) Value(name string) (ent.Value, error) {
 // QueryUser queries the "user" edge of the Token entity.
 func (_m *Token) QueryUser() *UserQuery {
 	return NewTokenClient(_m.config).QueryUser(_m)
+}
+
+// QueryProvider queries the "provider" edge of the Token entity.
+func (_m *Token) QueryProvider() *OauthProviderQuery {
+	return NewTokenClient(_m.config).QueryProvider(_m)
 }
 
 // Update returns a builder for updating this Token.
@@ -264,9 +275,6 @@ func (_m *Token) String() string {
 	builder.WriteString("expires_at=")
 	builder.WriteString(_m.ExpiresAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("is_revoked=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsRevoked))
-	builder.WriteString(", ")
 	if v := _m.DeviceInfo; v != nil {
 		builder.WriteString("device_info=")
 		builder.WriteString(*v)
@@ -292,9 +300,9 @@ func (_m *Token) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := _m.RefreshTokenID; v != nil {
-		builder.WriteString("refresh_token_id=")
-		builder.WriteString(*v)
+	if v := _m.ProviderID; v != nil {
+		builder.WriteString("provider_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')
 	return builder.String()

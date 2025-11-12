@@ -14,6 +14,473 @@
   },
   "basePath": "/",
   "paths": {
+    "/api/all": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "获取所有API",
+        "operationId": "apiGetAllApiHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "API列表 / API list",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "createdAt",
+                      "updatedAt",
+                      "method",
+                      "path",
+                      "isRequired",
+                      "serviceName",
+                      "apiGroup"
+                    ],
+                    "properties": {
+                      "apiGroup": {
+                        "description": "API分组 / API group",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间 / Creation time",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "API描述 / API description",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "API ID",
+                        "type": "integer"
+                      },
+                      "isRequired": {
+                        "description": "是否必填 / Whether it is required",
+                        "type": "boolean"
+                      },
+                      "method": {
+                        "description": "请求方法 / Request method",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "API名称 / API name",
+                        "type": "string"
+                      },
+                      "path": {
+                        "description": "请求路径 / Request path",
+                        "type": "string"
+                      },
+                      "serviceName": {
+                        "description": "服务名称 / Service name",
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "description": "更新时间 / Update time",
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "创建或更新API",
+        "operationId": "apiCreateOrUpdateApiHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "method",
+                "path",
+                "isRequired",
+                "serviceName",
+                "apiGroup"
+              ],
+              "properties": {
+                "apiGroup": {
+                  "description": "API分组 / API group",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "API描述 / API description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "API ID",
+                  "type": "integer"
+                },
+                "isRequired": {
+                  "description": "是否必填 / Whether it is required",
+                  "type": "boolean"
+                },
+                "method": {
+                  "description": "请求方法 / Request method",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "API名称 / API name",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "请求路径 / Request path",
+                  "type": "string"
+                },
+                "serviceName": {
+                  "description": "服务名称 / Service name",
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "apiGroup": {
+                  "description": "API分组 / API group",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "API描述 / API description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "API ID",
+                  "type": "integer"
+                },
+                "isRequired": {
+                  "description": "是否必填 / Whether it is required",
+                  "type": "boolean"
+                },
+                "method": {
+                  "description": "请求方法 / Request method",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "API名称 / API name",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "请求路径 / Request path",
+                  "type": "string"
+                },
+                "serviceName": {
+                  "description": "服务名称 / Service name",
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "删除API",
+        "operationId": "apiDeleteApiHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "获取API列表",
+        "operationId": "apiListApiHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "apiGroup": {
+                  "description": "API分组 / API group",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "API描述 / API description",
+                  "type": "string"
+                },
+                "method": {
+                  "description": "请求方法 / Request method",
+                  "type": "string"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "path": {
+                  "description": "请求路径 / Request path",
+                  "type": "string"
+                },
+                "serviceName": {
+                  "description": "服务名称 / Service name",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "API列表 / API list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "API列表 / API list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "createdAt",
+                          "updatedAt",
+                          "method",
+                          "path",
+                          "isRequired",
+                          "serviceName",
+                          "apiGroup"
+                        ],
+                        "properties": {
+                          "apiGroup": {
+                            "description": "API分组 / API group",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "description": {
+                            "description": "API描述 / API description",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "API ID",
+                            "type": "integer"
+                          },
+                          "isRequired": {
+                            "description": "是否必填 / Whether it is required",
+                            "type": "boolean"
+                          },
+                          "method": {
+                            "description": "请求方法 / Request method",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "API名称 / API name",
+                            "type": "string"
+                          },
+                          "path": {
+                            "description": "请求路径 / Request path",
+                            "type": "string"
+                          },
+                          "serviceName": {
+                            "description": "服务名称 / Service name",
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/codes": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "权限"
+        ],
+        "summary": "获取用户权限码(通过Menu获取按钮级别的权限)",
+        "operationId": "authGetAccessCodesHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "权限码 / Access codes",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/login": {
       "post": {
         "consumes": [
@@ -38,26 +505,39 @@
             "schema": {
               "type": "object",
               "required": [
-                "id",
-                "value",
+                "captcha",
                 "password",
                 "username"
               ],
               "properties": {
-                "id": {
-                  "description": "验证码ID / Captcha ID",
-                  "type": "string"
+                "captcha": {
+                  "description": "验证码 / Captcha",
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "value"
+                  ],
+                  "properties": {
+                    "id": {
+                      "description": "验证码ID / Captcha ID",
+                      "type": "string"
+                    },
+                    "value": {
+                      "description": "验证码值 / Captcha value",
+                      "type": "string"
+                    }
+                  }
                 },
                 "password": {
                   "description": "密码 / Password",
                   "type": "string"
                 },
-                "username": {
-                  "description": "用户名 / Username",
+                "totpCode": {
+                  "description": "TOTP认证 / TOTP authentication",
                   "type": "string"
                 },
-                "value": {
-                  "description": "验证码值 / Captcha value",
+                "username": {
+                  "description": "用户名 / Username",
                   "type": "string"
                 }
               }
@@ -82,14 +562,6 @@
                   "properties": {
                     "accessToken": {
                       "description": "访问令牌 / Access token",
-                      "type": "string"
-                    },
-                    "twoFactorExpire": {
-                      "description": "二次认证过期时间 / Two factor authentication expiration time",
-                      "type": "integer"
-                    },
-                    "twoFactorKey": {
-                      "description": "二次认证Key / Two factor authentication key",
                       "type": "string"
                     }
                   }
@@ -287,69 +759,6 @@
         }
       }
     },
-    "/auth/totp/verify": {
-      "post": {
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "认证"
-        ],
-        "summary": "Totp 校验: 返回值遵循调用方的格式，如登录则验证后会返回登录接口的Response",
-        "operationId": "publicUserTotpVerifyHandler",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "id",
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "description": "认证码 / Authentication code",
-                  "type": "string"
-                },
-                "id": {
-                  "description": "认证ID / Authentication ID",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer"
-                },
-                "data": {
-                  "description": "认证后返回值 / Data after authentication",
-                  "type": "object",
-                  "additionalProperties": {}
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/captcha/email": {
       "post": {
         "consumes": [
@@ -432,11 +841,16 @@
                   "type": "object",
                   "required": [
                     "id",
-                    "base64Blob"
+                    "base64Blob",
+                    "captchaType"
                   ],
                   "properties": {
                     "base64Blob": {
                       "description": "Base64编码的验证码图片/音频",
+                      "type": "string"
+                    },
+                    "captchaType": {
+                      "description": "验证码类型(digit, string, math, chinese, audio, random)",
                       "type": "string"
                     },
                     "id": {
@@ -508,8 +922,1245 @@
         }
       }
     },
-    "/init": {
+    "/department/createOrUpdate": {
       "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "部门"
+        ],
+        "summary": "创建或更新部门",
+        "operationId": "departmentCreateOrUpdateDepartmentHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "deptName",
+                "deptCode",
+                "parentId",
+                "sortOrder",
+                "leaderUserId",
+                "state"
+              ],
+              "properties": {
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "deptCode": {
+                  "description": "部门编码 / Department code",
+                  "type": "string"
+                },
+                "deptName": {
+                  "description": "部门名称 / Department name",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "部门描述 / Department description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "部门ID / Department ID",
+                  "type": "integer"
+                },
+                "leaderEmail": {
+                  "description": "部门负责人邮箱 / Leader email",
+                  "type": "string"
+                },
+                "leaderPhone": {
+                  "description": "部门负责人手机号 / Leader phone",
+                  "type": "string"
+                },
+                "leaderUserId": {
+                  "description": "部门负责人用户ID / Leader user ID",
+                  "type": "string"
+                },
+                "leaderUsername": {
+                  "description": "部门负责人用户名 / Leader username",
+                  "type": "string"
+                },
+                "parentId": {
+                  "description": "父部门ID / Parent department ID",
+                  "type": "integer"
+                },
+                "sortOrder": {
+                  "description": "排序 / Sort",
+                  "type": "integer"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "部门信息 / Department information",
+                  "type": "object",
+                  "required": [
+                    "deptName",
+                    "deptCode",
+                    "parentId",
+                    "sortOrder",
+                    "leaderUserId",
+                    "state"
+                  ],
+                  "properties": {
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "deptCode": {
+                      "description": "部门编码 / Department code",
+                      "type": "string"
+                    },
+                    "deptName": {
+                      "description": "部门名称 / Department name",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "部门描述 / Department description",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "部门ID / Department ID",
+                      "type": "integer"
+                    },
+                    "leaderEmail": {
+                      "description": "部门负责人邮箱 / Leader email",
+                      "type": "string"
+                    },
+                    "leaderPhone": {
+                      "description": "部门负责人手机号 / Leader phone",
+                      "type": "string"
+                    },
+                    "leaderUserId": {
+                      "description": "部门负责人用户ID / Leader user ID",
+                      "type": "string"
+                    },
+                    "leaderUsername": {
+                      "description": "部门负责人用户名 / Leader username",
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "description": "父部门ID / Parent department ID",
+                      "type": "integer"
+                    },
+                    "sortOrder": {
+                      "description": "排序 / Sort",
+                      "type": "integer"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/department/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "部门"
+        ],
+        "summary": "删除部门",
+        "operationId": "departmentDeleteDepartmentHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/department/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "部门"
+        ],
+        "summary": "获取部门列表",
+        "operationId": "departmentListDepartmentHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "deptCode": {
+                  "description": "部门编码 / Department code",
+                  "type": "string"
+                },
+                "deptName": {
+                  "description": "部门名称 / Department name",
+                  "type": "string"
+                },
+                "leaderUsername": {
+                  "description": "部门负责人用户名 / Leader username",
+                  "type": "string"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "parentId": {
+                  "description": "父部门ID / Parent department ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "部门列表 / Department list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "部门列表 / Department list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "deptName",
+                          "deptCode",
+                          "parentId",
+                          "sortOrder",
+                          "leaderUserId",
+                          "state"
+                        ],
+                        "properties": {
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "deptCode": {
+                            "description": "部门编码 / Department code",
+                            "type": "string"
+                          },
+                          "deptName": {
+                            "description": "部门名称 / Department name",
+                            "type": "string"
+                          },
+                          "description": {
+                            "description": "部门描述 / Department description",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "部门ID / Department ID",
+                            "type": "integer"
+                          },
+                          "leaderEmail": {
+                            "description": "部门负责人邮箱 / Leader email",
+                            "type": "string"
+                          },
+                          "leaderPhone": {
+                            "description": "部门负责人手机号 / Leader phone",
+                            "type": "string"
+                          },
+                          "leaderUserId": {
+                            "description": "部门负责人用户ID / Leader user ID",
+                            "type": "string"
+                          },
+                          "leaderUsername": {
+                            "description": "部门负责人用户名 / Leader username",
+                            "type": "string"
+                          },
+                          "parentId": {
+                            "description": "父部门ID / Parent department ID",
+                            "type": "integer"
+                          },
+                          "sortOrder": {
+                            "description": "排序 / Sort",
+                            "type": "integer"
+                          },
+                          "state": {
+                            "description": "状态 / State",
+                            "type": "boolean"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "创建或更新字典",
+        "operationId": "dictCreateOrUpdateDictHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "description": "字典编码 / Dictionary code",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "描述 / Description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "字典ID / Dictionary ID",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "字典名称 / Dictionary name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典 / Dictionary",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "description": "字典编码 / Dictionary code",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "描述 / Description",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "字典ID / Dictionary ID",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "description": "字典名称 / Dictionary name",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "删除字典",
+        "operationId": "dictDeleteDictHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/get": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "获取字典",
+        "operationId": "dictGetDictHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典 / Dictionary",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "description": "字典编码 / Dictionary code",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "描述 / Description",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "字典ID / Dictionary ID",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "description": "字典名称 / Dictionary name",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/item/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "创建或更新字典子项",
+        "operationId": "dictCreateOrUpdateDictItemHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "label",
+                "value",
+                "sortOrder",
+                "dictId"
+              ],
+              "properties": {
+                "color": {
+                  "description": "字典子项颜色 / Dictionary item color",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "css": {
+                  "description": "字典子项CSS / Dictionary item CSS",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "描述 / Description",
+                  "type": "string"
+                },
+                "dictId": {
+                  "description": "字典类型ID / Dictionary type ID",
+                  "type": "integer"
+                },
+                "id": {
+                  "description": "字典子项ID / Dictionary item ID",
+                  "type": "integer"
+                },
+                "label": {
+                  "description": "字典子项标签 / Dictionary item label",
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "description": "排序 / Sort order",
+                  "type": "integer"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                },
+                "value": {
+                  "description": "字典子项值 / Dictionary item value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典子项 / Dictionary item",
+                  "type": "object",
+                  "required": [
+                    "label",
+                    "value",
+                    "sortOrder",
+                    "dictId"
+                  ],
+                  "properties": {
+                    "color": {
+                      "description": "字典子项颜色 / Dictionary item color",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "css": {
+                      "description": "字典子项CSS / Dictionary item CSS",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "描述 / Description",
+                      "type": "string"
+                    },
+                    "dictId": {
+                      "description": "字典类型ID / Dictionary type ID",
+                      "type": "integer"
+                    },
+                    "id": {
+                      "description": "字典子项ID / Dictionary item ID",
+                      "type": "integer"
+                    },
+                    "label": {
+                      "description": "字典子项标签 / Dictionary item label",
+                      "type": "string"
+                    },
+                    "sortOrder": {
+                      "description": "排序 / Sort order",
+                      "type": "integer"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    },
+                    "value": {
+                      "description": "字典子项值 / Dictionary item value",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/item/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "删除字典子项",
+        "operationId": "dictDeleteDictItemHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/item/get": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "获取字典子项",
+        "operationId": "dictGetDictItemHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典子项 / Dictionary item",
+                  "type": "object",
+                  "required": [
+                    "label",
+                    "value",
+                    "sortOrder",
+                    "dictId"
+                  ],
+                  "properties": {
+                    "color": {
+                      "description": "字典子项颜色 / Dictionary item color",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "css": {
+                      "description": "字典子项CSS / Dictionary item CSS",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "描述 / Description",
+                      "type": "string"
+                    },
+                    "dictId": {
+                      "description": "字典类型ID / Dictionary type ID",
+                      "type": "integer"
+                    },
+                    "id": {
+                      "description": "字典子项ID / Dictionary item ID",
+                      "type": "integer"
+                    },
+                    "label": {
+                      "description": "字典子项标签 / Dictionary item label",
+                      "type": "string"
+                    },
+                    "sortOrder": {
+                      "description": "排序 / Sort order",
+                      "type": "integer"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    },
+                    "value": {
+                      "description": "字典子项值 / Dictionary item value",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/item/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "获取字典子项列表",
+        "operationId": "dictListDictItemHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "dictId": {
+                  "description": "字典ID / Dictionary ID",
+                  "type": "integer"
+                },
+                "label": {
+                  "description": "字典子项标签 / Dictionary item label",
+                  "type": "string"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "value": {
+                  "description": "字典子项值 / Dictionary item value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典子项列表 / Dictionary item list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "字典子项列表 / Dictionary item list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "label",
+                          "value",
+                          "sortOrder",
+                          "dictId"
+                        ],
+                        "properties": {
+                          "color": {
+                            "description": "字典子项颜色 / Dictionary item color",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "css": {
+                            "description": "字典子项CSS / Dictionary item CSS",
+                            "type": "string"
+                          },
+                          "description": {
+                            "description": "描述 / Description",
+                            "type": "string"
+                          },
+                          "dictId": {
+                            "description": "字典类型ID / Dictionary type ID",
+                            "type": "integer"
+                          },
+                          "id": {
+                            "description": "字典子项ID / Dictionary item ID",
+                            "type": "integer"
+                          },
+                          "label": {
+                            "description": "字典子项标签 / Dictionary item label",
+                            "type": "string"
+                          },
+                          "sortOrder": {
+                            "description": "排序 / Sort order",
+                            "type": "integer"
+                          },
+                          "state": {
+                            "description": "状态 / State",
+                            "type": "boolean"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          },
+                          "value": {
+                            "description": "字典子项值 / Dictionary item value",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dict/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "字典"
+        ],
+        "summary": "获取字典列表",
+        "operationId": "dictListDictHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "code": {
+                  "description": "字典编码 / Dictionary code",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "描述 / Description",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "字典名称 / Dictionary name",
+                  "type": "string"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "字典列表 / Dictionary list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "字典列表 / Dictionary list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "code"
+                        ],
+                        "properties": {
+                          "code": {
+                            "description": "字典编码 / Dictionary code",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "description": {
+                            "description": "描述 / Description",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "字典ID / Dictionary ID",
+                            "type": "integer"
+                          },
+                          "name": {
+                            "description": "字典名称 / Dictionary name",
+                            "type": "string"
+                          },
+                          "state": {
+                            "description": "状态 / State",
+                            "type": "boolean"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/init": {
+      "get": {
         "produces": [
           "application/json"
         ],
@@ -529,6 +2180,3187 @@
                 },
                 "data": {
                   "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/all": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "菜单"
+        ],
+        "summary": "获取用户角色当前所有菜单",
+        "operationId": "menuGetAllMenusByRoleHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "菜单列表 / Menu list",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "name",
+                      "meta",
+                      "id",
+                      "state",
+                      "service",
+                      "permission",
+                      "createdAt",
+                      "type"
+                    ],
+                    "properties": {
+                      "children": {
+                        "description": "子菜单 / Children menu",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "path",
+                            "name",
+                            "meta",
+                            "id",
+                            "state",
+                            "service",
+                            "permission",
+                            "createdAt",
+                            "type"
+                          ],
+                          "properties": {
+                            "children": {
+                              "description": "子菜单 / Children menu",
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "component": {
+                              "description": "组件 / Component",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "description": "创建时间 / Creation time",
+                              "type": "integer"
+                            },
+                            "description": {
+                              "description": "描述 / Description",
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "菜单ID / Menu ID",
+                              "type": "integer"
+                            },
+                            "meta": {
+                              "description": "菜单元数据 / Menu meta data",
+                              "type": "object",
+                              "properties": {
+                                "affixTab": {
+                                  "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                                  "type": "boolean"
+                                },
+                                "affixTabOrder": {
+                                  "description": "标签栏固定顺序 / Tabbar fix order",
+                                  "type": "integer"
+                                },
+                                "hideInMenu": {
+                                  "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                                  "type": "boolean"
+                                },
+                                "icon": {
+                                  "description": "菜单图标 / Menu icon",
+                                  "type": "string"
+                                },
+                                "iframeSrc": {
+                                  "description": "内嵌iframe地址 / Embedded iframe address",
+                                  "type": "string"
+                                },
+                                "keepAlive": {
+                                  "description": "是否缓存 / Whether to cache",
+                                  "type": "boolean"
+                                },
+                                "link": {
+                                  "description": "外链地址 / Link address",
+                                  "type": "string"
+                                },
+                                "order": {
+                                  "description": "菜单排序 / Menu order",
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "description": "菜单标题 / Menu title",
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "name": {
+                              "description": "菜单名称 / Menu name",
+                              "type": "string"
+                            },
+                            "parentId": {
+                              "description": "父级菜单ID / Parent menu ID",
+                              "type": "integer"
+                            },
+                            "path": {
+                              "description": "菜单路径 / Menu path",
+                              "type": "string"
+                            },
+                            "permission": {
+                              "description": "权限标识 / Permission identifier",
+                              "type": "string"
+                            },
+                            "redirect": {
+                              "description": "重定向地址 / Redirect path",
+                              "type": "string"
+                            },
+                            "service": {
+                              "description": "服务名称 / Service name",
+                              "type": "string"
+                            },
+                            "state": {
+                              "description": "菜单状态 / Menu state",
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "description": "菜单类型 / Menu type",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "component": {
+                        "description": "组件 / Component",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间 / Creation time",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "描述 / Description",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "菜单ID / Menu ID",
+                        "type": "integer"
+                      },
+                      "meta": {
+                        "description": "菜单元数据 / Menu meta data",
+                        "type": "object",
+                        "properties": {
+                          "affixTab": {
+                            "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                            "type": "boolean"
+                          },
+                          "affixTabOrder": {
+                            "description": "标签栏固定顺序 / Tabbar fix order",
+                            "type": "integer"
+                          },
+                          "hideInMenu": {
+                            "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                            "type": "boolean"
+                          },
+                          "icon": {
+                            "description": "菜单图标 / Menu icon",
+                            "type": "string"
+                          },
+                          "iframeSrc": {
+                            "description": "内嵌iframe地址 / Embedded iframe address",
+                            "type": "string"
+                          },
+                          "keepAlive": {
+                            "description": "是否缓存 / Whether to cache",
+                            "type": "boolean"
+                          },
+                          "link": {
+                            "description": "外链地址 / Link address",
+                            "type": "string"
+                          },
+                          "order": {
+                            "description": "菜单排序 / Menu order",
+                            "type": "integer"
+                          },
+                          "title": {
+                            "description": "菜单标题 / Menu title",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "name": {
+                        "description": "菜单名称 / Menu name",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "父级菜单ID / Parent menu ID",
+                        "type": "integer"
+                      },
+                      "path": {
+                        "description": "菜单路径 / Menu path",
+                        "type": "string"
+                      },
+                      "permission": {
+                        "description": "权限标识 / Permission identifier",
+                        "type": "string"
+                      },
+                      "redirect": {
+                        "description": "重定向地址 / Redirect path",
+                        "type": "string"
+                      },
+                      "service": {
+                        "description": "服务名称 / Service name",
+                        "type": "string"
+                      },
+                      "state": {
+                        "description": "菜单状态 / Menu state",
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "description": "菜单类型 / Menu type",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/all-menus": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "菜单"
+        ],
+        "summary": "获取所有菜单",
+        "operationId": "menuGetAllMenusHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "菜单列表 / Menu list",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "name",
+                      "meta",
+                      "id",
+                      "state",
+                      "service",
+                      "permission",
+                      "createdAt",
+                      "type"
+                    ],
+                    "properties": {
+                      "children": {
+                        "description": "子菜单 / Children menu",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "path",
+                            "name",
+                            "meta",
+                            "id",
+                            "state",
+                            "service",
+                            "permission",
+                            "createdAt",
+                            "type"
+                          ],
+                          "properties": {
+                            "children": {
+                              "description": "子菜单 / Children menu",
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "component": {
+                              "description": "组件 / Component",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "description": "创建时间 / Creation time",
+                              "type": "integer"
+                            },
+                            "description": {
+                              "description": "描述 / Description",
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "菜单ID / Menu ID",
+                              "type": "integer"
+                            },
+                            "meta": {
+                              "description": "菜单元数据 / Menu meta data",
+                              "type": "object",
+                              "properties": {
+                                "affixTab": {
+                                  "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                                  "type": "boolean"
+                                },
+                                "affixTabOrder": {
+                                  "description": "标签栏固定顺序 / Tabbar fix order",
+                                  "type": "integer"
+                                },
+                                "hideInMenu": {
+                                  "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                                  "type": "boolean"
+                                },
+                                "icon": {
+                                  "description": "菜单图标 / Menu icon",
+                                  "type": "string"
+                                },
+                                "iframeSrc": {
+                                  "description": "内嵌iframe地址 / Embedded iframe address",
+                                  "type": "string"
+                                },
+                                "keepAlive": {
+                                  "description": "是否缓存 / Whether to cache",
+                                  "type": "boolean"
+                                },
+                                "link": {
+                                  "description": "外链地址 / Link address",
+                                  "type": "string"
+                                },
+                                "order": {
+                                  "description": "菜单排序 / Menu order",
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "description": "菜单标题 / Menu title",
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "name": {
+                              "description": "菜单名称 / Menu name",
+                              "type": "string"
+                            },
+                            "parentId": {
+                              "description": "父级菜单ID / Parent menu ID",
+                              "type": "integer"
+                            },
+                            "path": {
+                              "description": "菜单路径 / Menu path",
+                              "type": "string"
+                            },
+                            "permission": {
+                              "description": "权限标识 / Permission identifier",
+                              "type": "string"
+                            },
+                            "redirect": {
+                              "description": "重定向地址 / Redirect path",
+                              "type": "string"
+                            },
+                            "service": {
+                              "description": "服务名称 / Service name",
+                              "type": "string"
+                            },
+                            "state": {
+                              "description": "菜单状态 / Menu state",
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "description": "菜单类型 / Menu type",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "component": {
+                        "description": "组件 / Component",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间 / Creation time",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "描述 / Description",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "菜单ID / Menu ID",
+                        "type": "integer"
+                      },
+                      "meta": {
+                        "description": "菜单元数据 / Menu meta data",
+                        "type": "object",
+                        "properties": {
+                          "affixTab": {
+                            "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                            "type": "boolean"
+                          },
+                          "affixTabOrder": {
+                            "description": "标签栏固定顺序 / Tabbar fix order",
+                            "type": "integer"
+                          },
+                          "hideInMenu": {
+                            "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                            "type": "boolean"
+                          },
+                          "icon": {
+                            "description": "菜单图标 / Menu icon",
+                            "type": "string"
+                          },
+                          "iframeSrc": {
+                            "description": "内嵌iframe地址 / Embedded iframe address",
+                            "type": "string"
+                          },
+                          "keepAlive": {
+                            "description": "是否缓存 / Whether to cache",
+                            "type": "boolean"
+                          },
+                          "link": {
+                            "description": "外链地址 / Link address",
+                            "type": "string"
+                          },
+                          "order": {
+                            "description": "菜单排序 / Menu order",
+                            "type": "integer"
+                          },
+                          "title": {
+                            "description": "菜单标题 / Menu title",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "name": {
+                        "description": "菜单名称 / Menu name",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "父级菜单ID / Parent menu ID",
+                        "type": "integer"
+                      },
+                      "path": {
+                        "description": "菜单路径 / Menu path",
+                        "type": "string"
+                      },
+                      "permission": {
+                        "description": "权限标识 / Permission identifier",
+                        "type": "string"
+                      },
+                      "redirect": {
+                        "description": "重定向地址 / Redirect path",
+                        "type": "string"
+                      },
+                      "service": {
+                        "description": "服务名称 / Service name",
+                        "type": "string"
+                      },
+                      "state": {
+                        "description": "菜单状态 / Menu state",
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "description": "菜单类型 / Menu type",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "菜单"
+        ],
+        "summary": "删除菜单",
+        "operationId": "menuDeleteMenuHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "description": "菜单ID / Menu ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/update": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "菜单"
+        ],
+        "summary": "更新菜单",
+        "operationId": "menuUpdateMenuHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "path",
+                "name",
+                "meta",
+                "id",
+                "state",
+                "service",
+                "permission",
+                "createdAt",
+                "type"
+              ],
+              "properties": {
+                "children": {
+                  "description": "子菜单 / Children menu",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "name",
+                      "meta",
+                      "id",
+                      "state",
+                      "service",
+                      "permission",
+                      "createdAt",
+                      "type"
+                    ],
+                    "properties": {
+                      "children": {
+                        "description": "子菜单 / Children menu",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "path",
+                            "name",
+                            "meta",
+                            "id",
+                            "state",
+                            "service",
+                            "permission",
+                            "createdAt",
+                            "type"
+                          ],
+                          "properties": {
+                            "children": {
+                              "description": "子菜单 / Children menu",
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "component": {
+                              "description": "组件 / Component",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "description": "创建时间 / Creation time",
+                              "type": "integer"
+                            },
+                            "description": {
+                              "description": "描述 / Description",
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "菜单ID / Menu ID",
+                              "type": "integer"
+                            },
+                            "meta": {
+                              "description": "菜单元数据 / Menu meta data",
+                              "type": "object",
+                              "properties": {
+                                "affixTab": {
+                                  "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                                  "type": "boolean"
+                                },
+                                "affixTabOrder": {
+                                  "description": "标签栏固定顺序 / Tabbar fix order",
+                                  "type": "integer"
+                                },
+                                "hideInMenu": {
+                                  "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                                  "type": "boolean"
+                                },
+                                "icon": {
+                                  "description": "菜单图标 / Menu icon",
+                                  "type": "string"
+                                },
+                                "iframeSrc": {
+                                  "description": "内嵌iframe地址 / Embedded iframe address",
+                                  "type": "string"
+                                },
+                                "keepAlive": {
+                                  "description": "是否缓存 / Whether to cache",
+                                  "type": "boolean"
+                                },
+                                "link": {
+                                  "description": "外链地址 / Link address",
+                                  "type": "string"
+                                },
+                                "order": {
+                                  "description": "菜单排序 / Menu order",
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "description": "菜单标题 / Menu title",
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "name": {
+                              "description": "菜单名称 / Menu name",
+                              "type": "string"
+                            },
+                            "parentId": {
+                              "description": "父级菜单ID / Parent menu ID",
+                              "type": "integer"
+                            },
+                            "path": {
+                              "description": "菜单路径 / Menu path",
+                              "type": "string"
+                            },
+                            "permission": {
+                              "description": "权限标识 / Permission identifier",
+                              "type": "string"
+                            },
+                            "redirect": {
+                              "description": "重定向地址 / Redirect path",
+                              "type": "string"
+                            },
+                            "service": {
+                              "description": "服务名称 / Service name",
+                              "type": "string"
+                            },
+                            "state": {
+                              "description": "菜单状态 / Menu state",
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "description": "菜单类型 / Menu type",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "component": {
+                        "description": "组件 / Component",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间 / Creation time",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "描述 / Description",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "菜单ID / Menu ID",
+                        "type": "integer"
+                      },
+                      "meta": {
+                        "description": "菜单元数据 / Menu meta data",
+                        "type": "object",
+                        "properties": {
+                          "affixTab": {
+                            "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                            "type": "boolean"
+                          },
+                          "affixTabOrder": {
+                            "description": "标签栏固定顺序 / Tabbar fix order",
+                            "type": "integer"
+                          },
+                          "hideInMenu": {
+                            "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                            "type": "boolean"
+                          },
+                          "icon": {
+                            "description": "菜单图标 / Menu icon",
+                            "type": "string"
+                          },
+                          "iframeSrc": {
+                            "description": "内嵌iframe地址 / Embedded iframe address",
+                            "type": "string"
+                          },
+                          "keepAlive": {
+                            "description": "是否缓存 / Whether to cache",
+                            "type": "boolean"
+                          },
+                          "link": {
+                            "description": "外链地址 / Link address",
+                            "type": "string"
+                          },
+                          "order": {
+                            "description": "菜单排序 / Menu order",
+                            "type": "integer"
+                          },
+                          "title": {
+                            "description": "菜单标题 / Menu title",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "name": {
+                        "description": "菜单名称 / Menu name",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "父级菜单ID / Parent menu ID",
+                        "type": "integer"
+                      },
+                      "path": {
+                        "description": "菜单路径 / Menu path",
+                        "type": "string"
+                      },
+                      "permission": {
+                        "description": "权限标识 / Permission identifier",
+                        "type": "string"
+                      },
+                      "redirect": {
+                        "description": "重定向地址 / Redirect path",
+                        "type": "string"
+                      },
+                      "service": {
+                        "description": "服务名称 / Service name",
+                        "type": "string"
+                      },
+                      "state": {
+                        "description": "菜单状态 / Menu state",
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "description": "菜单类型 / Menu type",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "component": {
+                  "description": "组件 / Component",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "描述 / Description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "菜单ID / Menu ID",
+                  "type": "integer"
+                },
+                "meta": {
+                  "description": "菜单元数据 / Menu meta data",
+                  "type": "object",
+                  "properties": {
+                    "affixTab": {
+                      "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                      "type": "boolean"
+                    },
+                    "affixTabOrder": {
+                      "description": "标签栏固定顺序 / Tabbar fix order",
+                      "type": "integer"
+                    },
+                    "hideInMenu": {
+                      "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                      "type": "boolean"
+                    },
+                    "icon": {
+                      "description": "菜单图标 / Menu icon",
+                      "type": "string"
+                    },
+                    "iframeSrc": {
+                      "description": "内嵌iframe地址 / Embedded iframe address",
+                      "type": "string"
+                    },
+                    "keepAlive": {
+                      "description": "是否缓存 / Whether to cache",
+                      "type": "boolean"
+                    },
+                    "link": {
+                      "description": "外链地址 / Link address",
+                      "type": "string"
+                    },
+                    "order": {
+                      "description": "菜单排序 / Menu order",
+                      "type": "integer"
+                    },
+                    "title": {
+                      "description": "菜单标题 / Menu title",
+                      "type": "string"
+                    }
+                  }
+                },
+                "name": {
+                  "description": "菜单名称 / Menu name",
+                  "type": "string"
+                },
+                "parentId": {
+                  "description": "父级菜单ID / Parent menu ID",
+                  "type": "integer"
+                },
+                "path": {
+                  "description": "菜单路径 / Menu path",
+                  "type": "string"
+                },
+                "permission": {
+                  "description": "权限标识 / Permission identifier",
+                  "type": "string"
+                },
+                "redirect": {
+                  "description": "重定向地址 / Redirect path",
+                  "type": "string"
+                },
+                "service": {
+                  "description": "服务名称 / Service name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "菜单状态 / Menu state",
+                  "type": "boolean"
+                },
+                "type": {
+                  "description": "菜单类型 / Menu type",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "Oauth"
+        ],
+        "summary": "创建或更新Oauth",
+        "operationId": "oauthCreateOrUpdateOauthProviderHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "authStyle": {
+                  "description": "认证方式 / Auth style",
+                  "type": "integer"
+                },
+                "authorizationUrl": {
+                  "description": "授权URL / Authorization URL",
+                  "type": "string"
+                },
+                "clientId": {
+                  "description": "客户端ID / Client ID",
+                  "type": "string"
+                },
+                "clientSecret": {
+                  "description": "客户端密钥 / Client secret",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "id": {
+                  "description": "提供商ID / Provider ID",
+                  "type": "integer"
+                },
+                "logoutUrl": {
+                  "description": "登出URL / Logout URL",
+                  "type": "string"
+                },
+                "providerCode": {
+                  "description": "提供商编码 / Provider code",
+                  "type": "string"
+                },
+                "providerName": {
+                  "description": "提供商名称 / Provider name",
+                  "type": "string"
+                },
+                "redirectUri": {
+                  "description": "重定向URI / Redirect URI",
+                  "type": "string"
+                },
+                "scopes": {
+                  "description": "授权范围 / Scopes",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                },
+                "tokenUrl": {
+                  "description": "令牌URL / Token URL",
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                },
+                "userinfoUrl": {
+                  "description": "用户信息URL / User info URL",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "提供商信息 / Provider information",
+                  "type": "object",
+                  "properties": {
+                    "authStyle": {
+                      "description": "认证方式 / Auth style",
+                      "type": "integer"
+                    },
+                    "authorizationUrl": {
+                      "description": "授权URL / Authorization URL",
+                      "type": "string"
+                    },
+                    "clientId": {
+                      "description": "客户端ID / Client ID",
+                      "type": "string"
+                    },
+                    "clientSecret": {
+                      "description": "客户端密钥 / Client secret",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "id": {
+                      "description": "提供商ID / Provider ID",
+                      "type": "integer"
+                    },
+                    "logoutUrl": {
+                      "description": "登出URL / Logout URL",
+                      "type": "string"
+                    },
+                    "providerCode": {
+                      "description": "提供商编码 / Provider code",
+                      "type": "string"
+                    },
+                    "providerName": {
+                      "description": "提供商名称 / Provider name",
+                      "type": "string"
+                    },
+                    "redirectUri": {
+                      "description": "重定向URI / Redirect URI",
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "description": "授权范围 / Scopes",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "tokenUrl": {
+                      "description": "令牌URL / Token URL",
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    },
+                    "userinfoUrl": {
+                      "description": "用户信息URL / User info URL",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "Oauth"
+        ],
+        "summary": "删除Oauth",
+        "operationId": "oauthDeleteOauthProviderHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "Oauth"
+        ],
+        "summary": "获取Oauth列表",
+        "operationId": "oauthListOauthProviderHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "providerCode": {
+                  "description": "提供商编码 / Provider code",
+                  "type": "string"
+                },
+                "providerName": {
+                  "description": "提供商名称 / Provider name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "提供商列表 / Provider list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "提供商列表 / Provider list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "authStyle": {
+                            "description": "认证方式 / Auth style",
+                            "type": "integer"
+                          },
+                          "authorizationUrl": {
+                            "description": "授权URL / Authorization URL",
+                            "type": "string"
+                          },
+                          "clientId": {
+                            "description": "客户端ID / Client ID",
+                            "type": "string"
+                          },
+                          "clientSecret": {
+                            "description": "客户端密钥 / Client secret",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "id": {
+                            "description": "提供商ID / Provider ID",
+                            "type": "integer"
+                          },
+                          "logoutUrl": {
+                            "description": "登出URL / Logout URL",
+                            "type": "string"
+                          },
+                          "providerCode": {
+                            "description": "提供商编码 / Provider code",
+                            "type": "string"
+                          },
+                          "providerName": {
+                            "description": "提供商名称 / Provider name",
+                            "type": "string"
+                          },
+                          "redirectUri": {
+                            "description": "重定向URI / Redirect URI",
+                            "type": "string"
+                          },
+                          "scopes": {
+                            "description": "授权范围 / Scopes",
+                            "type": "string"
+                          },
+                          "state": {
+                            "description": "状态 / State",
+                            "type": "boolean"
+                          },
+                          "tokenUrl": {
+                            "description": "令牌URL / Token URL",
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          },
+                          "userinfoUrl": {
+                            "description": "用户信息URL / User info URL",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/position/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "岗位"
+        ],
+        "summary": "创建或更新岗位",
+        "operationId": "positionCreateOrUpdatePositionHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "positionName",
+                "positionCode",
+                "sortOrder"
+              ],
+              "properties": {
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "岗位描述 / Position description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "岗位ID / Position ID",
+                  "type": "integer"
+                },
+                "positionCode": {
+                  "description": "岗位编码 / Position code",
+                  "type": "string"
+                },
+                "positionName": {
+                  "description": "岗位名称 / Position name",
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "description": "排序 / Sort",
+                  "type": "integer"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "岗位信息 / Position information",
+                  "type": "object",
+                  "required": [
+                    "positionName",
+                    "positionCode",
+                    "sortOrder"
+                  ],
+                  "properties": {
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "岗位描述 / Position description",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "岗位ID / Position ID",
+                      "type": "integer"
+                    },
+                    "positionCode": {
+                      "description": "岗位编码 / Position code",
+                      "type": "string"
+                    },
+                    "positionName": {
+                      "description": "岗位名称 / Position name",
+                      "type": "string"
+                    },
+                    "sortOrder": {
+                      "description": "排序 / Sort",
+                      "type": "integer"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/position/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "岗位"
+        ],
+        "summary": "删除岗位",
+        "operationId": "positionDeletePositionHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/position/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "岗位"
+        ],
+        "summary": "获取岗位列表",
+        "operationId": "positionListPositionHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "positionCode": {
+                  "description": "岗位编码 / Position code",
+                  "type": "string"
+                },
+                "positionName": {
+                  "description": "岗位名称 / Position name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "状态 / State",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "岗位列表 / Position list",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "total",
+                      "list",
+                      "list"
+                    ],
+                    "properties": {
+                      "list": {
+                        "description": "岗位列表 / Position list",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "positionName",
+                            "positionCode",
+                            "sortOrder"
+                          ],
+                          "properties": {
+                            "createdAt": {
+                              "description": "创建时间 / Creation time",
+                              "type": "integer"
+                            },
+                            "description": {
+                              "description": "岗位描述 / Position description",
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "岗位ID / Position ID",
+                              "type": "integer"
+                            },
+                            "positionCode": {
+                              "description": "岗位编码 / Position code",
+                              "type": "string"
+                            },
+                            "positionName": {
+                              "description": "岗位名称 / Position name",
+                              "type": "string"
+                            },
+                            "sortOrder": {
+                              "description": "排序 / Sort",
+                              "type": "integer"
+                            },
+                            "state": {
+                              "description": "状态 / State",
+                              "type": "boolean"
+                            },
+                            "updatedAt": {
+                              "description": "更新时间 / Update time",
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      },
+                      "total": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/assign/api": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "为角色分配API",
+        "operationId": "roleAssignApiToRoleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "roleId",
+                "apiIds"
+              ],
+              "properties": {
+                "apiIds": {
+                  "description": "API ID / API ID",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "roleId": {
+                  "description": "角色ID / Role ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/assign/menu": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "为角色分配菜单",
+        "operationId": "roleAssignMenuToRoleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "roleId",
+                "menuIds"
+              ],
+              "properties": {
+                "menuIds": {
+                  "description": "菜单ID / Menu ID",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "roleId": {
+                  "description": "角色ID / Role ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "创建或更新角色",
+        "operationId": "roleCreateOrUpdateRoleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "roleName",
+                "roleCode"
+              ],
+              "properties": {
+                "createdAt": {
+                  "description": "创建时间 / Creation time",
+                  "type": "integer"
+                },
+                "description": {
+                  "description": "角色描述 / Role description",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "角色ID / Role ID",
+                  "type": "integer"
+                },
+                "roleCode": {
+                  "description": "角色编码 / Role code",
+                  "type": "string"
+                },
+                "roleName": {
+                  "description": "角色名称 / Role name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "角色状态 / Role state",
+                  "type": "boolean"
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "角色信息 / Role information",
+                  "type": "object",
+                  "required": [
+                    "roleName",
+                    "roleCode"
+                  ],
+                  "properties": {
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "角色描述 / Role description",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "角色ID / Role ID",
+                      "type": "integer"
+                    },
+                    "roleCode": {
+                      "description": "角色编码 / Role code",
+                      "type": "string"
+                    },
+                    "roleName": {
+                      "description": "角色名称 / Role name",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "角色状态 / Role state",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "删除角色",
+        "operationId": "roleDeleteRoleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/get/api": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "获取角色API",
+        "operationId": "roleGetRoleApiHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "API列表 / API list",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/get/menu": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "获取角色菜单",
+        "operationId": "roleGetRoleMenuHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "菜单列表 / Menu list",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "name",
+                      "meta",
+                      "id",
+                      "state",
+                      "service",
+                      "permission",
+                      "createdAt",
+                      "type"
+                    ],
+                    "properties": {
+                      "children": {
+                        "description": "子菜单 / Children menu",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "path",
+                            "name",
+                            "meta",
+                            "id",
+                            "state",
+                            "service",
+                            "permission",
+                            "createdAt",
+                            "type"
+                          ],
+                          "properties": {
+                            "children": {
+                              "description": "子菜单 / Children menu",
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "component": {
+                              "description": "组件 / Component",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "description": "创建时间 / Creation time",
+                              "type": "integer"
+                            },
+                            "description": {
+                              "description": "描述 / Description",
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "菜单ID / Menu ID",
+                              "type": "integer"
+                            },
+                            "meta": {
+                              "description": "菜单元数据 / Menu meta data",
+                              "type": "object",
+                              "properties": {
+                                "affixTab": {
+                                  "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                                  "type": "boolean"
+                                },
+                                "affixTabOrder": {
+                                  "description": "标签栏固定顺序 / Tabbar fix order",
+                                  "type": "integer"
+                                },
+                                "hideInMenu": {
+                                  "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                                  "type": "boolean"
+                                },
+                                "icon": {
+                                  "description": "菜单图标 / Menu icon",
+                                  "type": "string"
+                                },
+                                "iframeSrc": {
+                                  "description": "内嵌iframe地址 / Embedded iframe address",
+                                  "type": "string"
+                                },
+                                "keepAlive": {
+                                  "description": "是否缓存 / Whether to cache",
+                                  "type": "boolean"
+                                },
+                                "link": {
+                                  "description": "外链地址 / Link address",
+                                  "type": "string"
+                                },
+                                "order": {
+                                  "description": "菜单排序 / Menu order",
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "description": "菜单标题 / Menu title",
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "name": {
+                              "description": "菜单名称 / Menu name",
+                              "type": "string"
+                            },
+                            "parentId": {
+                              "description": "父级菜单ID / Parent menu ID",
+                              "type": "integer"
+                            },
+                            "path": {
+                              "description": "菜单路径 / Menu path",
+                              "type": "string"
+                            },
+                            "permission": {
+                              "description": "权限标识 / Permission identifier",
+                              "type": "string"
+                            },
+                            "redirect": {
+                              "description": "重定向地址 / Redirect path",
+                              "type": "string"
+                            },
+                            "service": {
+                              "description": "服务名称 / Service name",
+                              "type": "string"
+                            },
+                            "state": {
+                              "description": "菜单状态 / Menu state",
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "description": "菜单类型 / Menu type",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "component": {
+                        "description": "组件 / Component",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间 / Creation time",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "描述 / Description",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "菜单ID / Menu ID",
+                        "type": "integer"
+                      },
+                      "meta": {
+                        "description": "菜单元数据 / Menu meta data",
+                        "type": "object",
+                        "properties": {
+                          "affixTab": {
+                            "description": "是否固定在标签栏 / Whether to fix in tabbar",
+                            "type": "boolean"
+                          },
+                          "affixTabOrder": {
+                            "description": "标签栏固定顺序 / Tabbar fix order",
+                            "type": "integer"
+                          },
+                          "hideInMenu": {
+                            "description": "是否在菜单中隐藏 / Whether to hide in menu",
+                            "type": "boolean"
+                          },
+                          "icon": {
+                            "description": "菜单图标 / Menu icon",
+                            "type": "string"
+                          },
+                          "iframeSrc": {
+                            "description": "内嵌iframe地址 / Embedded iframe address",
+                            "type": "string"
+                          },
+                          "keepAlive": {
+                            "description": "是否缓存 / Whether to cache",
+                            "type": "boolean"
+                          },
+                          "link": {
+                            "description": "外链地址 / Link address",
+                            "type": "string"
+                          },
+                          "order": {
+                            "description": "菜单排序 / Menu order",
+                            "type": "integer"
+                          },
+                          "title": {
+                            "description": "菜单标题 / Menu title",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "name": {
+                        "description": "菜单名称 / Menu name",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "父级菜单ID / Parent menu ID",
+                        "type": "integer"
+                      },
+                      "path": {
+                        "description": "菜单路径 / Menu path",
+                        "type": "string"
+                      },
+                      "permission": {
+                        "description": "权限标识 / Permission identifier",
+                        "type": "string"
+                      },
+                      "redirect": {
+                        "description": "重定向地址 / Redirect path",
+                        "type": "string"
+                      },
+                      "service": {
+                        "description": "服务名称 / Service name",
+                        "type": "string"
+                      },
+                      "state": {
+                        "description": "菜单状态 / Menu state",
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "description": "菜单类型 / Menu type",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "角色"
+        ],
+        "summary": "获取角色列表",
+        "operationId": "roleListRoleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "roleCode": {
+                  "description": "角色编码 / Role code",
+                  "type": "string"
+                },
+                "roleName": {
+                  "description": "角色名称 / Role name",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "角色状态 / Role state",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "角色列表 / Role list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "角色列表 / Role list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "roleName",
+                          "roleCode"
+                        ],
+                        "properties": {
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "description": {
+                            "description": "角色描述 / Role description",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "角色ID / Role ID",
+                            "type": "integer"
+                          },
+                          "roleCode": {
+                            "description": "角色编码 / Role code",
+                            "type": "string"
+                          },
+                          "roleName": {
+                            "description": "角色名称 / Role name",
+                            "type": "string"
+                          },
+                          "state": {
+                            "description": "角色状态 / Role state",
+                            "type": "boolean"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token/block": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "令牌"
+        ],
+        "summary": "拉黑某一个令牌",
+        "operationId": "tokenBlockTokenHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "description": "令牌ID / Token ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token/clean": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "令牌"
+        ],
+        "summary": "清理过期令牌",
+        "operationId": "tokenCleanExpiredTokensHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "beforeTime": {
+                  "description": "清理指定时间之前的token，如果不指定则清理所有过期token / Clean up tokens before the specified time, if not specified, clean up all expired tokens",
+                  "type": "integer"
+                },
+                "tokenType": {
+                  "description": "令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cleanedCount": {
+                  "description": "清理的令牌数量 / Number of cleaned tokens",
+                  "type": "integer"
+                },
+                "message": {
+                  "description": "消息 / Message",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "令牌"
+        ],
+        "summary": "获取令牌列表",
+        "operationId": "tokenListTokenHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "deviceInfo": {
+                  "description": "设备信息 / Device information",
+                  "type": "string"
+                },
+                "ipAddress": {
+                  "description": "IP地址 / IP address",
+                  "type": "string"
+                },
+                "isRevoked": {
+                  "description": "是否已撤销 / Whether revoked",
+                  "type": "boolean"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "providerId": {
+                  "description": "提供商ID / Provider ID",
+                  "type": "integer"
+                },
+                "tokenType": {
+                  "description": "令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "用户ID / User ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "令牌列表 / Token list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "令牌列表 / Token list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "createdAt": {
+                            "description": "创建时间 / Creation time",
+                            "type": "integer"
+                          },
+                          "deviceInfo": {
+                            "description": "设备信息 / Device information",
+                            "type": "string"
+                          },
+                          "expiresAt": {
+                            "description": "过期时间 / Expiration time",
+                            "type": "integer"
+                          },
+                          "fullName": {
+                            "description": "用户全名 / User full name",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Token ID / Token ID",
+                            "type": "integer"
+                          },
+                          "ipAddress": {
+                            "description": "IP地址 / IP address",
+                            "type": "string"
+                          },
+                          "lastUsedAt": {
+                            "description": "最后使用时间 / Last used time",
+                            "type": "integer"
+                          },
+                          "metadata": {
+                            "description": "元数据 / Metadata (JSON format)",
+                            "type": "string"
+                          },
+                          "providerId": {
+                            "description": "提供商ID / Provider ID",
+                            "type": "integer"
+                          },
+                          "providerName": {
+                            "description": "提供商名称 / Provider name",
+                            "type": "string"
+                          },
+                          "state": {
+                            "description": "状态 / State",
+                            "type": "boolean"
+                          },
+                          "tokenType": {
+                            "description": "令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)",
+                            "type": "string"
+                          },
+                          "tokenValue": {
+                            "description": "令牌值 / Token value",
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          },
+                          "userAgent": {
+                            "description": "用户代理 / User agent",
+                            "type": "string"
+                          },
+                          "userId": {
+                            "description": "用户ID / User ID",
+                            "type": "string"
+                          },
+                          "username": {
+                            "description": "用户名 / Username",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token/unblock": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "令牌"
+        ],
+        "summary": "解封某一个令牌",
+        "operationId": "tokenUnblockTokenHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "description": "令牌ID / Token ID",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token/{id}": {
+      "delete": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "令牌"
+        ],
+        "summary": "删除令牌",
+        "operationId": "tokenDeleteTokenHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/createOrUpdate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "创建或更新用户",
+        "operationId": "userCreateOrUpdateUserHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "avatar": {
+                  "description": "头像URL / Avatar URL",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "创建时间 / Create time",
+                  "type": "integer"
+                },
+                "departmentId": {
+                  "description": "用户部门ID / User department ID",
+                  "type": "integer"
+                },
+                "departmentName": {
+                  "description": "用户部门名称 / User department name",
+                  "type": "string"
+                },
+                "desc": {
+                  "description": "用户描述 / User description",
+                  "type": "string"
+                },
+                "email": {
+                  "description": "邮箱 / Email",
+                  "type": "string"
+                },
+                "homePath": {
+                  "description": "首页地址 / Home page address",
+                  "type": "string"
+                },
+                "lastLoginAt": {
+                  "description": "最后登录时间 / Last login time",
+                  "type": "integer"
+                },
+                "lastLoginIp": {
+                  "description": "最后登录IP / Last login IP",
+                  "type": "string"
+                },
+                "mobile": {
+                  "description": "手机号 / Mobile",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "密码 / Password",
+                  "type": "string"
+                },
+                "positionIds": {
+                  "description": "用户职位ID / User position ID",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "positionNames": {
+                  "description": "用户职位名称 / User position names",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "realName": {
+                  "description": "用户全名 / User full name",
+                  "type": "string"
+                },
+                "roleIds": {
+                  "description": "用户角色ID / User role ID",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "roleNames": {
+                  "description": "用户角色名称 / User role names",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "roles": {
+                  "description": "用户角色 / User roles",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "state": {
+                  "description": "用户状态 / User state",
+                  "type": "boolean"
+                },
+                "totpInfo": {
+                  "description": "TOTP信息 / TOTP information",
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "description": "创建时间 / Creation time",
+                      "type": "integer"
+                    },
+                    "deviceName": {
+                      "description": "设备名称 / Device name",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "TOTP ID / TOTP ID",
+                      "type": "string"
+                    },
+                    "isVerified": {
+                      "description": "是否已验证 / Whether verified",
+                      "type": "boolean"
+                    },
+                    "issuer": {
+                      "description": "发行者名称 / Issuer name",
+                      "type": "string"
+                    },
+                    "lastUsedAt": {
+                      "description": "最后使用时间 / Last used time",
+                      "type": "integer"
+                    },
+                    "lastUsedCode": {
+                      "description": "最后使用的验证码 / Last used verification code",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "状态 / State",
+                      "type": "boolean"
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "updatedAt": {
+                  "description": "更新时间 / Update time",
+                  "type": "integer"
+                },
+                "userId": {
+                  "description": "用户ID / User ID",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "用户名 / Username",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "用户信息 / User information",
+                  "type": "object",
+                  "properties": {
+                    "avatar": {
+                      "description": "头像URL / Avatar URL",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间 / Create time",
+                      "type": "integer"
+                    },
+                    "departmentId": {
+                      "description": "用户部门ID / User department ID",
+                      "type": "integer"
+                    },
+                    "departmentName": {
+                      "description": "用户部门名称 / User department name",
+                      "type": "string"
+                    },
+                    "desc": {
+                      "description": "用户描述 / User description",
+                      "type": "string"
+                    },
+                    "email": {
+                      "description": "邮箱 / Email",
+                      "type": "string"
+                    },
+                    "homePath": {
+                      "description": "首页地址 / Home page address",
+                      "type": "string"
+                    },
+                    "lastLoginAt": {
+                      "description": "最后登录时间 / Last login time",
+                      "type": "integer"
+                    },
+                    "lastLoginIp": {
+                      "description": "最后登录IP / Last login IP",
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "description": "手机号 / Mobile",
+                      "type": "string"
+                    },
+                    "password": {
+                      "description": "密码 / Password",
+                      "type": "string"
+                    },
+                    "positionIds": {
+                      "description": "用户职位ID / User position ID",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "positionNames": {
+                      "description": "用户职位名称 / User position names",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "realName": {
+                      "description": "用户全名 / User full name",
+                      "type": "string"
+                    },
+                    "roleIds": {
+                      "description": "用户角色ID / User role ID",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "roleNames": {
+                      "description": "用户角色名称 / User role names",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "roles": {
+                      "description": "用户角色 / User roles",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "state": {
+                      "description": "用户状态 / User state",
+                      "type": "boolean"
+                    },
+                    "totpInfo": {
+                      "description": "TOTP信息 / TOTP information",
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "description": "创建时间 / Creation time",
+                          "type": "integer"
+                        },
+                        "deviceName": {
+                          "description": "设备名称 / Device name",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "TOTP ID / TOTP ID",
+                          "type": "string"
+                        },
+                        "isVerified": {
+                          "description": "是否已验证 / Whether verified",
+                          "type": "boolean"
+                        },
+                        "issuer": {
+                          "description": "发行者名称 / Issuer name",
+                          "type": "string"
+                        },
+                        "lastUsedAt": {
+                          "description": "最后使用时间 / Last used time",
+                          "type": "integer"
+                        },
+                        "lastUsedCode": {
+                          "description": "最后使用的验证码 / Last used verification code",
+                          "type": "string"
+                        },
+                        "state": {
+                          "description": "状态 / State",
+                          "type": "boolean"
+                        },
+                        "updatedAt": {
+                          "description": "更新时间 / Update time",
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "description": "用户ID / User ID",
+                      "type": "string"
+                    },
+                    "username": {
+                      "description": "用户名 / Username",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "删除用户",
+        "operationId": "userDeleteUserHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
                 },
                 "message": {
                   "type": "string"
@@ -566,17 +5398,77 @@
                       "description": "头像URL / Avatar URL",
                       "type": "string"
                     },
+                    "createdAt": {
+                      "description": "创建时间 / Create time",
+                      "type": "integer"
+                    },
+                    "departmentId": {
+                      "description": "用户部门ID / User department ID",
+                      "type": "integer"
+                    },
+                    "departmentName": {
+                      "description": "用户部门名称 / User department name",
+                      "type": "string"
+                    },
                     "desc": {
                       "description": "用户描述 / User description",
+                      "type": "string"
+                    },
+                    "email": {
+                      "description": "邮箱 / Email",
                       "type": "string"
                     },
                     "homePath": {
                       "description": "首页地址 / Home page address",
                       "type": "string"
                     },
+                    "lastLoginAt": {
+                      "description": "最后登录时间 / Last login time",
+                      "type": "integer"
+                    },
+                    "lastLoginIp": {
+                      "description": "最后登录IP / Last login IP",
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "description": "手机号 / Mobile",
+                      "type": "string"
+                    },
+                    "password": {
+                      "description": "密码 / Password",
+                      "type": "string"
+                    },
+                    "positionIds": {
+                      "description": "用户职位ID / User position ID",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "positionNames": {
+                      "description": "用户职位名称 / User position names",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "realName": {
                       "description": "用户全名 / User full name",
                       "type": "string"
+                    },
+                    "roleIds": {
+                      "description": "用户角色ID / User role ID",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "roleNames": {
+                      "description": "用户角色名称 / User role names",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "roles": {
                       "description": "用户角色 / User roles",
@@ -585,9 +5477,55 @@
                         "type": "string"
                       }
                     },
-                    "token": {
-                      "description": "访问令牌 / Access token",
-                      "type": "string"
+                    "state": {
+                      "description": "用户状态 / User state",
+                      "type": "boolean"
+                    },
+                    "totpInfo": {
+                      "description": "TOTP信息 / TOTP information",
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "description": "创建时间 / Creation time",
+                          "type": "integer"
+                        },
+                        "deviceName": {
+                          "description": "设备名称 / Device name",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "TOTP ID / TOTP ID",
+                          "type": "string"
+                        },
+                        "isVerified": {
+                          "description": "是否已验证 / Whether verified",
+                          "type": "boolean"
+                        },
+                        "issuer": {
+                          "description": "发行者名称 / Issuer name",
+                          "type": "string"
+                        },
+                        "lastUsedAt": {
+                          "description": "最后使用时间 / Last used time",
+                          "type": "integer"
+                        },
+                        "lastUsedCode": {
+                          "description": "最后使用的验证码 / Last used verification code",
+                          "type": "string"
+                        },
+                        "state": {
+                          "description": "状态 / State",
+                          "type": "boolean"
+                        },
+                        "updatedAt": {
+                          "description": "更新时间 / Update time",
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "updatedAt": {
+                      "description": "更新时间 / Update time",
+                      "type": "integer"
                     },
                     "userId": {
                       "description": "用户ID / User ID",
@@ -607,9 +5545,447 @@
           }
         }
       }
+    },
+    "/user/list": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "获取用户列表",
+        "operationId": "userListUserHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "page"
+              ],
+              "properties": {
+                "departmentId": {
+                  "description": "用户部门ID / User department ID",
+                  "type": "integer"
+                },
+                "email": {
+                  "description": "邮箱 / Email",
+                  "type": "string"
+                },
+                "mobile": {
+                  "description": "手机号 / Mobile",
+                  "type": "string"
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "pageSize",
+                    "currentPage"
+                  ],
+                  "properties": {
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "state": {
+                  "description": "用户状态 / User state",
+                  "type": "boolean"
+                },
+                "userId": {
+                  "description": "用户ID / User ID",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "用户名 / Username",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "用户列表 / User list",
+                  "type": "object",
+                  "required": [
+                    "total",
+                    "list",
+                    "list"
+                  ],
+                  "properties": {
+                    "list": {
+                      "description": "用户列表 / User list",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "avatar": {
+                            "description": "头像URL / Avatar URL",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "创建时间 / Create time",
+                            "type": "integer"
+                          },
+                          "departmentId": {
+                            "description": "用户部门ID / User department ID",
+                            "type": "integer"
+                          },
+                          "departmentName": {
+                            "description": "用户部门名称 / User department name",
+                            "type": "string"
+                          },
+                          "desc": {
+                            "description": "用户描述 / User description",
+                            "type": "string"
+                          },
+                          "email": {
+                            "description": "邮箱 / Email",
+                            "type": "string"
+                          },
+                          "homePath": {
+                            "description": "首页地址 / Home page address",
+                            "type": "string"
+                          },
+                          "lastLoginAt": {
+                            "description": "最后登录时间 / Last login time",
+                            "type": "integer"
+                          },
+                          "lastLoginIp": {
+                            "description": "最后登录IP / Last login IP",
+                            "type": "string"
+                          },
+                          "mobile": {
+                            "description": "手机号 / Mobile",
+                            "type": "string"
+                          },
+                          "password": {
+                            "description": "密码 / Password",
+                            "type": "string"
+                          },
+                          "positionIds": {
+                            "description": "用户职位ID / User position ID",
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          },
+                          "positionNames": {
+                            "description": "用户职位名称 / User position names",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "realName": {
+                            "description": "用户全名 / User full name",
+                            "type": "string"
+                          },
+                          "roleIds": {
+                            "description": "用户角色ID / User role ID",
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          },
+                          "roleNames": {
+                            "description": "用户角色名称 / User role names",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "roles": {
+                            "description": "用户角色 / User roles",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "state": {
+                            "description": "用户状态 / User state",
+                            "type": "boolean"
+                          },
+                          "totpInfo": {
+                            "description": "TOTP信息 / TOTP information",
+                            "type": "object",
+                            "properties": {
+                              "createdAt": {
+                                "description": "创建时间 / Creation time",
+                                "type": "integer"
+                              },
+                              "deviceName": {
+                                "description": "设备名称 / Device name",
+                                "type": "string"
+                              },
+                              "id": {
+                                "description": "TOTP ID / TOTP ID",
+                                "type": "string"
+                              },
+                              "isVerified": {
+                                "description": "是否已验证 / Whether verified",
+                                "type": "boolean"
+                              },
+                              "issuer": {
+                                "description": "发行者名称 / Issuer name",
+                                "type": "string"
+                              },
+                              "lastUsedAt": {
+                                "description": "最后使用时间 / Last used time",
+                                "type": "integer"
+                              },
+                              "lastUsedCode": {
+                                "description": "最后使用的验证码 / Last used verification code",
+                                "type": "string"
+                              },
+                              "state": {
+                                "description": "状态 / State",
+                                "type": "boolean"
+                              },
+                              "updatedAt": {
+                                "description": "更新时间 / Update time",
+                                "type": "integer"
+                              }
+                            }
+                          },
+                          "updatedAt": {
+                            "description": "更新时间 / Update time",
+                            "type": "integer"
+                          },
+                          "userId": {
+                            "description": "用户ID / User ID",
+                            "type": "string"
+                          },
+                          "username": {
+                            "description": "用户名 / Username",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/totp/disable": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "禁用TOTP",
+        "operationId": "userDisableTotpHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/totp/enable": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "创建/重置TOTP",
+        "operationId": "userEnableTotpHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "userId",
+                "issuer",
+                "domain"
+              ],
+              "properties": {
+                "domain": {
+                  "description": "域名 / Domain",
+                  "type": "string"
+                },
+                "issuer": {
+                  "description": "发行者名称 / Issuer name",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "用户ID / User ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "data": {
+                  "description": "TOTP信息 / TOTP information",
+                  "type": "object",
+                  "required": [
+                    "qrText"
+                  ],
+                  "properties": {
+                    "qrText": {
+                      "description": "二维码内容 / QR code content",
+                      "type": "string"
+                    }
+                  }
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/totp/verify": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "验证TOTP",
+        "operationId": "userVerifyTotpHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "userId",
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "description": "验证码 / Verification code",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "用户ID / User ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  "x-date": "2025-10-16 16:15:28",
+  "x-date": "2025-11-11 04:07:45",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

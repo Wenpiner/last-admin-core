@@ -29,22 +29,10 @@ func (s *TokenServiceServer) CreateToken(ctx context.Context, in *core.CreateTok
 	return l.CreateToken(in)
 }
 
-// 获取Token
-func (s *TokenServiceServer) GetToken(ctx context.Context, in *core.ID32Request) (*core.TokenInfo, error) {
-	l := tokenservicelogic.NewGetTokenLogic(ctx, s.svcCtx)
-	return l.GetToken(in)
-}
-
 // 根据Token值获取Token信息
 func (s *TokenServiceServer) GetTokenByValue(ctx context.Context, in *core.StringRequest) (*core.TokenInfo, error) {
 	l := tokenservicelogic.NewGetTokenByValueLogic(ctx, s.svcCtx)
 	return l.GetTokenByValue(in)
-}
-
-// 验证Token
-func (s *TokenServiceServer) ValidateToken(ctx context.Context, in *core.ValidateTokenRequest) (*core.ValidateTokenResponse, error) {
-	l := tokenservicelogic.NewValidateTokenLogic(ctx, s.svcCtx)
-	return l.ValidateToken(in)
 }
 
 // 更新Token
@@ -57,18 +45,6 @@ func (s *TokenServiceServer) UpdateToken(ctx context.Context, in *core.TokenInfo
 func (s *TokenServiceServer) DeleteToken(ctx context.Context, in *core.ID32Request) (*core.BaseResponse, error) {
 	l := tokenservicelogic.NewDeleteTokenLogic(ctx, s.svcCtx)
 	return l.DeleteToken(in)
-}
-
-// 撤销Token
-func (s *TokenServiceServer) RevokeToken(ctx context.Context, in *core.RevokeTokenRequest) (*core.BaseResponse, error) {
-	l := tokenservicelogic.NewRevokeTokenLogic(ctx, s.svcCtx)
-	return l.RevokeToken(in)
-}
-
-// 撤销用户的所有Token（除了blockUserAllToken功能）
-func (s *TokenServiceServer) RevokeUserTokens(ctx context.Context, in *core.RevokeUserTokensRequest) (*core.BaseResponse, error) {
-	l := tokenservicelogic.NewRevokeUserTokensLogic(ctx, s.svcCtx)
-	return l.RevokeUserTokens(in)
 }
 
 // 获取Token列表
@@ -87,10 +63,4 @@ func (s *TokenServiceServer) CleanExpiredTokens(ctx context.Context, in *core.Cl
 func (s *TokenServiceServer) UpdateTokenLastUsed(ctx context.Context, in *core.UpdateTokenLastUsedRequest) (*core.BaseResponse, error) {
 	l := tokenservicelogic.NewUpdateTokenLastUsedLogic(ctx, s.svcCtx)
 	return l.UpdateTokenLastUsed(in)
-}
-
-// 根据刷新Token ID获取相关的访问Token
-func (s *TokenServiceServer) GetTokenByRefreshToken(ctx context.Context, in *core.GetTokenByRefreshTokenRequest) (*core.TokenInfo, error) {
-	l := tokenservicelogic.NewGetTokenByRefreshTokenLogic(ctx, s.svcCtx)
-	return l.GetTokenByRefreshToken(in)
 }

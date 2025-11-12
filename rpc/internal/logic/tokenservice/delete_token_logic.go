@@ -3,7 +3,9 @@ package tokenservicelogic
 import (
 	"context"
 
+	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/internal/svc"
+	"github.com/wenpiner/last-admin-core/rpc/internal/utils/errorhandler"
 	"github.com/wenpiner/last-admin-core/rpc/types/core"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -25,7 +27,22 @@ func NewDeleteTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 
 // 删除Token
 func (l *DeleteTokenLogic) DeleteToken(in *core.ID32Request) (*core.BaseResponse, error) {
-	// todo: add your logic here and delete this line
+	// 删除Token
+	affected, err := l.svcCtx.DBEnt.Token.Delete().
+		Where(token.IDEQ(in.Id)).
+		Exec(l.ctx)
 
-	return &core.BaseResponse{}, nil
+	if err != nil {
+		return nil, errorhandler.DBEntError(l.Logger, err, in)
+	}
+
+	if affected == 0 {
+		return &core.BaseResponse{
+			Message: "Token not found",
+		}, nil
+	}
+
+	return &core.BaseResponse{
+		Message: "Token deleted successfully",
+	}, nil
 }

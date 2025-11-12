@@ -18,22 +18,21 @@ import (
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx            *QueryContext
-	order          []user.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.User
-	withRoles      *RoleQuery
-	withPositions  *PositionQuery
-	withDepartment *DepartmentQuery
-	withOauths     *UserOauthQuery
-	withTotp       *UserTotpQuery
+	ctx                  *QueryContext
+	order                []user.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.User
+	withRoles            *RoleQuery
+	withPositions        *PositionQuery
+	withDepartment       *DepartmentQuery
+	withLeaderDepartment *DepartmentQuery
+	withTotp             *UserTotpQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -136,9 +135,9 @@ func (_q *UserQuery) QueryDepartment() *DepartmentQuery {
 	return query
 }
 
-// QueryOauths chains the current query on the "oauths" edge.
-func (_q *UserQuery) QueryOauths() *UserOauthQuery {
-	query := (&UserOauthClient{config: _q.config}).Query()
+// QueryLeaderDepartment chains the current query on the "leader_department" edge.
+func (_q *UserQuery) QueryLeaderDepartment() *DepartmentQuery {
+	query := (&DepartmentClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -149,8 +148,8 @@ func (_q *UserQuery) QueryOauths() *UserOauthQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(useroauth.Table, useroauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.OauthsTable, user.OauthsColumn),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.LeaderDepartmentTable, user.LeaderDepartmentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -172,7 +171,7 @@ func (_q *UserQuery) QueryTotp() *UserTotpQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(usertotp.Table, usertotp.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.TotpTable, user.TotpColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.TotpTable, user.TotpColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -367,16 +366,16 @@ func (_q *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:         _q.config,
-		ctx:            _q.ctx.Clone(),
-		order:          append([]user.OrderOption{}, _q.order...),
-		inters:         append([]Interceptor{}, _q.inters...),
-		predicates:     append([]predicate.User{}, _q.predicates...),
-		withRoles:      _q.withRoles.Clone(),
-		withPositions:  _q.withPositions.Clone(),
-		withDepartment: _q.withDepartment.Clone(),
-		withOauths:     _q.withOauths.Clone(),
-		withTotp:       _q.withTotp.Clone(),
+		config:               _q.config,
+		ctx:                  _q.ctx.Clone(),
+		order:                append([]user.OrderOption{}, _q.order...),
+		inters:               append([]Interceptor{}, _q.inters...),
+		predicates:           append([]predicate.User{}, _q.predicates...),
+		withRoles:            _q.withRoles.Clone(),
+		withPositions:        _q.withPositions.Clone(),
+		withDepartment:       _q.withDepartment.Clone(),
+		withLeaderDepartment: _q.withLeaderDepartment.Clone(),
+		withTotp:             _q.withTotp.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -416,14 +415,14 @@ func (_q *UserQuery) WithDepartment(opts ...func(*DepartmentQuery)) *UserQuery {
 	return _q
 }
 
-// WithOauths tells the query-builder to eager-load the nodes that are connected to
-// the "oauths" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithOauths(opts ...func(*UserOauthQuery)) *UserQuery {
-	query := (&UserOauthClient{config: _q.config}).Query()
+// WithLeaderDepartment tells the query-builder to eager-load the nodes that are connected to
+// the "leader_department" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithLeaderDepartment(opts ...func(*DepartmentQuery)) *UserQuery {
+	query := (&DepartmentClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withOauths = query
+	_q.withLeaderDepartment = query
 	return _q
 }
 
@@ -520,7 +519,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withRoles != nil,
 			_q.withPositions != nil,
 			_q.withDepartment != nil,
-			_q.withOauths != nil,
+			_q.withLeaderDepartment != nil,
 			_q.withTotp != nil,
 		}
 	)
@@ -562,17 +561,16 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := _q.withOauths; query != nil {
-		if err := _q.loadOauths(ctx, query, nodes,
-			func(n *User) { n.Edges.Oauths = []*UserOauth{} },
-			func(n *User, e *UserOauth) { n.Edges.Oauths = append(n.Edges.Oauths, e) }); err != nil {
+	if query := _q.withLeaderDepartment; query != nil {
+		if err := _q.loadLeaderDepartment(ctx, query, nodes,
+			func(n *User) { n.Edges.LeaderDepartment = []*Department{} },
+			func(n *User, e *Department) { n.Edges.LeaderDepartment = append(n.Edges.LeaderDepartment, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withTotp; query != nil {
-		if err := _q.loadTotp(ctx, query, nodes,
-			func(n *User) { n.Edges.Totp = []*UserTotp{} },
-			func(n *User, e *UserTotp) { n.Edges.Totp = append(n.Edges.Totp, e) }); err != nil {
+		if err := _q.loadTotp(ctx, query, nodes, nil,
+			func(n *User, e *UserTotp) { n.Edges.Totp = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -730,7 +728,7 @@ func (_q *UserQuery) loadDepartment(ctx context.Context, query *DepartmentQuery,
 	}
 	return nil
 }
-func (_q *UserQuery) loadOauths(ctx context.Context, query *UserOauthQuery, nodes []*User, init func(*User), assign func(*User, *UserOauth)) error {
+func (_q *UserQuery) loadLeaderDepartment(ctx context.Context, query *DepartmentQuery, nodes []*User, init func(*User), assign func(*User, *Department)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
@@ -741,20 +739,23 @@ func (_q *UserQuery) loadOauths(ctx context.Context, query *UserOauthQuery, node
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(useroauth.FieldUserID)
+		query.ctx.AppendFieldOnce(department.FieldLeaderUserID)
 	}
-	query.Where(predicate.UserOauth(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.OauthsColumn), fks...))
+	query.Where(predicate.Department(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.LeaderDepartmentColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
+		fk := n.LeaderUserID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "leader_user_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "leader_user_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -766,13 +767,8 @@ func (_q *UserQuery) loadTotp(ctx context.Context, query *UserTotpQuery, nodes [
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(usertotp.FieldUserID)
-	}
+	query.withFKs = true
 	query.Where(predicate.UserTotp(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.TotpColumn), fks...))
 	}))
@@ -781,10 +777,13 @@ func (_q *UserQuery) loadTotp(ctx context.Context, query *UserTotpQuery, nodes [
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
+		fk := n.user_totp
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_totp" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_totp" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -53,20 +53,20 @@ type OauthProvider struct {
 
 // OauthProviderEdges holds the relations/edges for other nodes in the graph.
 type OauthProviderEdges struct {
-	// Oauths holds the value of the oauths edge.
-	Oauths []*UserOauth `json:"oauths,omitempty"`
+	// Tokens holds the value of the tokens edge.
+	Tokens []*Token `json:"tokens,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// OauthsOrErr returns the Oauths value or an error if the edge
+// TokensOrErr returns the Tokens value or an error if the edge
 // was not loaded in eager-loading.
-func (e OauthProviderEdges) OauthsOrErr() ([]*UserOauth, error) {
+func (e OauthProviderEdges) TokensOrErr() ([]*Token, error) {
 	if e.loadedTypes[0] {
-		return e.Oauths, nil
+		return e.Tokens, nil
 	}
-	return nil, &NotLoadedError{edge: "oauths"}
+	return nil, &NotLoadedError{edge: "tokens"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -203,9 +203,9 @@ func (_m *OauthProvider) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryOauths queries the "oauths" edge of the OauthProvider entity.
-func (_m *OauthProvider) QueryOauths() *UserOauthQuery {
-	return NewOauthProviderClient(_m.config).QueryOauths(_m)
+// QueryTokens queries the "tokens" edge of the OauthProvider entity.
+func (_m *OauthProvider) QueryTokens() *TokenQuery {
+	return NewOauthProviderClient(_m.config).QueryTokens(_m)
 }
 
 // Update returns a builder for updating this OauthProvider.

@@ -87,7 +87,9 @@ func (l *OauthCallbackLogic) OauthCallback(in *core.OauthCallbackRequest) (*core
 	}
 
 	// 7. 返回本地用户信息
-	return l.convertUserToUserInfo(localUser), nil
+	u := l.convertUserToUserInfo(localUser)
+	u.ProviderId = &provider.ID
+	return u, nil
 }
 
 // findLocalUser 根据第三方用户信息查找本地用户

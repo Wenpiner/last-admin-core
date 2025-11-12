@@ -52,6 +52,16 @@ func (l *GetUserInfoLogic) GetUserInfo() (resp *types.UserInfoResponse, err erro
 			Email:          pointer.GetString(u.Email),
 			RoleNames:      u.RoleNames,
 			DepartmentName: pointer.GetString(u.DepartmentName),
+			Mobile:         pointer.GetString(u.Mobile),
+			DepartmentId:   pointer.GetUint32(u.DepartmentId),
+			PositionNames:  u.PositionNames,
+			PositionIds:    u.PositionIds,
+			State:          pointer.GetBool(u.State),
+			CreatedAt:      pointer.GetInt64(u.CreatedAt),
+			UpdatedAt:      pointer.GetInt64(u.UpdatedAt),
+			LastLoginAt:    pointer.GetInt64(u.LastLoginAt),
+			LastLoginIp:    pointer.GetString(u.LastLoginIp),
+			RoleIds:        u.RoleIds,
 		},
 	}
 

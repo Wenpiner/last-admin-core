@@ -91,11 +91,6 @@ func ExpiresAt(v time.Time) predicate.Token {
 	return predicate.Token(sql.FieldEQ(FieldExpiresAt, v))
 }
 
-// IsRevoked applies equality check predicate on the "is_revoked" field. It's identical to IsRevokedEQ.
-func IsRevoked(v bool) predicate.Token {
-	return predicate.Token(sql.FieldEQ(FieldIsRevoked, v))
-}
-
 // DeviceInfo applies equality check predicate on the "device_info" field. It's identical to DeviceInfoEQ.
 func DeviceInfo(v string) predicate.Token {
 	return predicate.Token(sql.FieldEQ(FieldDeviceInfo, v))
@@ -121,9 +116,9 @@ func Metadata(v string) predicate.Token {
 	return predicate.Token(sql.FieldEQ(FieldMetadata, v))
 }
 
-// RefreshTokenID applies equality check predicate on the "refresh_token_id" field. It's identical to RefreshTokenIDEQ.
-func RefreshTokenID(v string) predicate.Token {
-	return predicate.Token(sql.FieldEQ(FieldRefreshTokenID, v))
+// ProviderID applies equality check predicate on the "provider_id" field. It's identical to ProviderIDEQ.
+func ProviderID(v uint32) predicate.Token {
+	return predicate.Token(sql.FieldEQ(FieldProviderID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -424,16 +419,6 @@ func ExpiresAtLT(v time.Time) predicate.Token {
 // ExpiresAtLTE applies the LTE predicate on the "expires_at" field.
 func ExpiresAtLTE(v time.Time) predicate.Token {
 	return predicate.Token(sql.FieldLTE(FieldExpiresAt, v))
-}
-
-// IsRevokedEQ applies the EQ predicate on the "is_revoked" field.
-func IsRevokedEQ(v bool) predicate.Token {
-	return predicate.Token(sql.FieldEQ(FieldIsRevoked, v))
-}
-
-// IsRevokedNEQ applies the NEQ predicate on the "is_revoked" field.
-func IsRevokedNEQ(v bool) predicate.Token {
-	return predicate.Token(sql.FieldNEQ(FieldIsRevoked, v))
 }
 
 // DeviceInfoEQ applies the EQ predicate on the "device_info" field.
@@ -786,79 +771,34 @@ func MetadataContainsFold(v string) predicate.Token {
 	return predicate.Token(sql.FieldContainsFold(FieldMetadata, v))
 }
 
-// RefreshTokenIDEQ applies the EQ predicate on the "refresh_token_id" field.
-func RefreshTokenIDEQ(v string) predicate.Token {
-	return predicate.Token(sql.FieldEQ(FieldRefreshTokenID, v))
+// ProviderIDEQ applies the EQ predicate on the "provider_id" field.
+func ProviderIDEQ(v uint32) predicate.Token {
+	return predicate.Token(sql.FieldEQ(FieldProviderID, v))
 }
 
-// RefreshTokenIDNEQ applies the NEQ predicate on the "refresh_token_id" field.
-func RefreshTokenIDNEQ(v string) predicate.Token {
-	return predicate.Token(sql.FieldNEQ(FieldRefreshTokenID, v))
+// ProviderIDNEQ applies the NEQ predicate on the "provider_id" field.
+func ProviderIDNEQ(v uint32) predicate.Token {
+	return predicate.Token(sql.FieldNEQ(FieldProviderID, v))
 }
 
-// RefreshTokenIDIn applies the In predicate on the "refresh_token_id" field.
-func RefreshTokenIDIn(vs ...string) predicate.Token {
-	return predicate.Token(sql.FieldIn(FieldRefreshTokenID, vs...))
+// ProviderIDIn applies the In predicate on the "provider_id" field.
+func ProviderIDIn(vs ...uint32) predicate.Token {
+	return predicate.Token(sql.FieldIn(FieldProviderID, vs...))
 }
 
-// RefreshTokenIDNotIn applies the NotIn predicate on the "refresh_token_id" field.
-func RefreshTokenIDNotIn(vs ...string) predicate.Token {
-	return predicate.Token(sql.FieldNotIn(FieldRefreshTokenID, vs...))
+// ProviderIDNotIn applies the NotIn predicate on the "provider_id" field.
+func ProviderIDNotIn(vs ...uint32) predicate.Token {
+	return predicate.Token(sql.FieldNotIn(FieldProviderID, vs...))
 }
 
-// RefreshTokenIDGT applies the GT predicate on the "refresh_token_id" field.
-func RefreshTokenIDGT(v string) predicate.Token {
-	return predicate.Token(sql.FieldGT(FieldRefreshTokenID, v))
+// ProviderIDIsNil applies the IsNil predicate on the "provider_id" field.
+func ProviderIDIsNil() predicate.Token {
+	return predicate.Token(sql.FieldIsNull(FieldProviderID))
 }
 
-// RefreshTokenIDGTE applies the GTE predicate on the "refresh_token_id" field.
-func RefreshTokenIDGTE(v string) predicate.Token {
-	return predicate.Token(sql.FieldGTE(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDLT applies the LT predicate on the "refresh_token_id" field.
-func RefreshTokenIDLT(v string) predicate.Token {
-	return predicate.Token(sql.FieldLT(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDLTE applies the LTE predicate on the "refresh_token_id" field.
-func RefreshTokenIDLTE(v string) predicate.Token {
-	return predicate.Token(sql.FieldLTE(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDContains applies the Contains predicate on the "refresh_token_id" field.
-func RefreshTokenIDContains(v string) predicate.Token {
-	return predicate.Token(sql.FieldContains(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDHasPrefix applies the HasPrefix predicate on the "refresh_token_id" field.
-func RefreshTokenIDHasPrefix(v string) predicate.Token {
-	return predicate.Token(sql.FieldHasPrefix(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDHasSuffix applies the HasSuffix predicate on the "refresh_token_id" field.
-func RefreshTokenIDHasSuffix(v string) predicate.Token {
-	return predicate.Token(sql.FieldHasSuffix(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDIsNil applies the IsNil predicate on the "refresh_token_id" field.
-func RefreshTokenIDIsNil() predicate.Token {
-	return predicate.Token(sql.FieldIsNull(FieldRefreshTokenID))
-}
-
-// RefreshTokenIDNotNil applies the NotNil predicate on the "refresh_token_id" field.
-func RefreshTokenIDNotNil() predicate.Token {
-	return predicate.Token(sql.FieldNotNull(FieldRefreshTokenID))
-}
-
-// RefreshTokenIDEqualFold applies the EqualFold predicate on the "refresh_token_id" field.
-func RefreshTokenIDEqualFold(v string) predicate.Token {
-	return predicate.Token(sql.FieldEqualFold(FieldRefreshTokenID, v))
-}
-
-// RefreshTokenIDContainsFold applies the ContainsFold predicate on the "refresh_token_id" field.
-func RefreshTokenIDContainsFold(v string) predicate.Token {
-	return predicate.Token(sql.FieldContainsFold(FieldRefreshTokenID, v))
+// ProviderIDNotNil applies the NotNil predicate on the "provider_id" field.
+func ProviderIDNotNil() predicate.Token {
+	return predicate.Token(sql.FieldNotNull(FieldProviderID))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.
@@ -876,6 +816,29 @@ func HasUser() predicate.Token {
 func HasUserWith(preds ...predicate.User) predicate.Token {
 	return predicate.Token(func(s *sql.Selector) {
 		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProvider applies the HasEdge predicate on the "provider" edge.
+func HasProvider() predicate.Token {
+	return predicate.Token(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, ProviderTable, ProviderColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProviderWith applies the HasEdge predicate on the "provider" edge with a given conditions (other predicates).
+func HasProviderWith(preds ...predicate.OauthProvider) predicate.Token {
+	return predicate.Token(func(s *sql.Selector) {
+		step := newProviderStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

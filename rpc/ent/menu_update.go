@@ -35,26 +35,6 @@ func (_u *MenuUpdate) SetUpdatedAt(v time.Time) *MenuUpdate {
 	return _u
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *MenuUpdate) SetDeletedAt(v time.Time) *MenuUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *MenuUpdate) SetNillableDeletedAt(v *time.Time) *MenuUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *MenuUpdate) ClearDeletedAt() *MenuUpdate {
-	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
 // SetState sets the "state" field.
 func (_u *MenuUpdate) SetState(v bool) *MenuUpdate {
 	_u.mutation.SetState(v)
@@ -658,12 +638,6 @@ func (_u *MenuUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(menu.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(menu.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(menu.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(menu.FieldState, field.TypeBool, value)
 	}
@@ -917,26 +891,6 @@ type MenuUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *MenuUpdateOne) SetUpdatedAt(v time.Time) *MenuUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *MenuUpdateOne) SetDeletedAt(v time.Time) *MenuUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *MenuUpdateOne) SetNillableDeletedAt(v *time.Time) *MenuUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *MenuUpdateOne) ClearDeletedAt() *MenuUpdateOne {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -1572,12 +1526,6 @@ func (_u *MenuUpdateOne) sqlSave(ctx context.Context) (_node *Menu, err error) {
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(menu.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(menu.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(menu.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(menu.FieldState, field.TypeBool, value)

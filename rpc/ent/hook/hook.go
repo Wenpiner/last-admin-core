@@ -153,18 +153,6 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
 }
 
-// The UserOauthFunc type is an adapter to allow the use of ordinary
-// function as UserOauth mutator.
-type UserOauthFunc func(context.Context, *ent.UserOauthMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UserOauthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UserOauthMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserOauthMutation", m)
-}
-
 // The UserTotpFunc type is an adapter to allow the use of ordinary
 // function as UserTotp mutator.
 type UserTotpFunc func(context.Context, *ent.UserTotpMutation) (ent.Value, error)

@@ -56,20 +56,6 @@ func (_u *UserTotpUpdate) ClearState() *UserTotpUpdate {
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *UserTotpUpdate) SetUserID(v uuid.UUID) *UserTotpUpdate {
-	_u.mutation.SetUserID(v)
-	return _u
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTotpUpdate) SetNillableUserID(v *uuid.UUID) *UserTotpUpdate {
-	if v != nil {
-		_u.SetUserID(*v)
-	}
-	return _u
-}
-
 // SetSecretKey sets the "secret_key" field.
 func (_u *UserTotpUpdate) SetSecretKey(v string) *UserTotpUpdate {
 	_u.mutation.SetSecretKey(v)
@@ -101,20 +87,6 @@ func (_u *UserTotpUpdate) SetNillableBackupCodes(v *string) *UserTotpUpdate {
 // ClearBackupCodes clears the value of the "backup_codes" field.
 func (_u *UserTotpUpdate) ClearBackupCodes() *UserTotpUpdate {
 	_u.mutation.ClearBackupCodes()
-	return _u
-}
-
-// SetIsEnabled sets the "is_enabled" field.
-func (_u *UserTotpUpdate) SetIsEnabled(v bool) *UserTotpUpdate {
-	_u.mutation.SetIsEnabled(v)
-	return _u
-}
-
-// SetNillableIsEnabled sets the "is_enabled" field if the given value is not nil.
-func (_u *UserTotpUpdate) SetNillableIsEnabled(v *bool) *UserTotpUpdate {
-	if v != nil {
-		_u.SetIsEnabled(*v)
-	}
 	return _u
 }
 
@@ -212,44 +184,9 @@ func (_u *UserTotpUpdate) ClearIssuer() *UserTotpUpdate {
 	return _u
 }
 
-// SetFailureCount sets the "failure_count" field.
-func (_u *UserTotpUpdate) SetFailureCount(v int) *UserTotpUpdate {
-	_u.mutation.ResetFailureCount()
-	_u.mutation.SetFailureCount(v)
-	return _u
-}
-
-// SetNillableFailureCount sets the "failure_count" field if the given value is not nil.
-func (_u *UserTotpUpdate) SetNillableFailureCount(v *int) *UserTotpUpdate {
-	if v != nil {
-		_u.SetFailureCount(*v)
-	}
-	return _u
-}
-
-// AddFailureCount adds value to the "failure_count" field.
-func (_u *UserTotpUpdate) AddFailureCount(v int) *UserTotpUpdate {
-	_u.mutation.AddFailureCount(v)
-	return _u
-}
-
-// SetLockedUntil sets the "locked_until" field.
-func (_u *UserTotpUpdate) SetLockedUntil(v time.Time) *UserTotpUpdate {
-	_u.mutation.SetLockedUntil(v)
-	return _u
-}
-
-// SetNillableLockedUntil sets the "locked_until" field if the given value is not nil.
-func (_u *UserTotpUpdate) SetNillableLockedUntil(v *time.Time) *UserTotpUpdate {
-	if v != nil {
-		_u.SetLockedUntil(*v)
-	}
-	return _u
-}
-
-// ClearLockedUntil clears the value of the "locked_until" field.
-func (_u *UserTotpUpdate) ClearLockedUntil() *UserTotpUpdate {
-	_u.mutation.ClearLockedUntil()
+// SetUserID sets the "user" edge to the User entity by ID.
+func (_u *UserTotpUpdate) SetUserID(id uuid.UUID) *UserTotpUpdate {
+	_u.mutation.SetUserID(id)
 	return _u
 }
 
@@ -342,7 +279,7 @@ func (_u *UserTotpUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32))
+	_spec := sqlgraph.NewUpdateSpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -367,9 +304,6 @@ func (_u *UserTotpUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.BackupCodesCleared() {
 		_spec.ClearField(usertotp.FieldBackupCodes, field.TypeString)
-	}
-	if value, ok := _u.mutation.IsEnabled(); ok {
-		_spec.SetField(usertotp.FieldIsEnabled, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.IsVerified(); ok {
 		_spec.SetField(usertotp.FieldIsVerified, field.TypeBool, value)
@@ -398,22 +332,10 @@ func (_u *UserTotpUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.IssuerCleared() {
 		_spec.ClearField(usertotp.FieldIssuer, field.TypeString)
 	}
-	if value, ok := _u.mutation.FailureCount(); ok {
-		_spec.SetField(usertotp.FieldFailureCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedFailureCount(); ok {
-		_spec.AddField(usertotp.FieldFailureCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.LockedUntil(); ok {
-		_spec.SetField(usertotp.FieldLockedUntil, field.TypeTime, value)
-	}
-	if _u.mutation.LockedUntilCleared() {
-		_spec.ClearField(usertotp.FieldLockedUntil, field.TypeTime)
-	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
 			Table:   usertotp.UserTable,
 			Columns: []string{usertotp.UserColumn},
 			Bidi:    false,
@@ -425,8 +347,8 @@ func (_u *UserTotpUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
 			Table:   usertotp.UserTable,
 			Columns: []string{usertotp.UserColumn},
 			Bidi:    false,
@@ -485,20 +407,6 @@ func (_u *UserTotpUpdateOne) ClearState() *UserTotpUpdateOne {
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *UserTotpUpdateOne) SetUserID(v uuid.UUID) *UserTotpUpdateOne {
-	_u.mutation.SetUserID(v)
-	return _u
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTotpUpdateOne) SetNillableUserID(v *uuid.UUID) *UserTotpUpdateOne {
-	if v != nil {
-		_u.SetUserID(*v)
-	}
-	return _u
-}
-
 // SetSecretKey sets the "secret_key" field.
 func (_u *UserTotpUpdateOne) SetSecretKey(v string) *UserTotpUpdateOne {
 	_u.mutation.SetSecretKey(v)
@@ -530,20 +438,6 @@ func (_u *UserTotpUpdateOne) SetNillableBackupCodes(v *string) *UserTotpUpdateOn
 // ClearBackupCodes clears the value of the "backup_codes" field.
 func (_u *UserTotpUpdateOne) ClearBackupCodes() *UserTotpUpdateOne {
 	_u.mutation.ClearBackupCodes()
-	return _u
-}
-
-// SetIsEnabled sets the "is_enabled" field.
-func (_u *UserTotpUpdateOne) SetIsEnabled(v bool) *UserTotpUpdateOne {
-	_u.mutation.SetIsEnabled(v)
-	return _u
-}
-
-// SetNillableIsEnabled sets the "is_enabled" field if the given value is not nil.
-func (_u *UserTotpUpdateOne) SetNillableIsEnabled(v *bool) *UserTotpUpdateOne {
-	if v != nil {
-		_u.SetIsEnabled(*v)
-	}
 	return _u
 }
 
@@ -641,44 +535,9 @@ func (_u *UserTotpUpdateOne) ClearIssuer() *UserTotpUpdateOne {
 	return _u
 }
 
-// SetFailureCount sets the "failure_count" field.
-func (_u *UserTotpUpdateOne) SetFailureCount(v int) *UserTotpUpdateOne {
-	_u.mutation.ResetFailureCount()
-	_u.mutation.SetFailureCount(v)
-	return _u
-}
-
-// SetNillableFailureCount sets the "failure_count" field if the given value is not nil.
-func (_u *UserTotpUpdateOne) SetNillableFailureCount(v *int) *UserTotpUpdateOne {
-	if v != nil {
-		_u.SetFailureCount(*v)
-	}
-	return _u
-}
-
-// AddFailureCount adds value to the "failure_count" field.
-func (_u *UserTotpUpdateOne) AddFailureCount(v int) *UserTotpUpdateOne {
-	_u.mutation.AddFailureCount(v)
-	return _u
-}
-
-// SetLockedUntil sets the "locked_until" field.
-func (_u *UserTotpUpdateOne) SetLockedUntil(v time.Time) *UserTotpUpdateOne {
-	_u.mutation.SetLockedUntil(v)
-	return _u
-}
-
-// SetNillableLockedUntil sets the "locked_until" field if the given value is not nil.
-func (_u *UserTotpUpdateOne) SetNillableLockedUntil(v *time.Time) *UserTotpUpdateOne {
-	if v != nil {
-		_u.SetLockedUntil(*v)
-	}
-	return _u
-}
-
-// ClearLockedUntil clears the value of the "locked_until" field.
-func (_u *UserTotpUpdateOne) ClearLockedUntil() *UserTotpUpdateOne {
-	_u.mutation.ClearLockedUntil()
+// SetUserID sets the "user" edge to the User entity by ID.
+func (_u *UserTotpUpdateOne) SetUserID(id uuid.UUID) *UserTotpUpdateOne {
+	_u.mutation.SetUserID(id)
 	return _u
 }
 
@@ -784,7 +643,7 @@ func (_u *UserTotpUpdateOne) sqlSave(ctx context.Context) (_node *UserTotp, err 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32))
+	_spec := sqlgraph.NewUpdateSpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "UserTotp.id" for update`)}
@@ -827,9 +686,6 @@ func (_u *UserTotpUpdateOne) sqlSave(ctx context.Context) (_node *UserTotp, err 
 	if _u.mutation.BackupCodesCleared() {
 		_spec.ClearField(usertotp.FieldBackupCodes, field.TypeString)
 	}
-	if value, ok := _u.mutation.IsEnabled(); ok {
-		_spec.SetField(usertotp.FieldIsEnabled, field.TypeBool, value)
-	}
 	if value, ok := _u.mutation.IsVerified(); ok {
 		_spec.SetField(usertotp.FieldIsVerified, field.TypeBool, value)
 	}
@@ -857,22 +713,10 @@ func (_u *UserTotpUpdateOne) sqlSave(ctx context.Context) (_node *UserTotp, err 
 	if _u.mutation.IssuerCleared() {
 		_spec.ClearField(usertotp.FieldIssuer, field.TypeString)
 	}
-	if value, ok := _u.mutation.FailureCount(); ok {
-		_spec.SetField(usertotp.FieldFailureCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedFailureCount(); ok {
-		_spec.AddField(usertotp.FieldFailureCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.LockedUntil(); ok {
-		_spec.SetField(usertotp.FieldLockedUntil, field.TypeTime, value)
-	}
-	if _u.mutation.LockedUntilCleared() {
-		_spec.ClearField(usertotp.FieldLockedUntil, field.TypeTime)
-	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
 			Table:   usertotp.UserTable,
 			Columns: []string{usertotp.UserColumn},
 			Bidi:    false,
@@ -884,8 +728,8 @@ func (_u *UserTotpUpdateOne) sqlSave(ctx context.Context) (_node *UserTotp, err 
 	}
 	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
 			Table:   usertotp.UserTable,
 			Columns: []string{usertotp.UserColumn},
 			Bidi:    false,

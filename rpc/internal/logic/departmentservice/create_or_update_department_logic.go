@@ -3,6 +3,7 @@ package departmentservicelogic
 import (
 	"context"
 
+	"github.com/google/uuid"
 	last_i18n "github.com/wenpiner/last-admin-common/last-i18n"
 	"github.com/wenpiner/last-admin-common/utils/pointer"
 	"github.com/wenpiner/last-admin-core/rpc/ent"
@@ -36,6 +37,15 @@ func (l *CreateOrUpdateDepartmentLogic) CreateOrUpdateDepartment(in *core.Depart
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
+
+	var leaderUserID uuid.UUID
+	if in.LeaderUserId != nil {
+		leaderUserID, err = uuid.Parse(*in.LeaderUserId)
+		if err != nil {
+			return nil, errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
+		}
+	}
+
 	defer tx.Rollback()
 
 	var department *ent.Department
@@ -62,7 +72,7 @@ func (l *CreateOrUpdateDepartmentLogic) CreateOrUpdateDepartment(in *core.Depart
 			updateQuery.SetNillableSort(in.SortOrder)
 		}
 		if in.LeaderUserId != nil {
-			updateQuery.SetNillableLeaderUserID(in.LeaderUserId)
+			updateQuery.SetNillableLeaderUserID(&leaderUserID)
 		}
 		if in.State != nil {
 			updateQuery.SetNillableState(in.State)
@@ -82,8 +92,8 @@ func (l *CreateOrUpdateDepartmentLogic) CreateOrUpdateDepartment(in *core.Depart
 			SetDeptName(*in.DeptName).
 			SetDeptCode(*in.DeptCode).
 			SetNillableParentID(in.ParentId).
-			SetSort(pointer.GetInt32(in.SortOrder)).
-			SetNillableLeaderUserID(in.LeaderUserId).
+			SetNillableSort(in.SortOrder).
+			SetNillableLeaderUserID(&leaderUserID).
 			SetState(pointer.GetBool(in.State)).
 			SetNillableDescription(in.Description)
 
@@ -118,39 +128,6 @@ func (l *CreateOrUpdateDepartmentLogic) validateUpdate(in *core.DepartmentInfo) 
 	return nil
 }
 
-// 获取排序值，默认为 0
-func (l *CreateOrUpdateDepartmentLogic) getSortOrderValue(sortOrder *int32) int {
-	if sortOrder != nil {
-		return int(*sortOrder)
-	}
-	return 0
-}
-
-// 获取状态值，默认为 1 (启用)
-func (l *CreateOrUpdateDepartmentLogic) getStatusValue(state *bool) int8 {
-	if state != nil && *state {
-		return 1
-	}
-	return 0
-}
-
-// 将 bool 转换为状态值
-func (l *CreateOrUpdateDepartmentLogic) convertBoolToStatus(state bool) int8 {
-	if state {
-		return 1
-	}
-	return 0
-}
-
-// 将 int32 指针转换为 int 指针
-func (l *CreateOrUpdateDepartmentLogic) convertToIntPtr(val *int32) *int {
-	if val == nil {
-		return nil
-	}
-	intVal := int(*val)
-	return &intVal
-}
-
 // 将 Department 实体转换为 DepartmentInfo
 func (l *CreateOrUpdateDepartmentLogic) convertDepartmentToDepartmentInfo(dept *ent.Department) *core.DepartmentInfo {
 	return &core.DepartmentInfo{
@@ -161,7 +138,7 @@ func (l *CreateOrUpdateDepartmentLogic) convertDepartmentToDepartmentInfo(dept *
 		DeptCode:     &dept.DeptCode,
 		ParentId:     dept.ParentID,
 		SortOrder:    &dept.Sort,
-		LeaderUserId: dept.LeaderUserID,
+		LeaderUserId: pointer.ToStringPtrIfNotEmpty(dept.LeaderUserID.String()),
 		State:        pointer.ToBoolPtr(dept.State),
 		Description:  dept.Description,
 	}

@@ -52,3 +52,21 @@ func (s *RoleServiceServer) GetRoleByValue(ctx context.Context, in *core.StringR
 	l := roleservicelogic.NewGetRoleByValueLogic(ctx, s.svcCtx)
 	return l.GetRoleByValue(in)
 }
+
+// 为角色分配菜单
+func (s *RoleServiceServer) AssignMenu(ctx context.Context, in *core.RoleMenuRequest) (*core.BaseResponse, error) {
+	l := roleservicelogic.NewAssignMenuLogic(ctx, s.svcCtx)
+	return l.AssignMenu(in)
+}
+
+// 为角色分配API
+func (s *RoleServiceServer) AssignApi(ctx context.Context, in *core.RoleApiRequest) (*core.BaseResponse, error) {
+	l := roleservicelogic.NewAssignApiLogic(ctx, s.svcCtx)
+	return l.AssignApi(in)
+}
+
+// 获取角色菜单
+func (s *RoleServiceServer) GetMenu(ctx context.Context, in *core.ID32Request) (*core.RoleMenuListResponse, error) {
+	l := roleservicelogic.NewGetMenuLogic(ctx, s.svcCtx)
+	return l.GetMenu(in)
+}

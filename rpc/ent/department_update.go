@@ -146,23 +146,16 @@ func (_u *DepartmentUpdate) ClearParentID() *DepartmentUpdate {
 }
 
 // SetLeaderUserID sets the "leader_user_id" field.
-func (_u *DepartmentUpdate) SetLeaderUserID(v uint32) *DepartmentUpdate {
-	_u.mutation.ResetLeaderUserID()
+func (_u *DepartmentUpdate) SetLeaderUserID(v uuid.UUID) *DepartmentUpdate {
 	_u.mutation.SetLeaderUserID(v)
 	return _u
 }
 
 // SetNillableLeaderUserID sets the "leader_user_id" field if the given value is not nil.
-func (_u *DepartmentUpdate) SetNillableLeaderUserID(v *uint32) *DepartmentUpdate {
+func (_u *DepartmentUpdate) SetNillableLeaderUserID(v *uuid.UUID) *DepartmentUpdate {
 	if v != nil {
 		_u.SetLeaderUserID(*v)
 	}
-	return _u
-}
-
-// AddLeaderUserID adds value to the "leader_user_id" field.
-func (_u *DepartmentUpdate) AddLeaderUserID(v int32) *DepartmentUpdate {
-	_u.mutation.AddLeaderUserID(v)
 	return _u
 }
 
@@ -227,6 +220,25 @@ func (_u *DepartmentUpdate) AddUsers(v ...*User) *DepartmentUpdate {
 	return _u.AddUserIDs(ids...)
 }
 
+// SetLeaderID sets the "leader" edge to the User entity by ID.
+func (_u *DepartmentUpdate) SetLeaderID(id uuid.UUID) *DepartmentUpdate {
+	_u.mutation.SetLeaderID(id)
+	return _u
+}
+
+// SetNillableLeaderID sets the "leader" edge to the User entity by ID if the given value is not nil.
+func (_u *DepartmentUpdate) SetNillableLeaderID(id *uuid.UUID) *DepartmentUpdate {
+	if id != nil {
+		_u = _u.SetLeaderID(*id)
+	}
+	return _u
+}
+
+// SetLeader sets the "leader" edge to the User entity.
+func (_u *DepartmentUpdate) SetLeader(v *User) *DepartmentUpdate {
+	return _u.SetLeaderID(v.ID)
+}
+
 // Mutation returns the DepartmentMutation object of the builder.
 func (_u *DepartmentUpdate) Mutation() *DepartmentMutation {
 	return _u.mutation
@@ -278,6 +290,12 @@ func (_u *DepartmentUpdate) RemoveUsers(v ...*User) *DepartmentUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserIDs(ids...)
+}
+
+// ClearLeader clears the "leader" edge to the User entity.
+func (_u *DepartmentUpdate) ClearLeader() *DepartmentUpdate {
+	_u.mutation.ClearLeader()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -369,15 +387,6 @@ func (_u *DepartmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if value, ok := _u.mutation.DeptCode(); ok {
 		_spec.SetField(department.FieldDeptCode, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.LeaderUserID(); ok {
-		_spec.SetField(department.FieldLeaderUserID, field.TypeUint32, value)
-	}
-	if value, ok := _u.mutation.AddedLeaderUserID(); ok {
-		_spec.AddField(department.FieldLeaderUserID, field.TypeUint32, value)
-	}
-	if _u.mutation.LeaderUserIDCleared() {
-		_spec.ClearField(department.FieldLeaderUserID, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(department.FieldDescription, field.TypeString, value)
@@ -494,6 +503,35 @@ func (_u *DepartmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Inverse: true,
 			Table:   department.UsersTable,
 			Columns: []string{department.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LeaderCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   department.LeaderTable,
+			Columns: []string{department.LeaderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LeaderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   department.LeaderTable,
+			Columns: []string{department.LeaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -640,23 +678,16 @@ func (_u *DepartmentUpdateOne) ClearParentID() *DepartmentUpdateOne {
 }
 
 // SetLeaderUserID sets the "leader_user_id" field.
-func (_u *DepartmentUpdateOne) SetLeaderUserID(v uint32) *DepartmentUpdateOne {
-	_u.mutation.ResetLeaderUserID()
+func (_u *DepartmentUpdateOne) SetLeaderUserID(v uuid.UUID) *DepartmentUpdateOne {
 	_u.mutation.SetLeaderUserID(v)
 	return _u
 }
 
 // SetNillableLeaderUserID sets the "leader_user_id" field if the given value is not nil.
-func (_u *DepartmentUpdateOne) SetNillableLeaderUserID(v *uint32) *DepartmentUpdateOne {
+func (_u *DepartmentUpdateOne) SetNillableLeaderUserID(v *uuid.UUID) *DepartmentUpdateOne {
 	if v != nil {
 		_u.SetLeaderUserID(*v)
 	}
-	return _u
-}
-
-// AddLeaderUserID adds value to the "leader_user_id" field.
-func (_u *DepartmentUpdateOne) AddLeaderUserID(v int32) *DepartmentUpdateOne {
-	_u.mutation.AddLeaderUserID(v)
 	return _u
 }
 
@@ -721,6 +752,25 @@ func (_u *DepartmentUpdateOne) AddUsers(v ...*User) *DepartmentUpdateOne {
 	return _u.AddUserIDs(ids...)
 }
 
+// SetLeaderID sets the "leader" edge to the User entity by ID.
+func (_u *DepartmentUpdateOne) SetLeaderID(id uuid.UUID) *DepartmentUpdateOne {
+	_u.mutation.SetLeaderID(id)
+	return _u
+}
+
+// SetNillableLeaderID sets the "leader" edge to the User entity by ID if the given value is not nil.
+func (_u *DepartmentUpdateOne) SetNillableLeaderID(id *uuid.UUID) *DepartmentUpdateOne {
+	if id != nil {
+		_u = _u.SetLeaderID(*id)
+	}
+	return _u
+}
+
+// SetLeader sets the "leader" edge to the User entity.
+func (_u *DepartmentUpdateOne) SetLeader(v *User) *DepartmentUpdateOne {
+	return _u.SetLeaderID(v.ID)
+}
+
 // Mutation returns the DepartmentMutation object of the builder.
 func (_u *DepartmentUpdateOne) Mutation() *DepartmentMutation {
 	return _u.mutation
@@ -772,6 +822,12 @@ func (_u *DepartmentUpdateOne) RemoveUsers(v ...*User) *DepartmentUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserIDs(ids...)
+}
+
+// ClearLeader clears the "leader" edge to the User entity.
+func (_u *DepartmentUpdateOne) ClearLeader() *DepartmentUpdateOne {
+	_u.mutation.ClearLeader()
+	return _u
 }
 
 // Where appends a list predicates to the DepartmentUpdate builder.
@@ -894,15 +950,6 @@ func (_u *DepartmentUpdateOne) sqlSave(ctx context.Context) (_node *Department, 
 	if value, ok := _u.mutation.DeptCode(); ok {
 		_spec.SetField(department.FieldDeptCode, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.LeaderUserID(); ok {
-		_spec.SetField(department.FieldLeaderUserID, field.TypeUint32, value)
-	}
-	if value, ok := _u.mutation.AddedLeaderUserID(); ok {
-		_spec.AddField(department.FieldLeaderUserID, field.TypeUint32, value)
-	}
-	if _u.mutation.LeaderUserIDCleared() {
-		_spec.ClearField(department.FieldLeaderUserID, field.TypeUint32)
-	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(department.FieldDescription, field.TypeString, value)
 	}
@@ -1018,6 +1065,35 @@ func (_u *DepartmentUpdateOne) sqlSave(ctx context.Context) (_node *Department, 
 			Inverse: true,
 			Table:   department.UsersTable,
 			Columns: []string{department.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LeaderCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   department.LeaderTable,
+			Columns: []string{department.LeaderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LeaderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   department.LeaderTable,
+			Columns: []string{department.LeaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

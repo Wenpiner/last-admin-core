@@ -1,0 +1,78 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "Oauth相关接口"
+	desc:    "Oauth相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+    OauthProviderInfo {
+        ID               *uint32  `json:"id,optional"` // 提供商ID / Provider ID
+        CreatedAt        *int64   `json:"createdAt,optional"` // 创建时间 / Creation time
+        UpdatedAt        *int64   `json:"updatedAt,optional"` // 更新时间 / Update time
+        State            *bool    `json:"state,optional"` // 状态 / State
+        ProviderName     *string  `json:"providerName,optional"` // 提供商名称 / Provider name
+        ProviderCode     *string  `json:"providerCode,optional"` // 提供商编码 / Provider code
+        ClientId         *string  `json:"clientId,optional"` // 客户端ID / Client ID
+        ClientSecret     *string  `json:"clientSecret,optional"` // 客户端密钥 / Client secret
+        RedirectUri      *string  `json:"redirectUri,optional"` // 重定向URI / Redirect URI
+        Scopes           *string  `json:"scopes,optional"` // 授权范围 / Scopes
+        AuthorizationUrl *string  `json:"authorizationUrl,optional"` // 授权URL / Authorization URL
+        TokenUrl         *string  `json:"tokenUrl,optional"` // 令牌URL / Token URL
+        UserinfoUrl      *string  `json:"userinfoUrl,optional"` // 用户信息URL / User info URL
+        LogoutUrl        *string  `json:"logoutUrl,optional"` // 登出URL / Logout URL
+        AuthStyle        *uint8   `json:"authStyle,optional"` // 认证方式 / Auth style
+    }
+    OauthProviderListRequest {
+        PageRequest
+        ProviderName string `json:"providerName,optional"` // 提供商名称 / Provider name
+        ProviderCode string `json:"providerCode,optional"` // 提供商编码 / Provider code
+        State        *bool   `json:"state,optional"` // 状态 / State
+    }
+    OauthProviderInfoList {
+        BaseListInfo
+        List []OauthProviderInfo `json:"list"` // 提供商列表 / Provider list
+    
+    }
+    OauthProviderListResponse {
+        BaseDataInfo
+        Data OauthProviderInfoList `json:"data"` // 提供商列表 / Provider list
+    }
+    OauthModifyResponse {
+        BaseDataInfo
+        Data OauthProviderInfo `json:"data"` // 提供商信息 / Provider information
+    }
+)
+
+@server (
+    prefix:     /oauth
+    group:      oauth
+    tags:       "Oauth"
+    middleware: AuthMiddleware
+    jwt:        Auth
+)
+service Core {
+    @doc (
+        summary: "获取Oauth列表"
+    )
+    @handler ListOauthProviderHandler
+    post /list (OauthProviderListRequest) returns (OauthProviderListResponse)
+
+    @doc (
+        summary: "创建或更新Oauth"
+    )
+    @handler CreateOrUpdateOauthProviderHandler
+    post /createOrUpdate (OauthProviderInfo) returns (OauthModifyResponse)
+
+    @doc (
+        summary: "删除Oauth"
+    )
+    @handler DeleteOauthProviderHandler
+    post /delete (ID32Request) returns (BaseResponse)
+}
+

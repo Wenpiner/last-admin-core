@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
@@ -20,11 +21,12 @@ import (
 // TokenQuery is the builder for querying Token entities.
 type TokenQuery struct {
 	config
-	ctx        *QueryContext
-	order      []token.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Token
-	withUser   *UserQuery
+	ctx          *QueryContext
+	order        []token.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Token
+	withUser     *UserQuery
+	withProvider *OauthProviderQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (_q *TokenQuery) QueryUser() *UserQuery {
 			sqlgraph.From(token.Table, token.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, token.UserTable, token.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProvider chains the current query on the "provider" edge.
+func (_q *TokenQuery) QueryProvider() *OauthProviderQuery {
+	query := (&OauthProviderClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(token.Table, token.FieldID, selector),
+			sqlgraph.To(oauthprovider.Table, oauthprovider.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, token.ProviderTable, token.ProviderColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -270,12 +294,13 @@ func (_q *TokenQuery) Clone() *TokenQuery {
 		return nil
 	}
 	return &TokenQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]token.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Token{}, _q.predicates...),
-		withUser:   _q.withUser.Clone(),
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]token.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.Token{}, _q.predicates...),
+		withUser:     _q.withUser.Clone(),
+		withProvider: _q.withProvider.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -290,6 +315,17 @@ func (_q *TokenQuery) WithUser(opts ...func(*UserQuery)) *TokenQuery {
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithProvider tells the query-builder to eager-load the nodes that are connected to
+// the "provider" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TokenQuery) WithProvider(opts ...func(*OauthProviderQuery)) *TokenQuery {
+	query := (&OauthProviderClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProvider = query
 	return _q
 }
 
@@ -371,8 +407,9 @@ func (_q *TokenQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Token,
 	var (
 		nodes       = []*Token{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withUser != nil,
+			_q.withProvider != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -396,6 +433,12 @@ func (_q *TokenQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Token,
 	if query := _q.withUser; query != nil {
 		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *Token, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withProvider; query != nil {
+		if err := _q.loadProvider(ctx, query, nodes, nil,
+			func(n *Token, e *OauthProvider) { n.Edges.Provider = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -434,6 +477,38 @@ func (_q *TokenQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*T
 	}
 	return nil
 }
+func (_q *TokenQuery) loadProvider(ctx context.Context, query *OauthProviderQuery, nodes []*Token, init func(*Token), assign func(*Token, *OauthProvider)) error {
+	ids := make([]uint32, 0, len(nodes))
+	nodeids := make(map[uint32][]*Token)
+	for i := range nodes {
+		if nodes[i].ProviderID == nil {
+			continue
+		}
+		fk := *nodes[i].ProviderID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(oauthprovider.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "provider_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *TokenQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -462,6 +537,9 @@ func (_q *TokenQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(token.FieldUserID)
+		}
+		if _q.withProvider != nil {
+			_spec.Node.AddColumnOnce(token.FieldProviderID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

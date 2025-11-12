@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
+	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 )
 
 // OauthProviderCreate is the builder for creating a OauthProvider entity.
@@ -167,19 +167,19 @@ func (_c *OauthProviderCreate) SetID(v uint32) *OauthProviderCreate {
 	return _c
 }
 
-// AddOauthIDs adds the "oauths" edge to the UserOauth entity by IDs.
-func (_c *OauthProviderCreate) AddOauthIDs(ids ...uint32) *OauthProviderCreate {
-	_c.mutation.AddOauthIDs(ids...)
+// AddTokenIDs adds the "tokens" edge to the Token entity by IDs.
+func (_c *OauthProviderCreate) AddTokenIDs(ids ...uint32) *OauthProviderCreate {
+	_c.mutation.AddTokenIDs(ids...)
 	return _c
 }
 
-// AddOauths adds the "oauths" edges to the UserOauth entity.
-func (_c *OauthProviderCreate) AddOauths(v ...*UserOauth) *OauthProviderCreate {
+// AddTokens adds the "tokens" edges to the Token entity.
+func (_c *OauthProviderCreate) AddTokens(v ...*Token) *OauthProviderCreate {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _c.AddOauthIDs(ids...)
+	return _c.AddTokenIDs(ids...)
 }
 
 // Mutation returns the OauthProviderMutation object of the builder.
@@ -410,15 +410,15 @@ func (_c *OauthProviderCreate) createSpec() (*OauthProvider, *sqlgraph.CreateSpe
 		_spec.SetField(oauthprovider.FieldAuthStyle, field.TypeUint8, value)
 		_node.AuthStyle = value
 	}
-	if nodes := _c.mutation.OauthsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.TokensIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   oauthprovider.OauthsTable,
-			Columns: []string{oauthprovider.OauthsColumn},
+			Table:   oauthprovider.TokensTable,
+			Columns: []string{oauthprovider.TokensColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(token.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {

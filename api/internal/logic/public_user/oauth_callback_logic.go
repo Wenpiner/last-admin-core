@@ -58,6 +58,7 @@ func (l *OauthCallbackLogic) OauthCallback() (resp *types.CallbackResponse, err 
 		DeviceInfo: pointer.ToStringPtr(l.r.UserAgent()),
 		IpAddress:  pointer.ToStringPtr(lastHttp.GetIP(l.r)),
 		UserAgent:  pointer.ToStringPtr(l.r.UserAgent()),
+		ProviderId: result.ProviderId,
 	})
 	if err != nil {
 		return nil, err

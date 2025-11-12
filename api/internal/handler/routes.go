@@ -6,11 +6,18 @@ package handler
 import (
 	"net/http"
 
+	api "github.com/wenpiner/last-admin-core/api/internal/handler/api"
 	auth "github.com/wenpiner/last-admin-core/api/internal/handler/auth"
 	base "github.com/wenpiner/last-admin-core/api/internal/handler/base"
 	captcha "github.com/wenpiner/last-admin-core/api/internal/handler/captcha"
+	department "github.com/wenpiner/last-admin-core/api/internal/handler/department"
+	dict "github.com/wenpiner/last-admin-core/api/internal/handler/dict"
 	menu "github.com/wenpiner/last-admin-core/api/internal/handler/menu"
+	oauth "github.com/wenpiner/last-admin-core/api/internal/handler/oauth"
+	position "github.com/wenpiner/last-admin-core/api/internal/handler/position"
 	public_user "github.com/wenpiner/last-admin-core/api/internal/handler/public_user"
+	role "github.com/wenpiner/last-admin-core/api/internal/handler/role"
+	token "github.com/wenpiner/last-admin-core/api/internal/handler/token"
 	user "github.com/wenpiner/last-admin-core/api/internal/handler/user"
 	"github.com/wenpiner/last-admin-core/api/internal/svc"
 
@@ -18,6 +25,40 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 获取所有API
+					Method:  http.MethodGet,
+					Path:    "/all",
+					Handler: api.GetAllApiHandler(serverCtx),
+				},
+				{
+					// 创建或更新API
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: api.CreateOrUpdateApiHandler(serverCtx),
+				},
+				{
+					// 删除API
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: api.DeleteApiHandler(serverCtx),
+				},
+				{
+					// 获取API列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: api.ListApiHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthMiddleware},
@@ -73,6 +114,92 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
 				{
+					// 创建或更新部门
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: department.CreateOrUpdateDepartmentHandler(serverCtx),
+				},
+				{
+					// 删除部门
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: department.DeleteDepartmentHandler(serverCtx),
+				},
+				{
+					// 获取部门列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: department.ListDepartmentHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/department"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 创建或更新字典
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: dict.CreateOrUpdateDictHandler(serverCtx),
+				},
+				{
+					// 删除字典
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: dict.DeleteDictHandler(serverCtx),
+				},
+				{
+					// 获取字典
+					Method:  http.MethodPost,
+					Path:    "/get",
+					Handler: dict.GetDictHandler(serverCtx),
+				},
+				{
+					// 创建或更新字典子项
+					Method:  http.MethodPost,
+					Path:    "/item/createOrUpdate",
+					Handler: dict.CreateOrUpdateDictItemHandler(serverCtx),
+				},
+				{
+					// 删除字典子项
+					Method:  http.MethodPost,
+					Path:    "/item/delete",
+					Handler: dict.DeleteDictItemHandler(serverCtx),
+				},
+				{
+					// 获取字典子项
+					Method:  http.MethodPost,
+					Path:    "/item/get",
+					Handler: dict.GetDictItemHandler(serverCtx),
+				},
+				{
+					// 获取字典子项列表
+					Method:  http.MethodPost,
+					Path:    "/item/list",
+					Handler: dict.ListDictItemHandler(serverCtx),
+				},
+				{
+					// 获取字典列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: dict.ListDictHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/dict"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
 					// 获取用户角色当前所有菜单
 					Method:  http.MethodGet,
 					Path:    "/all",
@@ -84,10 +211,78 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/all-menus",
 					Handler: menu.GetAllMenusHandler(serverCtx),
 				},
+				{
+					// 删除菜单
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: menu.DeleteMenuHandler(serverCtx),
+				},
+				{
+					// 更新菜单
+					Method:  http.MethodPut,
+					Path:    "/update",
+					Handler: menu.UpdateMenuHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/menu"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 创建或更新Oauth
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: oauth.CreateOrUpdateOauthProviderHandler(serverCtx),
+				},
+				{
+					// 删除Oauth
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: oauth.DeleteOauthProviderHandler(serverCtx),
+				},
+				{
+					// 获取Oauth列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: oauth.ListOauthProviderHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/oauth"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 创建或更新岗位
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: position.CreateOrUpdatePositionHandler(serverCtx),
+				},
+				{
+					// 删除岗位
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: position.DeletePositionHandler(serverCtx),
+				},
+				{
+					// 获取岗位列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: position.ListPositionHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/position"),
 	)
 
 	server.AddRoutes(
@@ -125,10 +320,148 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
 				{
+					// 为角色分配API
+					Method:  http.MethodPost,
+					Path:    "/assign/api",
+					Handler: role.AssignApiToRoleHandler(serverCtx),
+				},
+				{
+					// 为角色分配菜单
+					Method:  http.MethodPost,
+					Path:    "/assign/menu",
+					Handler: role.AssignMenuToRoleHandler(serverCtx),
+				},
+				{
+					// 创建或更新角色
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: role.CreateOrUpdateRoleHandler(serverCtx),
+				},
+				{
+					// 删除角色
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: role.DeleteRoleHandler(serverCtx),
+				},
+				{
+					// 获取角色API
+					Method:  http.MethodPost,
+					Path:    "/get/api",
+					Handler: role.GetRoleApiHandler(serverCtx),
+				},
+				{
+					// 获取角色菜单
+					Method:  http.MethodPost,
+					Path:    "/get/menu",
+					Handler: role.GetRoleMenuHandler(serverCtx),
+				},
+				{
+					// 获取角色列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: role.ListRoleHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/role"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 删除令牌
+					Method:  http.MethodDelete,
+					Path:    "/:id",
+					Handler: token.DeleteTokenHandler(serverCtx),
+				},
+				{
+					// 拉黑某一个令牌
+					Method:  http.MethodPost,
+					Path:    "/block",
+					Handler: token.BlockTokenHandler(serverCtx),
+				},
+				{
+					// 清理过期令牌
+					Method:  http.MethodPost,
+					Path:    "/clean",
+					Handler: token.CleanExpiredTokensHandler(serverCtx),
+				},
+				{
+					// 获取令牌列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: token.ListTokenHandler(serverCtx),
+				},
+				{
+					// 解封某一个令牌
+					Method:  http.MethodPost,
+					Path:    "/unblock",
+					Handler: token.UnblockTokenHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/token"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
 					// 获取用户信息
 					Method:  http.MethodGet,
 					Path:    "/info",
 					Handler: user.GetUserInfoHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/user"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 创建或更新用户
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: user.CreateOrUpdateUserHandler(serverCtx),
+				},
+				{
+					// 删除用户
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: user.DeleteUserHandler(serverCtx),
+				},
+				{
+					// 获取用户列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: user.ListUserHandler(serverCtx),
+				},
+				{
+					// 禁用TOTP
+					Method:  http.MethodPost,
+					Path:    "/totp/disable",
+					Handler: user.DisableTotpHandler(serverCtx),
+				},
+				{
+					// 创建/重置TOTP
+					Method:  http.MethodPost,
+					Path:    "/totp/enable",
+					Handler: user.EnableTotpHandler(serverCtx),
+				},
+				{
+					// 验证TOTP
+					Method:  http.MethodPost,
+					Path:    "/totp/verify",
+					Handler: user.VerifyTotpHandler(serverCtx),
 				},
 			}...,
 		),

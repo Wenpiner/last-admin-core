@@ -3,6 +3,7 @@ package dictservicelogic
 import (
 	"context"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/wenpiner/last-admin-common/utils/pointer"
 	"github.com/wenpiner/last-admin-core/rpc/ent/dicttype"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
@@ -41,7 +42,7 @@ func (l *ListDictLogic) ListDict(in *core.DictListRequest) (*core.DictListRespon
 		predicates = append(predicates, dicttype.DescriptionContains(*in.Description))
 	}
 
-	page, err := l.svcCtx.DBEnt.DictType.Query().Where(predicates...).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	page, err := l.svcCtx.DBEnt.DictType.Query().Where(predicates...).Order(dicttype.ByCreatedAt(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}

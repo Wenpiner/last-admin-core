@@ -12,47 +12,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id uint32) predicate.UserTotp {
+func ID(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id uint32) predicate.UserTotp {
+func IDEQ(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id uint32) predicate.UserTotp {
+func IDNEQ(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...uint32) predicate.UserTotp {
+func IDIn(ids ...uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...uint32) predicate.UserTotp {
+func IDNotIn(ids ...uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id uint32) predicate.UserTotp {
+func IDGT(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id uint32) predicate.UserTotp {
+func IDGTE(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id uint32) predicate.UserTotp {
+func IDLT(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id uint32) predicate.UserTotp {
+func IDLTE(id uuid.UUID) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,11 +71,6 @@ func State(v bool) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldState, v))
 }
 
-// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v uuid.UUID) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldUserID, v))
-}
-
 // SecretKey applies equality check predicate on the "secret_key" field. It's identical to SecretKeyEQ.
 func SecretKey(v string) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldSecretKey, v))
@@ -84,11 +79,6 @@ func SecretKey(v string) predicate.UserTotp {
 // BackupCodes applies equality check predicate on the "backup_codes" field. It's identical to BackupCodesEQ.
 func BackupCodes(v string) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldBackupCodes, v))
-}
-
-// IsEnabled applies equality check predicate on the "is_enabled" field. It's identical to IsEnabledEQ.
-func IsEnabled(v bool) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldIsEnabled, v))
 }
 
 // IsVerified applies equality check predicate on the "is_verified" field. It's identical to IsVerifiedEQ.
@@ -114,16 +104,6 @@ func DeviceName(v string) predicate.UserTotp {
 // Issuer applies equality check predicate on the "issuer" field. It's identical to IssuerEQ.
 func Issuer(v string) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldEQ(FieldIssuer, v))
-}
-
-// FailureCount applies equality check predicate on the "failure_count" field. It's identical to FailureCountEQ.
-func FailureCount(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldFailureCount, v))
-}
-
-// LockedUntil applies equality check predicate on the "locked_until" field. It's identical to LockedUntilEQ.
-func LockedUntil(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldLockedUntil, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -224,26 +204,6 @@ func StateIsNil() predicate.UserTotp {
 // StateNotNil applies the NotNil predicate on the "state" field.
 func StateNotNil() predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldNotNull(FieldState))
-}
-
-// UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v uuid.UUID) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldUserID, v))
-}
-
-// UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v uuid.UUID) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNEQ(FieldUserID, v))
-}
-
-// UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...uuid.UUID) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldIn(FieldUserID, vs...))
-}
-
-// UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...uuid.UUID) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // SecretKeyEQ applies the EQ predicate on the "secret_key" field.
@@ -384,16 +344,6 @@ func BackupCodesEqualFold(v string) predicate.UserTotp {
 // BackupCodesContainsFold applies the ContainsFold predicate on the "backup_codes" field.
 func BackupCodesContainsFold(v string) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldContainsFold(FieldBackupCodes, v))
-}
-
-// IsEnabledEQ applies the EQ predicate on the "is_enabled" field.
-func IsEnabledEQ(v bool) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldIsEnabled, v))
-}
-
-// IsEnabledNEQ applies the NEQ predicate on the "is_enabled" field.
-func IsEnabledNEQ(v bool) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNEQ(FieldIsEnabled, v))
 }
 
 // IsVerifiedEQ applies the EQ predicate on the "is_verified" field.
@@ -681,102 +631,12 @@ func IssuerContainsFold(v string) predicate.UserTotp {
 	return predicate.UserTotp(sql.FieldContainsFold(FieldIssuer, v))
 }
 
-// FailureCountEQ applies the EQ predicate on the "failure_count" field.
-func FailureCountEQ(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldFailureCount, v))
-}
-
-// FailureCountNEQ applies the NEQ predicate on the "failure_count" field.
-func FailureCountNEQ(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNEQ(FieldFailureCount, v))
-}
-
-// FailureCountIn applies the In predicate on the "failure_count" field.
-func FailureCountIn(vs ...int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldIn(FieldFailureCount, vs...))
-}
-
-// FailureCountNotIn applies the NotIn predicate on the "failure_count" field.
-func FailureCountNotIn(vs ...int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNotIn(FieldFailureCount, vs...))
-}
-
-// FailureCountGT applies the GT predicate on the "failure_count" field.
-func FailureCountGT(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldGT(FieldFailureCount, v))
-}
-
-// FailureCountGTE applies the GTE predicate on the "failure_count" field.
-func FailureCountGTE(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldGTE(FieldFailureCount, v))
-}
-
-// FailureCountLT applies the LT predicate on the "failure_count" field.
-func FailureCountLT(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldLT(FieldFailureCount, v))
-}
-
-// FailureCountLTE applies the LTE predicate on the "failure_count" field.
-func FailureCountLTE(v int) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldLTE(FieldFailureCount, v))
-}
-
-// LockedUntilEQ applies the EQ predicate on the "locked_until" field.
-func LockedUntilEQ(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldEQ(FieldLockedUntil, v))
-}
-
-// LockedUntilNEQ applies the NEQ predicate on the "locked_until" field.
-func LockedUntilNEQ(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNEQ(FieldLockedUntil, v))
-}
-
-// LockedUntilIn applies the In predicate on the "locked_until" field.
-func LockedUntilIn(vs ...time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldIn(FieldLockedUntil, vs...))
-}
-
-// LockedUntilNotIn applies the NotIn predicate on the "locked_until" field.
-func LockedUntilNotIn(vs ...time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNotIn(FieldLockedUntil, vs...))
-}
-
-// LockedUntilGT applies the GT predicate on the "locked_until" field.
-func LockedUntilGT(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldGT(FieldLockedUntil, v))
-}
-
-// LockedUntilGTE applies the GTE predicate on the "locked_until" field.
-func LockedUntilGTE(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldGTE(FieldLockedUntil, v))
-}
-
-// LockedUntilLT applies the LT predicate on the "locked_until" field.
-func LockedUntilLT(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldLT(FieldLockedUntil, v))
-}
-
-// LockedUntilLTE applies the LTE predicate on the "locked_until" field.
-func LockedUntilLTE(v time.Time) predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldLTE(FieldLockedUntil, v))
-}
-
-// LockedUntilIsNil applies the IsNil predicate on the "locked_until" field.
-func LockedUntilIsNil() predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldIsNull(FieldLockedUntil))
-}
-
-// LockedUntilNotNil applies the NotNil predicate on the "locked_until" field.
-func LockedUntilNotNil() predicate.UserTotp {
-	return predicate.UserTotp(sql.FieldNotNull(FieldLockedUntil))
-}
-
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.UserTotp {
 	return predicate.UserTotp(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, UserTable, UserColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

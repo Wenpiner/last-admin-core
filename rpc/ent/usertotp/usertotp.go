@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -20,14 +21,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
 	// FieldSecretKey holds the string denoting the secret_key field in the database.
 	FieldSecretKey = "secret_key"
 	// FieldBackupCodes holds the string denoting the backup_codes field in the database.
 	FieldBackupCodes = "backup_codes"
-	// FieldIsEnabled holds the string denoting the is_enabled field in the database.
-	FieldIsEnabled = "is_enabled"
 	// FieldIsVerified holds the string denoting the is_verified field in the database.
 	FieldIsVerified = "is_verified"
 	// FieldLastUsedAt holds the string denoting the last_used_at field in the database.
@@ -38,10 +35,6 @@ const (
 	FieldDeviceName = "device_name"
 	// FieldIssuer holds the string denoting the issuer field in the database.
 	FieldIssuer = "issuer"
-	// FieldFailureCount holds the string denoting the failure_count field in the database.
-	FieldFailureCount = "failure_count"
-	// FieldLockedUntil holds the string denoting the locked_until field in the database.
-	FieldLockedUntil = "locked_until"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the usertotp in the database.
@@ -52,7 +45,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "sys_users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_id"
+	UserColumn = "user_totp"
 )
 
 // Columns holds all SQL columns for usertotp fields.
@@ -61,23 +54,30 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldState,
-	FieldUserID,
 	FieldSecretKey,
 	FieldBackupCodes,
-	FieldIsEnabled,
 	FieldIsVerified,
 	FieldLastUsedAt,
 	FieldLastUsedCode,
 	FieldDeviceName,
 	FieldIssuer,
-	FieldFailureCount,
-	FieldLockedUntil,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "sys_user_totp"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"user_totp",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -97,8 +97,6 @@ var (
 	SecretKeyValidator func(string) error
 	// BackupCodesValidator is a validator for the "backup_codes" field. It is called by the builders before save.
 	BackupCodesValidator func(string) error
-	// DefaultIsEnabled holds the default value on creation for the "is_enabled" field.
-	DefaultIsEnabled bool
 	// DefaultIsVerified holds the default value on creation for the "is_verified" field.
 	DefaultIsVerified bool
 	// LastUsedCodeValidator is a validator for the "last_used_code" field. It is called by the builders before save.
@@ -107,10 +105,8 @@ var (
 	DeviceNameValidator func(string) error
 	// IssuerValidator is a validator for the "issuer" field. It is called by the builders before save.
 	IssuerValidator func(string) error
-	// DefaultFailureCount holds the default value on creation for the "failure_count" field.
-	DefaultFailureCount int
-	// IDValidator is a validator for the "id" field. It is called by the builders before save.
-	IDValidator func(uint32) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the UserTotp queries.
@@ -136,11 +132,6 @@ func ByState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
-// ByUserID orders the results by the user_id field.
-func ByUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserID, opts...).ToFunc()
-}
-
 // BySecretKey orders the results by the secret_key field.
 func BySecretKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSecretKey, opts...).ToFunc()
@@ -149,11 +140,6 @@ func BySecretKey(opts ...sql.OrderTermOption) OrderOption {
 // ByBackupCodes orders the results by the backup_codes field.
 func ByBackupCodes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBackupCodes, opts...).ToFunc()
-}
-
-// ByIsEnabled orders the results by the is_enabled field.
-func ByIsEnabled(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsEnabled, opts...).ToFunc()
 }
 
 // ByIsVerified orders the results by the is_verified field.
@@ -181,16 +167,6 @@ func ByIssuer(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIssuer, opts...).ToFunc()
 }
 
-// ByFailureCount orders the results by the failure_count field.
-func ByFailureCount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFailureCount, opts...).ToFunc()
-}
-
-// ByLockedUntil orders the results by the locked_until field.
-func ByLockedUntil(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLockedUntil, opts...).ToFunc()
-}
-
 // ByUserField orders the results by user field.
 func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -201,6 +177,6 @@ func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+		sqlgraph.Edge(sqlgraph.O2O, true, UserTable, UserColumn),
 	)
 }

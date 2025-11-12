@@ -42,8 +42,5 @@ type Token func(*sql.Selector)
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
-// UserOauth is the predicate function for useroauth builders.
-type UserOauth func(*sql.Selector)
-
 // UserTotp is the predicate function for usertotp builders.
 type UserTotp func(*sql.Selector)

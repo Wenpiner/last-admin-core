@@ -54,9 +54,9 @@ func (l *EnableTotpLogic) EnableTotp(in *core.EnableTotpRequest) (*core.TotpSetu
 
 	// 检查用户是否已经启用了TOTP
 	existingTotp, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
-	if err == nil && existingTotp.IsEnabled {
+	if err == nil && existingTotp.State {
 		return nil, errorx.NewInvalidArgumentError("totp.alreadyEnabled")
 	}
 
@@ -107,7 +107,7 @@ func (l *EnableTotpLogic) EnableTotp(in *core.EnableTotpRequest) (*core.TotpSetu
 		SetUserID(userID).
 		SetSecretKey(key.Secret()).
 		SetBackupCodes(string(backupCodesJSON)).
-		SetIsEnabled(false). // 初始状态为未启用，需要验证后才启用
+		SetState(false). // 初始状态为未启用，需要验证后才启用
 		SetIsVerified(false).
 		SetIssuer(in.Issuer).
 		Save(l.ctx)

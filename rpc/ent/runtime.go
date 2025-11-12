@@ -19,7 +19,6 @@ import (
 	"github.com/wenpiner/last-admin-core/rpc/ent/schema"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
@@ -383,10 +382,10 @@ func init() {
 	_ = menuMixinFields0
 	menuMixinFields1 := menuMixin[1].Fields()
 	_ = menuMixinFields1
+	menuMixinFields2 := menuMixin[2].Fields()
+	_ = menuMixinFields2
 	menuMixinFields3 := menuMixin[3].Fields()
 	_ = menuMixinFields3
-	menuMixinFields4 := menuMixin[4].Fields()
-	_ = menuMixinFields4
 	menuFields := schema.Menu{}.Fields()
 	_ = menuFields
 	// menuDescCreatedAt is the schema descriptor for created_at field.
@@ -400,11 +399,11 @@ func init() {
 	// menu.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	menu.UpdateDefaultUpdatedAt = menuDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// menuDescState is the schema descriptor for state field.
-	menuDescState := menuMixinFields3[0].Descriptor()
+	menuDescState := menuMixinFields2[0].Descriptor()
 	// menu.DefaultState holds the default value on creation for the state field.
 	menu.DefaultState = menuDescState.Default.(bool)
 	// menuDescSort is the schema descriptor for sort field.
-	menuDescSort := menuMixinFields4[0].Descriptor()
+	menuDescSort := menuMixinFields3[0].Descriptor()
 	// menu.DefaultSort holds the default value on creation for the sort field.
 	menu.DefaultSort = menuDescSort.Default.(int32)
 	// menuDescMenuCode is the schema descriptor for menu_code field.
@@ -958,26 +957,18 @@ func init() {
 			return nil
 		}
 	}()
-	// tokenDescIsRevoked is the schema descriptor for is_revoked field.
-	tokenDescIsRevoked := tokenFields[4].Descriptor()
-	// token.DefaultIsRevoked holds the default value on creation for the is_revoked field.
-	token.DefaultIsRevoked = tokenDescIsRevoked.Default.(bool)
 	// tokenDescDeviceInfo is the schema descriptor for device_info field.
-	tokenDescDeviceInfo := tokenFields[5].Descriptor()
+	tokenDescDeviceInfo := tokenFields[4].Descriptor()
 	// token.DeviceInfoValidator is a validator for the "device_info" field. It is called by the builders before save.
 	token.DeviceInfoValidator = tokenDescDeviceInfo.Validators[0].(func(string) error)
 	// tokenDescIPAddress is the schema descriptor for ip_address field.
-	tokenDescIPAddress := tokenFields[6].Descriptor()
+	tokenDescIPAddress := tokenFields[5].Descriptor()
 	// token.IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
 	token.IPAddressValidator = tokenDescIPAddress.Validators[0].(func(string) error)
 	// tokenDescUserAgent is the schema descriptor for user_agent field.
-	tokenDescUserAgent := tokenFields[8].Descriptor()
+	tokenDescUserAgent := tokenFields[7].Descriptor()
 	// token.UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
 	token.UserAgentValidator = tokenDescUserAgent.Validators[0].(func(string) error)
-	// tokenDescRefreshTokenID is the schema descriptor for refresh_token_id field.
-	tokenDescRefreshTokenID := tokenFields[10].Descriptor()
-	// token.RefreshTokenIDValidator is a validator for the "refresh_token_id" field. It is called by the builders before save.
-	token.RefreshTokenIDValidator = tokenDescRefreshTokenID.Validators[0].(func(string) error)
 	// tokenDescID is the schema descriptor for id field.
 	tokenDescID := tokenMixinFields1[0].Descriptor()
 	// token.IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -1067,66 +1058,25 @@ func init() {
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
-	useroauthMixin := schema.UserOauth{}.Mixin()
-	useroauthMixinFields0 := useroauthMixin[0].Fields()
-	_ = useroauthMixinFields0
-	useroauthMixinFields1 := useroauthMixin[1].Fields()
-	_ = useroauthMixinFields1
-	useroauthFields := schema.UserOauth{}.Fields()
-	_ = useroauthFields
-	// useroauthDescCreatedAt is the schema descriptor for created_at field.
-	useroauthDescCreatedAt := useroauthMixinFields0[0].Descriptor()
-	// useroauth.DefaultCreatedAt holds the default value on creation for the created_at field.
-	useroauth.DefaultCreatedAt = useroauthDescCreatedAt.Default.(func() time.Time)
-	// useroauthDescUpdatedAt is the schema descriptor for updated_at field.
-	useroauthDescUpdatedAt := useroauthMixinFields0[1].Descriptor()
-	// useroauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	useroauth.DefaultUpdatedAt = useroauthDescUpdatedAt.Default.(func() time.Time)
-	// useroauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	useroauth.UpdateDefaultUpdatedAt = useroauthDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// useroauthDescOauthID is the schema descriptor for oauth_id field.
-	useroauthDescOauthID := useroauthFields[2].Descriptor()
-	// useroauth.OauthIDValidator is a validator for the "oauth_id" field. It is called by the builders before save.
-	useroauth.OauthIDValidator = func() func(string) error {
-		validators := useroauthDescOauthID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(oauth_id string) error {
-			for _, fn := range fns {
-				if err := fn(oauth_id); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// useroauthDescID is the schema descriptor for id field.
-	useroauthDescID := useroauthMixinFields1[0].Descriptor()
-	// useroauth.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	useroauth.IDValidator = useroauthDescID.Validators[0].(func(uint32) error)
 	usertotpMixin := schema.UserTotp{}.Mixin()
 	usertotpMixinFields0 := usertotpMixin[0].Fields()
 	_ = usertotpMixinFields0
 	usertotpMixinFields1 := usertotpMixin[1].Fields()
 	_ = usertotpMixinFields1
-	usertotpMixinFields2 := usertotpMixin[2].Fields()
-	_ = usertotpMixinFields2
 	usertotpFields := schema.UserTotp{}.Fields()
 	_ = usertotpFields
 	// usertotpDescCreatedAt is the schema descriptor for created_at field.
-	usertotpDescCreatedAt := usertotpMixinFields1[0].Descriptor()
+	usertotpDescCreatedAt := usertotpMixinFields0[0].Descriptor()
 	// usertotp.DefaultCreatedAt holds the default value on creation for the created_at field.
 	usertotp.DefaultCreatedAt = usertotpDescCreatedAt.Default.(func() time.Time)
 	// usertotpDescUpdatedAt is the schema descriptor for updated_at field.
-	usertotpDescUpdatedAt := usertotpMixinFields1[1].Descriptor()
+	usertotpDescUpdatedAt := usertotpMixinFields0[1].Descriptor()
 	// usertotp.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	usertotp.DefaultUpdatedAt = usertotpDescUpdatedAt.Default.(func() time.Time)
 	// usertotp.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	usertotp.UpdateDefaultUpdatedAt = usertotpDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// usertotpDescState is the schema descriptor for state field.
-	usertotpDescState := usertotpMixinFields2[0].Descriptor()
+	usertotpDescState := usertotpMixinFields1[0].Descriptor()
 	// usertotp.DefaultState holds the default value on creation for the state field.
 	usertotp.DefaultState = usertotpDescState.Default.(bool)
 	// usertotpDescSecretKey is the schema descriptor for secret_key field.
@@ -1151,32 +1101,24 @@ func init() {
 	usertotpDescBackupCodes := usertotpFields[2].Descriptor()
 	// usertotp.BackupCodesValidator is a validator for the "backup_codes" field. It is called by the builders before save.
 	usertotp.BackupCodesValidator = usertotpDescBackupCodes.Validators[0].(func(string) error)
-	// usertotpDescIsEnabled is the schema descriptor for is_enabled field.
-	usertotpDescIsEnabled := usertotpFields[3].Descriptor()
-	// usertotp.DefaultIsEnabled holds the default value on creation for the is_enabled field.
-	usertotp.DefaultIsEnabled = usertotpDescIsEnabled.Default.(bool)
 	// usertotpDescIsVerified is the schema descriptor for is_verified field.
-	usertotpDescIsVerified := usertotpFields[4].Descriptor()
+	usertotpDescIsVerified := usertotpFields[3].Descriptor()
 	// usertotp.DefaultIsVerified holds the default value on creation for the is_verified field.
 	usertotp.DefaultIsVerified = usertotpDescIsVerified.Default.(bool)
 	// usertotpDescLastUsedCode is the schema descriptor for last_used_code field.
-	usertotpDescLastUsedCode := usertotpFields[6].Descriptor()
+	usertotpDescLastUsedCode := usertotpFields[5].Descriptor()
 	// usertotp.LastUsedCodeValidator is a validator for the "last_used_code" field. It is called by the builders before save.
 	usertotp.LastUsedCodeValidator = usertotpDescLastUsedCode.Validators[0].(func(string) error)
 	// usertotpDescDeviceName is the schema descriptor for device_name field.
-	usertotpDescDeviceName := usertotpFields[7].Descriptor()
+	usertotpDescDeviceName := usertotpFields[6].Descriptor()
 	// usertotp.DeviceNameValidator is a validator for the "device_name" field. It is called by the builders before save.
 	usertotp.DeviceNameValidator = usertotpDescDeviceName.Validators[0].(func(string) error)
 	// usertotpDescIssuer is the schema descriptor for issuer field.
-	usertotpDescIssuer := usertotpFields[8].Descriptor()
+	usertotpDescIssuer := usertotpFields[7].Descriptor()
 	// usertotp.IssuerValidator is a validator for the "issuer" field. It is called by the builders before save.
 	usertotp.IssuerValidator = usertotpDescIssuer.Validators[0].(func(string) error)
-	// usertotpDescFailureCount is the schema descriptor for failure_count field.
-	usertotpDescFailureCount := usertotpFields[9].Descriptor()
-	// usertotp.DefaultFailureCount holds the default value on creation for the failure_count field.
-	usertotp.DefaultFailureCount = usertotpDescFailureCount.Default.(int)
 	// usertotpDescID is the schema descriptor for id field.
-	usertotpDescID := usertotpMixinFields0[0].Descriptor()
-	// usertotp.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	usertotp.IDValidator = usertotpDescID.Validators[0].(func(uint32) error)
+	usertotpDescID := usertotpFields[0].Descriptor()
+	// usertotp.DefaultID holds the default value on creation for the id field.
+	usertotp.DefaultID = usertotpDescID.Default.(func() uuid.UUID)
 }

@@ -64,12 +64,6 @@ func (_c *UserTotpCreate) SetNillableState(v *bool) *UserTotpCreate {
 	return _c
 }
 
-// SetUserID sets the "user_id" field.
-func (_c *UserTotpCreate) SetUserID(v uuid.UUID) *UserTotpCreate {
-	_c.mutation.SetUserID(v)
-	return _c
-}
-
 // SetSecretKey sets the "secret_key" field.
 func (_c *UserTotpCreate) SetSecretKey(v string) *UserTotpCreate {
 	_c.mutation.SetSecretKey(v)
@@ -86,20 +80,6 @@ func (_c *UserTotpCreate) SetBackupCodes(v string) *UserTotpCreate {
 func (_c *UserTotpCreate) SetNillableBackupCodes(v *string) *UserTotpCreate {
 	if v != nil {
 		_c.SetBackupCodes(*v)
-	}
-	return _c
-}
-
-// SetIsEnabled sets the "is_enabled" field.
-func (_c *UserTotpCreate) SetIsEnabled(v bool) *UserTotpCreate {
-	_c.mutation.SetIsEnabled(v)
-	return _c
-}
-
-// SetNillableIsEnabled sets the "is_enabled" field if the given value is not nil.
-func (_c *UserTotpCreate) SetNillableIsEnabled(v *bool) *UserTotpCreate {
-	if v != nil {
-		_c.SetIsEnabled(*v)
 	}
 	return _c
 }
@@ -174,37 +154,23 @@ func (_c *UserTotpCreate) SetNillableIssuer(v *string) *UserTotpCreate {
 	return _c
 }
 
-// SetFailureCount sets the "failure_count" field.
-func (_c *UserTotpCreate) SetFailureCount(v int) *UserTotpCreate {
-	_c.mutation.SetFailureCount(v)
-	return _c
-}
-
-// SetNillableFailureCount sets the "failure_count" field if the given value is not nil.
-func (_c *UserTotpCreate) SetNillableFailureCount(v *int) *UserTotpCreate {
-	if v != nil {
-		_c.SetFailureCount(*v)
-	}
-	return _c
-}
-
-// SetLockedUntil sets the "locked_until" field.
-func (_c *UserTotpCreate) SetLockedUntil(v time.Time) *UserTotpCreate {
-	_c.mutation.SetLockedUntil(v)
-	return _c
-}
-
-// SetNillableLockedUntil sets the "locked_until" field if the given value is not nil.
-func (_c *UserTotpCreate) SetNillableLockedUntil(v *time.Time) *UserTotpCreate {
-	if v != nil {
-		_c.SetLockedUntil(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
-func (_c *UserTotpCreate) SetID(v uint32) *UserTotpCreate {
+func (_c *UserTotpCreate) SetID(v uuid.UUID) *UserTotpCreate {
 	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserTotpCreate) SetNillableID(v *uuid.UUID) *UserTotpCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (_c *UserTotpCreate) SetUserID(id uuid.UUID) *UserTotpCreate {
+	_c.mutation.SetUserID(id)
 	return _c
 }
 
@@ -260,17 +226,13 @@ func (_c *UserTotpCreate) defaults() {
 		v := usertotp.DefaultState
 		_c.mutation.SetState(v)
 	}
-	if _, ok := _c.mutation.IsEnabled(); !ok {
-		v := usertotp.DefaultIsEnabled
-		_c.mutation.SetIsEnabled(v)
-	}
 	if _, ok := _c.mutation.IsVerified(); !ok {
 		v := usertotp.DefaultIsVerified
 		_c.mutation.SetIsVerified(v)
 	}
-	if _, ok := _c.mutation.FailureCount(); !ok {
-		v := usertotp.DefaultFailureCount
-		_c.mutation.SetFailureCount(v)
+	if _, ok := _c.mutation.ID(); !ok {
+		v := usertotp.DefaultID()
+		_c.mutation.SetID(v)
 	}
 }
 
@@ -281,9 +243,6 @@ func (_c *UserTotpCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "UserTotp.updated_at"`)}
-	}
-	if _, ok := _c.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "UserTotp.user_id"`)}
 	}
 	if _, ok := _c.mutation.SecretKey(); !ok {
 		return &ValidationError{Name: "secret_key", err: errors.New(`ent: missing required field "UserTotp.secret_key"`)}
@@ -297,9 +256,6 @@ func (_c *UserTotpCreate) check() error {
 		if err := usertotp.BackupCodesValidator(v); err != nil {
 			return &ValidationError{Name: "backup_codes", err: fmt.Errorf(`ent: validator failed for field "UserTotp.backup_codes": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.IsEnabled(); !ok {
-		return &ValidationError{Name: "is_enabled", err: errors.New(`ent: missing required field "UserTotp.is_enabled"`)}
 	}
 	if _, ok := _c.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "UserTotp.is_verified"`)}
@@ -319,14 +275,6 @@ func (_c *UserTotpCreate) check() error {
 			return &ValidationError{Name: "issuer", err: fmt.Errorf(`ent: validator failed for field "UserTotp.issuer": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.FailureCount(); !ok {
-		return &ValidationError{Name: "failure_count", err: errors.New(`ent: missing required field "UserTotp.failure_count"`)}
-	}
-	if v, ok := _c.mutation.ID(); ok {
-		if err := usertotp.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "UserTotp.id": %w`, err)}
-		}
-	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "UserTotp.user"`)}
 	}
@@ -344,9 +292,12 @@ func (_c *UserTotpCreate) sqlSave(ctx context.Context) (*UserTotp, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = uint32(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
@@ -356,11 +307,11 @@ func (_c *UserTotpCreate) sqlSave(ctx context.Context) (*UserTotp, error) {
 func (_c *UserTotpCreate) createSpec() (*UserTotp, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserTotp{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(usertotp.Table, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32))
+		_spec = sqlgraph.NewCreateSpec(usertotp.Table, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID))
 	)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(usertotp.FieldCreatedAt, field.TypeTime, value)
@@ -382,10 +333,6 @@ func (_c *UserTotpCreate) createSpec() (*UserTotp, *sqlgraph.CreateSpec) {
 		_spec.SetField(usertotp.FieldBackupCodes, field.TypeString, value)
 		_node.BackupCodes = &value
 	}
-	if value, ok := _c.mutation.IsEnabled(); ok {
-		_spec.SetField(usertotp.FieldIsEnabled, field.TypeBool, value)
-		_node.IsEnabled = value
-	}
 	if value, ok := _c.mutation.IsVerified(); ok {
 		_spec.SetField(usertotp.FieldIsVerified, field.TypeBool, value)
 		_node.IsVerified = value
@@ -406,18 +353,10 @@ func (_c *UserTotpCreate) createSpec() (*UserTotp, *sqlgraph.CreateSpec) {
 		_spec.SetField(usertotp.FieldIssuer, field.TypeString, value)
 		_node.Issuer = &value
 	}
-	if value, ok := _c.mutation.FailureCount(); ok {
-		_spec.SetField(usertotp.FieldFailureCount, field.TypeInt, value)
-		_node.FailureCount = value
-	}
-	if value, ok := _c.mutation.LockedUntil(); ok {
-		_spec.SetField(usertotp.FieldLockedUntil, field.TypeTime, value)
-		_node.LockedUntil = &value
-	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
 			Table:   usertotp.UserTable,
 			Columns: []string{usertotp.UserColumn},
 			Bidi:    false,
@@ -428,7 +367,7 @@ func (_c *UserTotpCreate) createSpec() (*UserTotp, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.UserID = nodes[0]
+		_node.user_totp = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -479,10 +418,6 @@ func (_c *UserTotpCreateBulk) Save(ctx context.Context) ([]*UserTotp, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = uint32(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

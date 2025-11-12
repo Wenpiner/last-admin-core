@@ -40,6 +40,8 @@ const (
 	EdgeChildren = "children"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
+	// EdgeLeader holds the string denoting the leader edge name in mutations.
+	EdgeLeader = "leader"
 	// Table holds the table name of the department in the database.
 	Table = "sys_departments"
 	// ParentTable is the table that holds the parent relation/edge.
@@ -57,6 +59,13 @@ const (
 	UsersInverseTable = "sys_users"
 	// UsersColumn is the table column denoting the users relation/edge.
 	UsersColumn = "department_id"
+	// LeaderTable is the table that holds the leader relation/edge.
+	LeaderTable = "sys_departments"
+	// LeaderInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	LeaderInverseTable = "sys_users"
+	// LeaderColumn is the table column denoting the leader relation/edge.
+	LeaderColumn = "leader_user_id"
 )
 
 // Columns holds all SQL columns for department fields.
@@ -195,6 +204,13 @@ func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByLeaderField orders the results by leader field.
+func ByLeaderField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLeaderStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newParentStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -214,5 +230,12 @@ func newUsersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, true, UsersTable, UsersColumn),
+	)
+}
+func newLeaderStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LeaderInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, LeaderTable, LeaderColumn),
 	)
 }

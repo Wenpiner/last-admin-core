@@ -71,9 +71,9 @@ var (
 		{Name: "sort", Type: field.TypeInt32, Comment: "排序 / Sort", Default: 0},
 		{Name: "dept_name", Type: field.TypeString, Size: 100, Comment: "部门名称 / Department name"},
 		{Name: "dept_code", Type: field.TypeString, Size: 50, Comment: "部门编码 / Department code"},
-		{Name: "leader_user_id", Type: field.TypeUint32, Nullable: true, Comment: "部门负责人用户ID / Leader user ID"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "部门描述 / Department description"},
 		{Name: "parent_id", Type: field.TypeUint32, Nullable: true, Comment: "父部门ID / Parent department ID"},
+		{Name: "leader_user_id", Type: field.TypeUUID, Nullable: true, Comment: "部门负责人用户ID / Leader user ID"},
 	}
 	// SysDepartmentsTable holds the schema information for the "sys_departments" table.
 	SysDepartmentsTable = &schema.Table{
@@ -84,8 +84,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sys_departments_sys_departments_children",
-				Columns:    []*schema.Column{SysDepartmentsColumns[10]},
+				Columns:    []*schema.Column{SysDepartmentsColumns[9]},
 				RefColumns: []*schema.Column{SysDepartmentsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "sys_departments_sys_users_leader",
+				Columns:    []*schema.Column{SysDepartmentsColumns[10]},
+				RefColumns: []*schema.Column{SysUsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -98,7 +104,7 @@ var (
 			{
 				Name:    "department_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysDepartmentsColumns[10]},
+				Columns: []*schema.Column{SysDepartmentsColumns[9]},
 			},
 		},
 	}
@@ -174,7 +180,6 @@ var (
 		{Name: "id", Type: field.TypeUint32, Increment: true},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间 / Creation time"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间 / Update time"},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间 / Deleted time"},
 		{Name: "state", Type: field.TypeBool, Nullable: true, Comment: "状态 / State", Default: true},
 		{Name: "sort", Type: field.TypeInt32, Comment: "排序 / Sort", Default: 0},
 		{Name: "menu_code", Type: field.TypeString, Size: 100, Comment: "菜单编码 / Menu code"},
@@ -206,7 +211,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sys_menus_sys_menus_children",
-				Columns:    []*schema.Column{SysMenusColumns[24]},
+				Columns:    []*schema.Column{SysMenusColumns[23]},
 				RefColumns: []*schema.Column{SysMenusColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -215,7 +220,7 @@ var (
 			{
 				Name:    "sys_menus_menu_code_unique",
 				Unique:  true,
-				Columns: []*schema.Column{SysMenusColumns[6]},
+				Columns: []*schema.Column{SysMenusColumns[5]},
 			},
 		},
 	}
@@ -367,16 +372,15 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间 / Update time"},
 		{Name: "state", Type: field.TypeBool, Nullable: true, Comment: "状态 / State", Default: true},
 		{Name: "token_value", Type: field.TypeString, Size: 500, Comment: "令牌值 / Token value"},
-		{Name: "token_type", Type: field.TypeString, Size: 50, Comment: "令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)"},
+		{Name: "token_type", Type: field.TypeString, Size: 50, Comment: "令牌类型 / Token type (access_token)"},
 		{Name: "expires_at", Type: field.TypeTime, Comment: "过期时间 / Expiration time"},
-		{Name: "is_revoked", Type: field.TypeBool, Comment: "是否已撤销 / Whether revoked", Default: false},
 		{Name: "device_info", Type: field.TypeString, Nullable: true, Size: 500, Comment: "设备信息 / Device information"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Size: 45, Comment: "创建时IP地址 / IP address when created"},
 		{Name: "last_used_at", Type: field.TypeTime, Nullable: true, Comment: "最后使用时间 / Last used time"},
 		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 1000, Comment: "用户代理 / User agent"},
 		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "元数据 / Metadata (JSON format)"},
-		{Name: "refresh_token_id", Type: field.TypeString, Nullable: true, Size: 100, Comment: "关联的刷新令牌ID / Associated refresh token ID"},
 		{Name: "user_id", Type: field.TypeUUID, Nullable: true, Comment: "用户ID / User ID"},
+		{Name: "provider_id", Type: field.TypeUint32, Nullable: true, Comment: "提供商ID / Provider ID"},
 	}
 	// SysTokensTable holds the schema information for the "sys_tokens" table.
 	SysTokensTable = &schema.Table{
@@ -387,8 +391,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sys_tokens_sys_users_user",
-				Columns:    []*schema.Column{SysTokensColumns[14]},
+				Columns:    []*schema.Column{SysTokensColumns[12]},
 				RefColumns: []*schema.Column{SysUsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "sys_tokens_sys_oauth_providers_provider",
+				Columns:    []*schema.Column{SysTokensColumns[13]},
+				RefColumns: []*schema.Column{SysOauthProvidersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -401,7 +411,7 @@ var (
 			{
 				Name:    "token_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysTokensColumns[14]},
+				Columns: []*schema.Column{SysTokensColumns[12]},
 			},
 			{
 				Name:    "token_token_type",
@@ -414,14 +424,9 @@ var (
 				Columns: []*schema.Column{SysTokensColumns[6]},
 			},
 			{
-				Name:    "token_user_id_token_type_is_revoked",
+				Name:    "token_user_id_token_type",
 				Unique:  false,
-				Columns: []*schema.Column{SysTokensColumns[14], SysTokensColumns[5], SysTokensColumns[7]},
-			},
-			{
-				Name:    "token_refresh_token_id",
-				Unique:  false,
-				Columns: []*schema.Column{SysTokensColumns[13]},
+				Columns: []*schema.Column{SysTokensColumns[12], SysTokensColumns[5]},
 			},
 		},
 	}
@@ -470,64 +475,20 @@ var (
 			},
 		},
 	}
-	// SysUserOauthColumns holds the columns for the "sys_user_oauth" table.
-	SysUserOauthColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUint32, Increment: true},
-		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间 / Creation time"},
-		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间 / Update time"},
-		{Name: "oauth_id", Type: field.TypeString, Size: 100, Comment: "第三方用户ID / Third-party user ID"},
-		{Name: "oauth_data", Type: field.TypeJSON, Nullable: true, Comment: "第三方用户数据 / Third-party user data"},
-		{Name: "oauth_token", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "访问令牌 / Access token"},
-		{Name: "refresh_token", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "刷新令牌 / Refresh token"},
-		{Name: "token_expires_at", Type: field.TypeTime, Nullable: true, Comment: "令牌过期时间 / Token expiration time"},
-		{Name: "user_id", Type: field.TypeUUID, Comment: "用户ID / User ID"},
-		{Name: "provider_id", Type: field.TypeUint32, Comment: "提供商ID / Provider ID"},
-	}
-	// SysUserOauthTable holds the schema information for the "sys_user_oauth" table.
-	SysUserOauthTable = &schema.Table{
-		Name:       "sys_user_oauth",
-		Comment:    "用户第三方认证表 / User third-party authentication table",
-		Columns:    SysUserOauthColumns,
-		PrimaryKey: []*schema.Column{SysUserOauthColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "sys_user_oauth_sys_users_user",
-				Columns:    []*schema.Column{SysUserOauthColumns[8]},
-				RefColumns: []*schema.Column{SysUsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "sys_user_oauth_sys_oauth_providers_provider",
-				Columns:    []*schema.Column{SysUserOauthColumns[9]},
-				RefColumns: []*schema.Column{SysOauthProvidersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "useroauth_provider_id_oauth_id",
-				Unique:  true,
-				Columns: []*schema.Column{SysUserOauthColumns[9], SysUserOauthColumns[3]},
-			},
-		},
-	}
 	// SysUserTotpColumns holds the columns for the "sys_user_totp" table.
 	SysUserTotpColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间 / Creation time"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间 / Update time"},
 		{Name: "state", Type: field.TypeBool, Nullable: true, Comment: "状态 / State", Default: true},
 		{Name: "secret_key", Type: field.TypeString, Size: 255, Comment: "TOTP密钥 / TOTP secret key"},
 		{Name: "backup_codes", Type: field.TypeString, Nullable: true, Size: 1000, Comment: "备用恢复码 / Backup recovery codes (JSON array)"},
-		{Name: "is_enabled", Type: field.TypeBool, Comment: "是否启用 / Whether enabled", Default: false},
 		{Name: "is_verified", Type: field.TypeBool, Comment: "是否已验证 / Whether verified", Default: false},
 		{Name: "last_used_at", Type: field.TypeTime, Nullable: true, Comment: "最后使用时间 / Last used time"},
 		{Name: "last_used_code", Type: field.TypeString, Nullable: true, Size: 10, Comment: "最后使用的验证码 / Last used verification code"},
 		{Name: "device_name", Type: field.TypeString, Nullable: true, Size: 100, Comment: "设备名称 / Device name"},
 		{Name: "issuer", Type: field.TypeString, Nullable: true, Size: 100, Comment: "发行者名称 / Issuer name"},
-		{Name: "failure_count", Type: field.TypeInt, Comment: "失败次数 / Failure count", Default: 0},
-		{Name: "locked_until", Type: field.TypeTime, Nullable: true, Comment: "锁定到期时间 / Locked until time"},
-		{Name: "user_id", Type: field.TypeUUID, Comment: "用户ID / User ID"},
+		{Name: "user_totp", Type: field.TypeUUID, Unique: true},
 	}
 	// SysUserTotpTable holds the schema information for the "sys_user_totp" table.
 	SysUserTotpTable = &schema.Table{
@@ -537,8 +498,8 @@ var (
 		PrimaryKey: []*schema.Column{SysUserTotpColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "sys_user_totp_sys_users_user",
-				Columns:    []*schema.Column{SysUserTotpColumns[14]},
+				Symbol:     "sys_user_totp_sys_users_totp",
+				Columns:    []*schema.Column{SysUserTotpColumns[11]},
 				RefColumns: []*schema.Column{SysUsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -547,27 +508,22 @@ var (
 			{
 				Name:    "sys_user_totp_user_unique",
 				Unique:  true,
-				Columns: []*schema.Column{SysUserTotpColumns[14]},
+				Columns: []*schema.Column{SysUserTotpColumns[0]},
 			},
 			{
-				Name:    "usertotp_user_id",
+				Name:    "usertotp_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysUserTotpColumns[14]},
-			},
-			{
-				Name:    "usertotp_is_enabled",
-				Unique:  false,
-				Columns: []*schema.Column{SysUserTotpColumns[6]},
+				Columns: []*schema.Column{SysUserTotpColumns[0]},
 			},
 			{
 				Name:    "usertotp_is_verified",
 				Unique:  false,
-				Columns: []*schema.Column{SysUserTotpColumns[7]},
+				Columns: []*schema.Column{SysUserTotpColumns[6]},
 			},
 			{
 				Name:    "usertotp_last_used_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysUserTotpColumns[8]},
+				Columns: []*schema.Column{SysUserTotpColumns[7]},
 			},
 		},
 	}
@@ -660,7 +616,6 @@ var (
 		SysRolesTable,
 		SysTokensTable,
 		SysUsersTable,
-		SysUserOauthTable,
 		SysUserTotpTable,
 		PositionUsersTable,
 		RoleMenusTable,
@@ -676,6 +631,7 @@ func init() {
 		Table: "sys_configuration",
 	}
 	SysDepartmentsTable.ForeignKeys[0].RefTable = SysDepartmentsTable
+	SysDepartmentsTable.ForeignKeys[1].RefTable = SysUsersTable
 	SysDepartmentsTable.Annotation = &entsql.Annotation{
 		Table: "sys_departments",
 	}
@@ -704,17 +660,13 @@ func init() {
 		Table: "sys_roles",
 	}
 	SysTokensTable.ForeignKeys[0].RefTable = SysUsersTable
+	SysTokensTable.ForeignKeys[1].RefTable = SysOauthProvidersTable
 	SysTokensTable.Annotation = &entsql.Annotation{
 		Table: "sys_tokens",
 	}
 	SysUsersTable.ForeignKeys[0].RefTable = SysDepartmentsTable
 	SysUsersTable.Annotation = &entsql.Annotation{
 		Table: "sys_users",
-	}
-	SysUserOauthTable.ForeignKeys[0].RefTable = SysUsersTable
-	SysUserOauthTable.ForeignKeys[1].RefTable = SysOauthProvidersTable
-	SysUserOauthTable.Annotation = &entsql.Annotation{
-		Table: "sys_user_oauth",
 	}
 	SysUserTotpTable.ForeignKeys[0].RefTable = SysUsersTable
 	SysUserTotpTable.Annotation = &entsql.Annotation{

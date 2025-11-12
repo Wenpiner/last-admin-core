@@ -14,9 +14,14 @@ import (
 	"github.com/wenpiner/last-admin-core/api/internal/config"
 	"github.com/wenpiner/last-admin-core/api/internal/i18n"
 	"github.com/wenpiner/last-admin-core/api/internal/middleware"
+	"github.com/wenpiner/last-admin-core/rpc/client/apiservice"
+	"github.com/wenpiner/last-admin-core/rpc/client/departmentservice"
+	"github.com/wenpiner/last-admin-core/rpc/client/dictservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/initservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/menuservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/oauthproviderservice"
+	"github.com/wenpiner/last-admin-core/rpc/client/positionservice"
+	"github.com/wenpiner/last-admin-core/rpc/client/roleservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/tokenservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/userservice"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,11 +38,16 @@ type ServiceContext struct {
 
 	Trans *last_i18n.Translator
 
-	UserRpc  userservice.UserService
-	TokenRpc tokenservice.TokenService
-	OauthRpc oauthproviderservice.OauthProviderService
-	InitRpc  initservice.InitService
-	MenuRpc  menuservice.MenuService
+	UserRpc        userservice.UserService
+	TokenRpc       tokenservice.TokenService
+	OauthRpc       oauthproviderservice.OauthProviderService
+	InitRpc        initservice.InitService
+	MenuRpc        menuservice.MenuService
+	ApiRpc         apiservice.ApiService
+	DepartmentRpc  departmentservice.DepartmentService
+	RoleRpc        roleservice.RoleService
+	DictRpc        dictservice.DictService
+	PositionRpc    positionservice.PositionService
 
 	validator *validator.Validator
 
@@ -80,7 +90,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	coreRpc := zrpc.NewClientIfEnable(c.CoreRpc)
 	return &ServiceContext{
 		Config:         c,
-		AuthMiddleware: middleware.NewAuthMiddleware(trans, casbin).Handle,
+		AuthMiddleware: middleware.NewAuthMiddleware(trans, casbin, redisClient).Handle,
 		CaptchaService: captchaService,
 		Trans:          trans,
 		UserRpc:        userservice.NewUserService(coreRpc),
@@ -88,6 +98,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OauthRpc:       oauthproviderservice.NewOauthProviderService(coreRpc),
 		InitRpc:        initservice.NewInitService(coreRpc),
 		MenuRpc:        menuservice.NewMenuService(coreRpc),
+		ApiRpc:         apiservice.NewApiService(coreRpc),
+		DepartmentRpc:  departmentservice.NewDepartmentService(coreRpc),
+		RoleRpc:        roleservice.NewRoleService(coreRpc),
+		DictRpc:        dictservice.NewDictService(coreRpc),
+		PositionRpc:    positionservice.NewPositionService(coreRpc),
 		Redis:          redisClient,
 		Casbin:         casbin,
 	}

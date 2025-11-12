@@ -1,11 +1,11 @@
 Name: core.api
 Host: 0.0.0.0
-Port: 8888
+Port: 8889
 
 # 认证配置
 Auth:
   AccessSecret: "2Av^fwbPzdcJyt&&EjFmZVk5BmZDbTVo"
-  AccessExpire: 3600
+  AccessExpire: 360000
 
 I18nConf:
   Dir: ""
@@ -119,14 +119,14 @@ CaptchaConf:
     KeyPrefix: "captcha:"
     # Redis配置
     Redis:
-      Addr: "127.0.0.1:6379"
+      Addr: "127.0.0.1:16379"
       Password: "redis123"
       DB: 0
       PoolSize: 10
 
 # Redis配置
 RedisConf:
-  Host: "127.0.0.1:6379"
+  Host: "127.0.0.1:16379"
   Password: "redis123"
   DB: 0
   PoolSize: 10

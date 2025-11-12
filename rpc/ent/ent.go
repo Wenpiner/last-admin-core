@@ -24,7 +24,6 @@ import (
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
@@ -98,7 +97,6 @@ func checkColumn(t, c string) error {
 			role.Table:          role.ValidColumn,
 			token.Table:         token.ValidColumn,
 			user.Table:          user.ValidColumn,
-			useroauth.Table:     useroauth.ValidColumn,
 			usertotp.Table:      usertotp.ValidColumn,
 		})
 	})

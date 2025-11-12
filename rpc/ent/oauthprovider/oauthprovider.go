@@ -42,17 +42,17 @@ const (
 	FieldLogoutURL = "logout_url"
 	// FieldAuthStyle holds the string denoting the auth_style field in the database.
 	FieldAuthStyle = "auth_style"
-	// EdgeOauths holds the string denoting the oauths edge name in mutations.
-	EdgeOauths = "oauths"
+	// EdgeTokens holds the string denoting the tokens edge name in mutations.
+	EdgeTokens = "tokens"
 	// Table holds the table name of the oauthprovider in the database.
 	Table = "sys_oauth_providers"
-	// OauthsTable is the table that holds the oauths relation/edge.
-	OauthsTable = "sys_user_oauth"
-	// OauthsInverseTable is the table name for the UserOauth entity.
-	// It exists in this package in order to avoid circular dependency with the "useroauth" package.
-	OauthsInverseTable = "sys_user_oauth"
-	// OauthsColumn is the table column denoting the oauths relation/edge.
-	OauthsColumn = "provider_id"
+	// TokensTable is the table that holds the tokens relation/edge.
+	TokensTable = "sys_tokens"
+	// TokensInverseTable is the table name for the Token entity.
+	// It exists in this package in order to avoid circular dependency with the "token" package.
+	TokensInverseTable = "sys_tokens"
+	// TokensColumn is the table column denoting the tokens relation/edge.
+	TokensColumn = "provider_id"
 )
 
 // Columns holds all SQL columns for oauthprovider fields.
@@ -197,23 +197,23 @@ func ByAuthStyle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAuthStyle, opts...).ToFunc()
 }
 
-// ByOauthsCount orders the results by oauths count.
-func ByOauthsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTokensCount orders the results by tokens count.
+func ByTokensCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOauthsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newTokensStep(), opts...)
 	}
 }
 
-// ByOauths orders the results by oauths terms.
-func ByOauths(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByTokens orders the results by tokens terms.
+func ByTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOauthsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newOauthsStep() *sqlgraph.Step {
+func newTokensStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OauthsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, OauthsTable, OauthsColumn),
+		sqlgraph.To(TokensInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TokensTable, TokensColumn),
 	)
 }

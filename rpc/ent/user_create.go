@@ -15,7 +15,6 @@ import (
 	"github.com/wenpiner/last-admin-core/rpc/ent/position"
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
@@ -255,34 +254,38 @@ func (_c *UserCreate) SetDepartment(v *Department) *UserCreate {
 	return _c.SetDepartmentID(v.ID)
 }
 
-// AddOauthIDs adds the "oauths" edge to the UserOauth entity by IDs.
-func (_c *UserCreate) AddOauthIDs(ids ...uint32) *UserCreate {
-	_c.mutation.AddOauthIDs(ids...)
+// AddLeaderDepartmentIDs adds the "leader_department" edge to the Department entity by IDs.
+func (_c *UserCreate) AddLeaderDepartmentIDs(ids ...uint32) *UserCreate {
+	_c.mutation.AddLeaderDepartmentIDs(ids...)
 	return _c
 }
 
-// AddOauths adds the "oauths" edges to the UserOauth entity.
-func (_c *UserCreate) AddOauths(v ...*UserOauth) *UserCreate {
+// AddLeaderDepartment adds the "leader_department" edges to the Department entity.
+func (_c *UserCreate) AddLeaderDepartment(v ...*Department) *UserCreate {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _c.AddOauthIDs(ids...)
+	return _c.AddLeaderDepartmentIDs(ids...)
 }
 
-// AddTotpIDs adds the "totp" edge to the UserTotp entity by IDs.
-func (_c *UserCreate) AddTotpIDs(ids ...uint32) *UserCreate {
-	_c.mutation.AddTotpIDs(ids...)
+// SetTotpID sets the "totp" edge to the UserTotp entity by ID.
+func (_c *UserCreate) SetTotpID(id uuid.UUID) *UserCreate {
+	_c.mutation.SetTotpID(id)
 	return _c
 }
 
-// AddTotp adds the "totp" edges to the UserTotp entity.
-func (_c *UserCreate) AddTotp(v ...*UserTotp) *UserCreate {
-	ids := make([]uint32, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
+// SetNillableTotpID sets the "totp" edge to the UserTotp entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableTotpID(id *uuid.UUID) *UserCreate {
+	if id != nil {
+		_c = _c.SetTotpID(*id)
 	}
-	return _c.AddTotpIDs(ids...)
+	return _c
+}
+
+// SetTotp sets the "totp" edge to the UserTotp entity.
+func (_c *UserCreate) SetTotp(v *UserTotp) *UserCreate {
+	return _c.SetTotpID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -528,15 +531,15 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.DepartmentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := _c.mutation.OauthsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.LeaderDepartmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -546,13 +549,13 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.TotpIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   user.TotpTable,
 			Columns: []string{user.TotpColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

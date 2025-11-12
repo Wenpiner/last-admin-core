@@ -14,71 +14,71 @@ import (
 )
 
 type (
-	ApiInfo                       = core.ApiInfo
-	ApiListRequest                = core.ApiListRequest
-	ApiListResponse               = core.ApiListResponse
-	BackupCodesResponse           = core.BackupCodesResponse
-	BasePageRequest               = core.BasePageRequest
-	BasePageResp                  = core.BasePageResp
-	BaseResponse                  = core.BaseResponse
-	CleanExpiredTokensRequest     = core.CleanExpiredTokensRequest
-	CleanExpiredTokensResponse    = core.CleanExpiredTokensResponse
-	CreateTokenRequest            = core.CreateTokenRequest
-	DepartmentInfo                = core.DepartmentInfo
-	DepartmentListRequest         = core.DepartmentListRequest
-	DepartmentListResponse        = core.DepartmentListResponse
-	DictInfo                      = core.DictInfo
-	DictItemInfo                  = core.DictItemInfo
-	DictItemListRequest           = core.DictItemListRequest
-	DictItemListResponse          = core.DictItemListResponse
-	DictListRequest               = core.DictListRequest
-	DictListResponse              = core.DictListResponse
-	DisableTotpRequest            = core.DisableTotpRequest
-	EmptyRequest                  = core.EmptyRequest
-	EnableTotpRequest             = core.EnableTotpRequest
-	GetTokenByRefreshTokenRequest = core.GetTokenByRefreshTokenRequest
-	ID32Request                   = core.ID32Request
-	ID32SRequest                  = core.ID32SRequest
-	IDRequest                     = core.IDRequest
-	IDSRequest                    = core.IDSRequest
-	MenuInfo                      = core.MenuInfo
-	MenuListRequest               = core.MenuListRequest
-	MenuListResponse              = core.MenuListResponse
-	MenuMeta                      = core.MenuMeta
-	OauthCallbackRequest          = core.OauthCallbackRequest
-	OauthLoginRequest             = core.OauthLoginRequest
-	OauthProviderInfo             = core.OauthProviderInfo
-	OauthProviderListRequest      = core.OauthProviderListRequest
-	OauthProviderListResponse     = core.OauthProviderListResponse
-	OauthRedirectResponse         = core.OauthRedirectResponse
-	PositionInfo                  = core.PositionInfo
-	PositionListRequest           = core.PositionListRequest
-	PositionListResponse          = core.PositionListResponse
-	RevokeTokenRequest            = core.RevokeTokenRequest
-	RevokeUserTokensRequest       = core.RevokeUserTokensRequest
-	RoleInfo                      = core.RoleInfo
-	RoleListRequest               = core.RoleListRequest
-	RoleListResponse              = core.RoleListResponse
-	StringListResponse            = core.StringListResponse
-	StringRequest                 = core.StringRequest
-	TokenInfo                     = core.TokenInfo
-	TokenListRequest              = core.TokenListRequest
-	TokenListResponse             = core.TokenListResponse
-	TotpSetupConfirmResponse      = core.TotpSetupConfirmResponse
-	TotpSetupResponse             = core.TotpSetupResponse
-	TotpStatusResponse            = core.TotpStatusResponse
-	UUIDRequest                   = core.UUIDRequest
-	UUIDSRequest                  = core.UUIDSRequest
-	UpdateTokenLastUsedRequest    = core.UpdateTokenLastUsedRequest
-	UseBackupCodeRequest          = core.UseBackupCodeRequest
-	UserInfo                      = core.UserInfo
-	UserListRequest               = core.UserListRequest
-	UserListResponse              = core.UserListResponse
-	ValidateTokenRequest          = core.ValidateTokenRequest
-	ValidateTokenResponse         = core.ValidateTokenResponse
-	VerifyTotpCodeRequest         = core.VerifyTotpCodeRequest
-	VerifyTotpCodeResponse        = core.VerifyTotpCodeResponse
-	VerifyTotpSetupRequest        = core.VerifyTotpSetupRequest
+	ApiInfo                    = core.ApiInfo
+	ApiListRequest             = core.ApiListRequest
+	ApiListResponse            = core.ApiListResponse
+	BackupCodesResponse        = core.BackupCodesResponse
+	BasePageRequest            = core.BasePageRequest
+	BasePageResp               = core.BasePageResp
+	BaseResponse               = core.BaseResponse
+	CleanExpiredTokensRequest  = core.CleanExpiredTokensRequest
+	CleanExpiredTokensResponse = core.CleanExpiredTokensResponse
+	CreateTokenRequest         = core.CreateTokenRequest
+	DepartmentInfo             = core.DepartmentInfo
+	DepartmentListRequest      = core.DepartmentListRequest
+	DepartmentListResponse     = core.DepartmentListResponse
+	DictInfo                   = core.DictInfo
+	DictItemInfo               = core.DictItemInfo
+	DictItemListRequest        = core.DictItemListRequest
+	DictItemListResponse       = core.DictItemListResponse
+	DictListRequest            = core.DictListRequest
+	DictListResponse           = core.DictListResponse
+	DisableTotpRequest         = core.DisableTotpRequest
+	EmptyRequest               = core.EmptyRequest
+	EnableTotpRequest          = core.EnableTotpRequest
+	ID32Request                = core.ID32Request
+	ID32SRequest               = core.ID32SRequest
+	IDRequest                  = core.IDRequest
+	IDSRequest                 = core.IDSRequest
+	MenuInfo                   = core.MenuInfo
+	MenuListRequest            = core.MenuListRequest
+	MenuListResponse           = core.MenuListResponse
+	MenuMeta                   = core.MenuMeta
+	OauthCallbackRequest       = core.OauthCallbackRequest
+	OauthLoginRequest          = core.OauthLoginRequest
+	OauthProviderInfo          = core.OauthProviderInfo
+	OauthProviderListRequest   = core.OauthProviderListRequest
+	OauthProviderListResponse  = core.OauthProviderListResponse
+	OauthRedirectResponse      = core.OauthRedirectResponse
+	PositionInfo               = core.PositionInfo
+	PositionListRequest        = core.PositionListRequest
+	PositionListResponse       = core.PositionListResponse
+	RoleApiListResponse        = core.RoleApiListResponse
+	RoleApiRequest             = core.RoleApiRequest
+	RoleInfo                   = core.RoleInfo
+	RoleListRequest            = core.RoleListRequest
+	RoleListResponse           = core.RoleListResponse
+	RoleMenuListResponse       = core.RoleMenuListResponse
+	RoleMenuRequest            = core.RoleMenuRequest
+	StringListResponse         = core.StringListResponse
+	StringRequest              = core.StringRequest
+	TokenInfo                  = core.TokenInfo
+	TokenListRequest           = core.TokenListRequest
+	TokenListResponse          = core.TokenListResponse
+	TotpInfo                   = core.TotpInfo
+	TotpSetupConfirmResponse   = core.TotpSetupConfirmResponse
+	TotpSetupResponse          = core.TotpSetupResponse
+	TotpStatusResponse         = core.TotpStatusResponse
+	UUIDRequest                = core.UUIDRequest
+	UUIDSRequest               = core.UUIDSRequest
+	UpdateTokenLastUsedRequest = core.UpdateTokenLastUsedRequest
+	UseBackupCodeRequest       = core.UseBackupCodeRequest
+	UserInfo                   = core.UserInfo
+	UserListRequest            = core.UserListRequest
+	UserListResponse           = core.UserListResponse
+	VerifyTotpCodeRequest      = core.VerifyTotpCodeRequest
+	VerifyTotpCodeResponse     = core.VerifyTotpCodeResponse
+	VerifyTotpSetupRequest     = core.VerifyTotpSetupRequest
 
 	RoleService interface {
 		// 创建或更新角色
@@ -91,6 +91,12 @@ type (
 		ListRole(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
 		// 通过值获取角色
 		GetRoleByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleInfo, error)
+		// 为角色分配菜单
+		AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+		// 为角色分配API
+		AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+		// 获取角色菜单
+		GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error)
 	}
 
 	defaultRoleService struct {
@@ -132,4 +138,22 @@ func (m *defaultRoleService) ListRole(ctx context.Context, in *RoleListRequest, 
 func (m *defaultRoleService) GetRoleByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleInfo, error) {
 	client := core.NewRoleServiceClient(m.cli.Conn())
 	return client.GetRoleByValue(ctx, in, opts...)
+}
+
+// 为角色分配菜单
+func (m *defaultRoleService) AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := core.NewRoleServiceClient(m.cli.Conn())
+	return client.AssignMenu(ctx, in, opts...)
+}
+
+// 为角色分配API
+func (m *defaultRoleService) AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := core.NewRoleServiceClient(m.cli.Conn())
+	return client.AssignApi(ctx, in, opts...)
+}
+
+// 获取角色菜单
+func (m *defaultRoleService) GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error) {
+	client := core.NewRoleServiceClient(m.cli.Conn())
+	return client.GetMenu(ctx, in, opts...)
 }

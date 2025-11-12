@@ -1,9 +1,9 @@
 syntax = "v1"
 
 type BaseDataInfo {
-	Code int32  `json:"code"`
+	Code    int32  `json:"code"`
 	Message string `json:"message"`
-	Data string `json:"data"`
+	Data    string `json:"data"`
 }
 
 type BaseListInfo {
@@ -11,9 +11,13 @@ type BaseListInfo {
 	List  []string `json:"list"`
 }
 
+type Page {
+	PageSize    uint32 `json:"pageSize"`
+	CurrentPage uint32 `json:"currentPage"`
+}
+
 type PageRequest {
-	PageNumer uint32 `json:"pageNumber" validate:"required,number,gt=0"`
-	PageSize  uint32 `json:"pageSize" validate:"required,number,lt=100000"`
+	Page Page `json:"page"`
 }
 
 type BaseID32Info {
@@ -34,11 +38,22 @@ type BaseUUIDInfo {
 	UpdatedAt *int64 `json:"updatedAt"`
 }
 
+type ID32Request {
+	ID uint32 `json:"id" validate:"required,number,gt=0"`
+}
+
 type BaseResponse {
-	Code int32  `json:"code"`
+	Code    int32  `json:"code"`
 	Message string `json:"message"`
 }
 
+type UUIDRequest {
+	ID string `json:"id" validate:"required"`
+}
+
+type StringIDRequest {
+	ID string `json:"id" validate:"required"`
+}
 @server (
 	group: base
 )

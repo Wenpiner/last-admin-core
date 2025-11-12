@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
@@ -118,20 +119,6 @@ func (_u *TokenUpdate) SetNillableExpiresAt(v *time.Time) *TokenUpdate {
 	return _u
 }
 
-// SetIsRevoked sets the "is_revoked" field.
-func (_u *TokenUpdate) SetIsRevoked(v bool) *TokenUpdate {
-	_u.mutation.SetIsRevoked(v)
-	return _u
-}
-
-// SetNillableIsRevoked sets the "is_revoked" field if the given value is not nil.
-func (_u *TokenUpdate) SetNillableIsRevoked(v *bool) *TokenUpdate {
-	if v != nil {
-		_u.SetIsRevoked(*v)
-	}
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *TokenUpdate) SetDeviceInfo(v string) *TokenUpdate {
 	_u.mutation.SetDeviceInfo(v)
@@ -232,29 +219,34 @@ func (_u *TokenUpdate) ClearMetadata() *TokenUpdate {
 	return _u
 }
 
-// SetRefreshTokenID sets the "refresh_token_id" field.
-func (_u *TokenUpdate) SetRefreshTokenID(v string) *TokenUpdate {
-	_u.mutation.SetRefreshTokenID(v)
+// SetProviderID sets the "provider_id" field.
+func (_u *TokenUpdate) SetProviderID(v uint32) *TokenUpdate {
+	_u.mutation.SetProviderID(v)
 	return _u
 }
 
-// SetNillableRefreshTokenID sets the "refresh_token_id" field if the given value is not nil.
-func (_u *TokenUpdate) SetNillableRefreshTokenID(v *string) *TokenUpdate {
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (_u *TokenUpdate) SetNillableProviderID(v *uint32) *TokenUpdate {
 	if v != nil {
-		_u.SetRefreshTokenID(*v)
+		_u.SetProviderID(*v)
 	}
 	return _u
 }
 
-// ClearRefreshTokenID clears the value of the "refresh_token_id" field.
-func (_u *TokenUpdate) ClearRefreshTokenID() *TokenUpdate {
-	_u.mutation.ClearRefreshTokenID()
+// ClearProviderID clears the value of the "provider_id" field.
+func (_u *TokenUpdate) ClearProviderID() *TokenUpdate {
+	_u.mutation.ClearProviderID()
 	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
 func (_u *TokenUpdate) SetUser(v *User) *TokenUpdate {
 	return _u.SetUserID(v.ID)
+}
+
+// SetProvider sets the "provider" edge to the OauthProvider entity.
+func (_u *TokenUpdate) SetProvider(v *OauthProvider) *TokenUpdate {
+	return _u.SetProviderID(v.ID)
 }
 
 // Mutation returns the TokenMutation object of the builder.
@@ -265,6 +257,12 @@ func (_u *TokenUpdate) Mutation() *TokenMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *TokenUpdate) ClearUser() *TokenUpdate {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearProvider clears the "provider" edge to the OauthProvider entity.
+func (_u *TokenUpdate) ClearProvider() *TokenUpdate {
+	_u.mutation.ClearProvider()
 	return _u
 }
 
@@ -331,11 +329,6 @@ func (_u *TokenUpdate) check() error {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "Token.user_agent": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.RefreshTokenID(); ok {
-		if err := token.RefreshTokenIDValidator(v); err != nil {
-			return &ValidationError{Name: "refresh_token_id", err: fmt.Errorf(`ent: validator failed for field "Token.refresh_token_id": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -369,9 +362,6 @@ func (_u *TokenUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(token.FieldExpiresAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.IsRevoked(); ok {
-		_spec.SetField(token.FieldIsRevoked, field.TypeBool, value)
-	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(token.FieldDeviceInfo, field.TypeString, value)
 	}
@@ -402,12 +392,6 @@ func (_u *TokenUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(token.FieldMetadata, field.TypeString)
 	}
-	if value, ok := _u.mutation.RefreshTokenID(); ok {
-		_spec.SetField(token.FieldRefreshTokenID, field.TypeString, value)
-	}
-	if _u.mutation.RefreshTokenIDCleared() {
-		_spec.ClearField(token.FieldRefreshTokenID, field.TypeString)
-	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -430,6 +414,35 @@ func (_u *TokenUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProviderCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   token.ProviderTable,
+			Columns: []string{token.ProviderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthprovider.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProviderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   token.ProviderTable,
+			Columns: []string{token.ProviderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthprovider.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -545,20 +558,6 @@ func (_u *TokenUpdateOne) SetNillableExpiresAt(v *time.Time) *TokenUpdateOne {
 	return _u
 }
 
-// SetIsRevoked sets the "is_revoked" field.
-func (_u *TokenUpdateOne) SetIsRevoked(v bool) *TokenUpdateOne {
-	_u.mutation.SetIsRevoked(v)
-	return _u
-}
-
-// SetNillableIsRevoked sets the "is_revoked" field if the given value is not nil.
-func (_u *TokenUpdateOne) SetNillableIsRevoked(v *bool) *TokenUpdateOne {
-	if v != nil {
-		_u.SetIsRevoked(*v)
-	}
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *TokenUpdateOne) SetDeviceInfo(v string) *TokenUpdateOne {
 	_u.mutation.SetDeviceInfo(v)
@@ -659,29 +658,34 @@ func (_u *TokenUpdateOne) ClearMetadata() *TokenUpdateOne {
 	return _u
 }
 
-// SetRefreshTokenID sets the "refresh_token_id" field.
-func (_u *TokenUpdateOne) SetRefreshTokenID(v string) *TokenUpdateOne {
-	_u.mutation.SetRefreshTokenID(v)
+// SetProviderID sets the "provider_id" field.
+func (_u *TokenUpdateOne) SetProviderID(v uint32) *TokenUpdateOne {
+	_u.mutation.SetProviderID(v)
 	return _u
 }
 
-// SetNillableRefreshTokenID sets the "refresh_token_id" field if the given value is not nil.
-func (_u *TokenUpdateOne) SetNillableRefreshTokenID(v *string) *TokenUpdateOne {
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (_u *TokenUpdateOne) SetNillableProviderID(v *uint32) *TokenUpdateOne {
 	if v != nil {
-		_u.SetRefreshTokenID(*v)
+		_u.SetProviderID(*v)
 	}
 	return _u
 }
 
-// ClearRefreshTokenID clears the value of the "refresh_token_id" field.
-func (_u *TokenUpdateOne) ClearRefreshTokenID() *TokenUpdateOne {
-	_u.mutation.ClearRefreshTokenID()
+// ClearProviderID clears the value of the "provider_id" field.
+func (_u *TokenUpdateOne) ClearProviderID() *TokenUpdateOne {
+	_u.mutation.ClearProviderID()
 	return _u
 }
 
 // SetUser sets the "user" edge to the User entity.
 func (_u *TokenUpdateOne) SetUser(v *User) *TokenUpdateOne {
 	return _u.SetUserID(v.ID)
+}
+
+// SetProvider sets the "provider" edge to the OauthProvider entity.
+func (_u *TokenUpdateOne) SetProvider(v *OauthProvider) *TokenUpdateOne {
+	return _u.SetProviderID(v.ID)
 }
 
 // Mutation returns the TokenMutation object of the builder.
@@ -692,6 +696,12 @@ func (_u *TokenUpdateOne) Mutation() *TokenMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *TokenUpdateOne) ClearUser() *TokenUpdateOne {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearProvider clears the "provider" edge to the OauthProvider entity.
+func (_u *TokenUpdateOne) ClearProvider() *TokenUpdateOne {
+	_u.mutation.ClearProvider()
 	return _u
 }
 
@@ -771,11 +781,6 @@ func (_u *TokenUpdateOne) check() error {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "Token.user_agent": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.RefreshTokenID(); ok {
-		if err := token.RefreshTokenIDValidator(v); err != nil {
-			return &ValidationError{Name: "refresh_token_id", err: fmt.Errorf(`ent: validator failed for field "Token.refresh_token_id": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -826,9 +831,6 @@ func (_u *TokenUpdateOne) sqlSave(ctx context.Context) (_node *Token, err error)
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(token.FieldExpiresAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.IsRevoked(); ok {
-		_spec.SetField(token.FieldIsRevoked, field.TypeBool, value)
-	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(token.FieldDeviceInfo, field.TypeString, value)
 	}
@@ -859,12 +861,6 @@ func (_u *TokenUpdateOne) sqlSave(ctx context.Context) (_node *Token, err error)
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(token.FieldMetadata, field.TypeString)
 	}
-	if value, ok := _u.mutation.RefreshTokenID(); ok {
-		_spec.SetField(token.FieldRefreshTokenID, field.TypeString, value)
-	}
-	if _u.mutation.RefreshTokenIDCleared() {
-		_spec.ClearField(token.FieldRefreshTokenID, field.TypeString)
-	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -887,6 +883,35 @@ func (_u *TokenUpdateOne) sqlSave(ctx context.Context) (_node *Token, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProviderCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   token.ProviderTable,
+			Columns: []string{token.ProviderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthprovider.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProviderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   token.ProviderTable,
+			Columns: []string{token.ProviderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthprovider.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {

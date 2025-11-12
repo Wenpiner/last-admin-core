@@ -1030,21 +1030,21 @@ func HasDepartmentWith(preds ...predicate.Department) predicate.User {
 	})
 }
 
-// HasOauths applies the HasEdge predicate on the "oauths" edge.
-func HasOauths() predicate.User {
+// HasLeaderDepartment applies the HasEdge predicate on the "leader_department" edge.
+func HasLeaderDepartment() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, OauthsTable, OauthsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, LeaderDepartmentTable, LeaderDepartmentColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasOauthsWith applies the HasEdge predicate on the "oauths" edge with a given conditions (other predicates).
-func HasOauthsWith(preds ...predicate.UserOauth) predicate.User {
+// HasLeaderDepartmentWith applies the HasEdge predicate on the "leader_department" edge with a given conditions (other predicates).
+func HasLeaderDepartmentWith(preds ...predicate.Department) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
-		step := newOauthsStep()
+		step := newLeaderDepartmentStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1058,7 +1058,7 @@ func HasTotp() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, TotpTable, TotpColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, TotpTable, TotpColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

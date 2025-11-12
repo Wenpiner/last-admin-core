@@ -119,13 +119,13 @@ func (_c *DepartmentCreate) SetNillableParentID(v *uint32) *DepartmentCreate {
 }
 
 // SetLeaderUserID sets the "leader_user_id" field.
-func (_c *DepartmentCreate) SetLeaderUserID(v uint32) *DepartmentCreate {
+func (_c *DepartmentCreate) SetLeaderUserID(v uuid.UUID) *DepartmentCreate {
 	_c.mutation.SetLeaderUserID(v)
 	return _c
 }
 
 // SetNillableLeaderUserID sets the "leader_user_id" field if the given value is not nil.
-func (_c *DepartmentCreate) SetNillableLeaderUserID(v *uint32) *DepartmentCreate {
+func (_c *DepartmentCreate) SetNillableLeaderUserID(v *uuid.UUID) *DepartmentCreate {
 	if v != nil {
 		_c.SetLeaderUserID(*v)
 	}
@@ -185,6 +185,25 @@ func (_c *DepartmentCreate) AddUsers(v ...*User) *DepartmentCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserIDs(ids...)
+}
+
+// SetLeaderID sets the "leader" edge to the User entity by ID.
+func (_c *DepartmentCreate) SetLeaderID(id uuid.UUID) *DepartmentCreate {
+	_c.mutation.SetLeaderID(id)
+	return _c
+}
+
+// SetNillableLeaderID sets the "leader" edge to the User entity by ID if the given value is not nil.
+func (_c *DepartmentCreate) SetNillableLeaderID(id *uuid.UUID) *DepartmentCreate {
+	if id != nil {
+		_c = _c.SetLeaderID(*id)
+	}
+	return _c
+}
+
+// SetLeader sets the "leader" edge to the User entity.
+func (_c *DepartmentCreate) SetLeader(v *User) *DepartmentCreate {
+	return _c.SetLeaderID(v.ID)
 }
 
 // Mutation returns the DepartmentMutation object of the builder.
@@ -332,10 +351,6 @@ func (_c *DepartmentCreate) createSpec() (*Department, *sqlgraph.CreateSpec) {
 		_spec.SetField(department.FieldDeptCode, field.TypeString, value)
 		_node.DeptCode = value
 	}
-	if value, ok := _c.mutation.LeaderUserID(); ok {
-		_spec.SetField(department.FieldLeaderUserID, field.TypeUint32, value)
-		_node.LeaderUserID = &value
-	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(department.FieldDescription, field.TypeString, value)
 		_node.Description = &value
@@ -387,6 +402,23 @@ func (_c *DepartmentCreate) createSpec() (*Department, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.LeaderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   department.LeaderTable,
+			Columns: []string{department.LeaderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.LeaderUserID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

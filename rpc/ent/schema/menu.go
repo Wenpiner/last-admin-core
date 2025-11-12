@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/wenpiner/last-admin-common/ent/mixins"
-	mixins2 "github.com/wenpiner/last-admin-core/rpc/ent/schema/mixins"
 )
 
 type Menu struct {
@@ -20,7 +19,6 @@ func (Menu) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixins.ID32Mixin{},
 		mixins.TimestampMixin{},
-		mixins2.SoftDeleteMixin{},
 		mixins.StateMixin{},
 		mixins.SortMixin{},
 	}

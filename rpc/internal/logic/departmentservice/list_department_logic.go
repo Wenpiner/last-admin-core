@@ -3,8 +3,7 @@ package departmentservicelogic
 import (
 	"context"
 
-	"github.com/wenpiner/last-admin-common/utils/pointer"
-	"github.com/wenpiner/last-admin-core/rpc/ent"
+	"entgo.io/ent/dialect/sql"
 	"github.com/wenpiner/last-admin-core/rpc/ent/department"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/internal/utils/errorhandler"
@@ -44,7 +43,7 @@ func (l *ListDepartmentLogic) ListDepartment(in *core.DepartmentListRequest) (*c
 		predicates = append(predicates, department.DeptCodeContains(*in.DeptCode))
 	}
 
-	page, err := l.svcCtx.DBEnt.Department.Query().Where(predicates...).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	page, err := l.svcCtx.DBEnt.Department.Query().WithLeader().Where(predicates...).Order(department.BySort(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
@@ -57,24 +56,8 @@ func (l *ListDepartmentLogic) ListDepartment(in *core.DepartmentListRequest) (*c
 	}
 
 	for _, dept := range page.List {
-		resp.List = append(resp.List, l.convertDepartmentToDepartmentInfo(dept))
+		resp.List = append(resp.List, ConvertDepartmentToDepartmentInfo(dept))
 	}
 
 	return resp, nil
-}
-
-// 将 Department 实体转换为 DepartmentInfo
-func (l *ListDepartmentLogic) convertDepartmentToDepartmentInfo(dept *ent.Department) *core.DepartmentInfo {
-	return &core.DepartmentInfo{
-		Id:           &dept.ID,
-		CreatedAt:    pointer.ToInt64Ptr(dept.CreatedAt.UnixMilli()),
-		UpdatedAt:    pointer.ToInt64Ptr(dept.UpdatedAt.UnixMilli()),
-		DeptName:     &dept.DeptName,
-		DeptCode:     &dept.DeptCode,
-		ParentId:     dept.ParentID,
-		SortOrder:    pointer.ToInt32Ptr(dept.Sort),
-		LeaderUserId: dept.LeaderUserID,
-		State:        pointer.ToBoolPtr(dept.State),
-		Description:  dept.Description,
-	}
 }

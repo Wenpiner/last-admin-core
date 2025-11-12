@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-common/ent/mixins"
 	mixins2 "github.com/wenpiner/last-admin-core/rpc/ent/schema/mixins"
 )
@@ -42,9 +43,9 @@ func (Department) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("父部门ID / Parent department ID"),
-		field.Uint32("leader_user_id").
+		field.UUID("leader_user_id", uuid.UUID{}).
 			Optional().
-			Nillable().
+			Nillable().Unique().
 			Comment("部门负责人用户ID / Leader user ID"),
 		field.Text("description").
 			Optional().
@@ -61,6 +62,9 @@ func (Department) Edges() []ent.Edge {
 			Field("parent_id").
 			Unique(),
 		edge.From("users", User.Type).Ref("department"),
+		edge.To("leader", User.Type).
+			Field("leader_user_id").
+			Unique(),
 	}
 }
 

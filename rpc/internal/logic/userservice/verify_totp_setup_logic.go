@@ -40,14 +40,14 @@ func (l *VerifyTotpSetupLogic) VerifyTotpSetup(in *core.VerifyTotpSetupRequest) 
 
 	// 查询用户的TOTP记录
 	totpRecord, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
 
 	// 检查TOTP是否已经启用
-	if totpRecord.IsEnabled {
+	if totpRecord.State {
 		return &core.TotpSetupConfirmResponse{
 			Success: false,
 			Message: "totp.alreadyEnabled",
@@ -72,7 +72,7 @@ func (l *VerifyTotpSetupLogic) VerifyTotpSetup(in *core.VerifyTotpSetupRequest) 
 
 	// 更新TOTP记录，启用并验证
 	updateQuery := tx.UserTotp.UpdateOneID(totpRecord.ID).
-		SetIsEnabled(true).
+		SetState(true).
 		SetIsVerified(true).
 		SetLastUsedAt(time.Now()).
 		SetLastUsedCode(in.TotpCode)

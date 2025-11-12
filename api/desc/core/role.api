@@ -1,0 +1,106 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "角色相关接口"
+	desc:    "角色相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	RoleInfo {
+		ID          *uint32 `json:"id,optional"` // 角色ID / Role ID
+		CreatedAt   *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt   *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		RoleName    string  `json:"roleName"` // 角色名称 / Role name
+		RoleCode    string  `json:"roleCode"` // 角色编码 / Role code
+		Description string  `json:"description,optional"` // 角色描述 / Role description
+		State       *bool   `json:"state,optional"` // 角色状态 / Role state
+	}
+	RoleListRequest {
+		PageRequest
+		RoleName string `json:"roleName,optional"` // 角色名称 / Role name
+		RoleCode string `json:"roleCode,optional"` // 角色编码 / Role code
+		State    bool   `json:"state,optional"` // 角色状态 / Role state
+	}
+	RoleListInfo {
+		BaseListInfo
+		List []RoleInfo `json:"list"` // 角色列表 / Role list
+	}
+	RoleListResponse {
+		BaseDataInfo
+		Data RoleListInfo `json:"data"` // 角色列表 / Role list
+	}
+	ModifyRoleResponse {
+		BaseDataInfo
+		Data RoleInfo `json:"data"` // 角色信息 / Role information
+	}
+	RoleMenuRequest {
+		RoleId uint32   `json:"roleId"` // 角色ID / Role ID
+		MenuIds []uint32 `json:"menuIds"` // 菜单ID / Menu ID
+	}
+	RoleApiRequest {
+		RoleId uint32   `json:"roleId"` // 角色ID / Role ID
+		ApiIds  []uint32 `json:"apiIds"` // API ID / API ID
+	}
+	RoleApiListResponse {
+		BaseDataInfo
+		Data []string `json:"data"` // API列表 / API list
+	}
+)
+
+@server (
+	prefix:     /role
+	group:      role
+	tags:       "角色"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取角色列表"
+	)
+	@handler ListRoleHandler
+	post /list (RoleListRequest) returns (RoleListResponse)
+
+	@doc (
+		summary: "创建或更新角色"
+	)
+	@handler CreateOrUpdateRoleHandler
+	post /createOrUpdate (RoleInfo) returns (ModifyRoleResponse)
+
+	@doc (
+		summary: "删除角色"
+	)
+	@handler DeleteRoleHandler
+	post /delete (ID32Request) returns (BaseResponse)
+
+	@doc (
+		summary: "为角色分配菜单"
+	)
+	@handler AssignMenuToRoleHandler
+	post /assign/menu (RoleMenuRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "为角色分配API"
+	)
+	@handler AssignApiToRoleHandler
+	post /assign/api (RoleApiRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "获取角色API"
+	)
+	@handler GetRoleApiHandler
+	post /get/api (StringIDRequest) returns (RoleApiListResponse)
+
+	@doc(
+		summary: "获取角色菜单"
+	)
+	@handler GetRoleMenuHandler
+	post /get/menu (StringIDRequest) returns (MenuListResponse)
+	
+}
+

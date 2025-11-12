@@ -11,12 +11,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-core/rpc/ent/department"
 	"github.com/wenpiner/last-admin-core/rpc/ent/position"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
@@ -302,34 +302,38 @@ func (_u *UserUpdate) SetDepartment(v *Department) *UserUpdate {
 	return _u.SetDepartmentID(v.ID)
 }
 
-// AddOauthIDs adds the "oauths" edge to the UserOauth entity by IDs.
-func (_u *UserUpdate) AddOauthIDs(ids ...uint32) *UserUpdate {
-	_u.mutation.AddOauthIDs(ids...)
+// AddLeaderDepartmentIDs adds the "leader_department" edge to the Department entity by IDs.
+func (_u *UserUpdate) AddLeaderDepartmentIDs(ids ...uint32) *UserUpdate {
+	_u.mutation.AddLeaderDepartmentIDs(ids...)
 	return _u
 }
 
-// AddOauths adds the "oauths" edges to the UserOauth entity.
-func (_u *UserUpdate) AddOauths(v ...*UserOauth) *UserUpdate {
+// AddLeaderDepartment adds the "leader_department" edges to the Department entity.
+func (_u *UserUpdate) AddLeaderDepartment(v ...*Department) *UserUpdate {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddOauthIDs(ids...)
+	return _u.AddLeaderDepartmentIDs(ids...)
 }
 
-// AddTotpIDs adds the "totp" edge to the UserTotp entity by IDs.
-func (_u *UserUpdate) AddTotpIDs(ids ...uint32) *UserUpdate {
-	_u.mutation.AddTotpIDs(ids...)
+// SetTotpID sets the "totp" edge to the UserTotp entity by ID.
+func (_u *UserUpdate) SetTotpID(id uuid.UUID) *UserUpdate {
+	_u.mutation.SetTotpID(id)
 	return _u
 }
 
-// AddTotp adds the "totp" edges to the UserTotp entity.
-func (_u *UserUpdate) AddTotp(v ...*UserTotp) *UserUpdate {
-	ids := make([]uint32, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
+// SetNillableTotpID sets the "totp" edge to the UserTotp entity by ID if the given value is not nil.
+func (_u *UserUpdate) SetNillableTotpID(id *uuid.UUID) *UserUpdate {
+	if id != nil {
+		_u = _u.SetTotpID(*id)
 	}
-	return _u.AddTotpIDs(ids...)
+	return _u
+}
+
+// SetTotp sets the "totp" edge to the UserTotp entity.
+func (_u *UserUpdate) SetTotp(v *UserTotp) *UserUpdate {
+	return _u.SetTotpID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -385,46 +389,31 @@ func (_u *UserUpdate) ClearDepartment() *UserUpdate {
 	return _u
 }
 
-// ClearOauths clears all "oauths" edges to the UserOauth entity.
-func (_u *UserUpdate) ClearOauths() *UserUpdate {
-	_u.mutation.ClearOauths()
+// ClearLeaderDepartment clears all "leader_department" edges to the Department entity.
+func (_u *UserUpdate) ClearLeaderDepartment() *UserUpdate {
+	_u.mutation.ClearLeaderDepartment()
 	return _u
 }
 
-// RemoveOauthIDs removes the "oauths" edge to UserOauth entities by IDs.
-func (_u *UserUpdate) RemoveOauthIDs(ids ...uint32) *UserUpdate {
-	_u.mutation.RemoveOauthIDs(ids...)
+// RemoveLeaderDepartmentIDs removes the "leader_department" edge to Department entities by IDs.
+func (_u *UserUpdate) RemoveLeaderDepartmentIDs(ids ...uint32) *UserUpdate {
+	_u.mutation.RemoveLeaderDepartmentIDs(ids...)
 	return _u
 }
 
-// RemoveOauths removes "oauths" edges to UserOauth entities.
-func (_u *UserUpdate) RemoveOauths(v ...*UserOauth) *UserUpdate {
+// RemoveLeaderDepartment removes "leader_department" edges to Department entities.
+func (_u *UserUpdate) RemoveLeaderDepartment(v ...*Department) *UserUpdate {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveOauthIDs(ids...)
+	return _u.RemoveLeaderDepartmentIDs(ids...)
 }
 
-// ClearTotp clears all "totp" edges to the UserTotp entity.
+// ClearTotp clears the "totp" edge to the UserTotp entity.
 func (_u *UserUpdate) ClearTotp() *UserUpdate {
 	_u.mutation.ClearTotp()
 	return _u
-}
-
-// RemoveTotpIDs removes the "totp" edge to UserTotp entities by IDs.
-func (_u *UserUpdate) RemoveTotpIDs(ids ...uint32) *UserUpdate {
-	_u.mutation.RemoveTotpIDs(ids...)
-	return _u
-}
-
-// RemoveTotp removes "totp" edges to UserTotp entities.
-func (_u *UserUpdate) RemoveTotp(v ...*UserTotp) *UserUpdate {
-	ids := make([]uint32, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveTotpIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -702,28 +691,28 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.OauthsCleared() {
+	if _u.mutation.LeaderDepartmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedOauthsIDs(); len(nodes) > 0 && !_u.mutation.OauthsCleared() {
+	if nodes := _u.mutation.RemovedLeaderDepartmentIDs(); len(nodes) > 0 && !_u.mutation.LeaderDepartmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -731,15 +720,15 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.OauthsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LeaderDepartmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -749,42 +738,26 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TotpCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   user.TotpTable,
 			Columns: []string{user.TotpColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedTotpIDs(); len(nodes) > 0 && !_u.mutation.TotpCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.TotpTable,
-			Columns: []string{user.TotpColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := _u.mutation.TotpIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   user.TotpTable,
 			Columns: []string{user.TotpColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1081,34 +1054,38 @@ func (_u *UserUpdateOne) SetDepartment(v *Department) *UserUpdateOne {
 	return _u.SetDepartmentID(v.ID)
 }
 
-// AddOauthIDs adds the "oauths" edge to the UserOauth entity by IDs.
-func (_u *UserUpdateOne) AddOauthIDs(ids ...uint32) *UserUpdateOne {
-	_u.mutation.AddOauthIDs(ids...)
+// AddLeaderDepartmentIDs adds the "leader_department" edge to the Department entity by IDs.
+func (_u *UserUpdateOne) AddLeaderDepartmentIDs(ids ...uint32) *UserUpdateOne {
+	_u.mutation.AddLeaderDepartmentIDs(ids...)
 	return _u
 }
 
-// AddOauths adds the "oauths" edges to the UserOauth entity.
-func (_u *UserUpdateOne) AddOauths(v ...*UserOauth) *UserUpdateOne {
+// AddLeaderDepartment adds the "leader_department" edges to the Department entity.
+func (_u *UserUpdateOne) AddLeaderDepartment(v ...*Department) *UserUpdateOne {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddOauthIDs(ids...)
+	return _u.AddLeaderDepartmentIDs(ids...)
 }
 
-// AddTotpIDs adds the "totp" edge to the UserTotp entity by IDs.
-func (_u *UserUpdateOne) AddTotpIDs(ids ...uint32) *UserUpdateOne {
-	_u.mutation.AddTotpIDs(ids...)
+// SetTotpID sets the "totp" edge to the UserTotp entity by ID.
+func (_u *UserUpdateOne) SetTotpID(id uuid.UUID) *UserUpdateOne {
+	_u.mutation.SetTotpID(id)
 	return _u
 }
 
-// AddTotp adds the "totp" edges to the UserTotp entity.
-func (_u *UserUpdateOne) AddTotp(v ...*UserTotp) *UserUpdateOne {
-	ids := make([]uint32, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
+// SetNillableTotpID sets the "totp" edge to the UserTotp entity by ID if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTotpID(id *uuid.UUID) *UserUpdateOne {
+	if id != nil {
+		_u = _u.SetTotpID(*id)
 	}
-	return _u.AddTotpIDs(ids...)
+	return _u
+}
+
+// SetTotp sets the "totp" edge to the UserTotp entity.
+func (_u *UserUpdateOne) SetTotp(v *UserTotp) *UserUpdateOne {
+	return _u.SetTotpID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1164,46 +1141,31 @@ func (_u *UserUpdateOne) ClearDepartment() *UserUpdateOne {
 	return _u
 }
 
-// ClearOauths clears all "oauths" edges to the UserOauth entity.
-func (_u *UserUpdateOne) ClearOauths() *UserUpdateOne {
-	_u.mutation.ClearOauths()
+// ClearLeaderDepartment clears all "leader_department" edges to the Department entity.
+func (_u *UserUpdateOne) ClearLeaderDepartment() *UserUpdateOne {
+	_u.mutation.ClearLeaderDepartment()
 	return _u
 }
 
-// RemoveOauthIDs removes the "oauths" edge to UserOauth entities by IDs.
-func (_u *UserUpdateOne) RemoveOauthIDs(ids ...uint32) *UserUpdateOne {
-	_u.mutation.RemoveOauthIDs(ids...)
+// RemoveLeaderDepartmentIDs removes the "leader_department" edge to Department entities by IDs.
+func (_u *UserUpdateOne) RemoveLeaderDepartmentIDs(ids ...uint32) *UserUpdateOne {
+	_u.mutation.RemoveLeaderDepartmentIDs(ids...)
 	return _u
 }
 
-// RemoveOauths removes "oauths" edges to UserOauth entities.
-func (_u *UserUpdateOne) RemoveOauths(v ...*UserOauth) *UserUpdateOne {
+// RemoveLeaderDepartment removes "leader_department" edges to Department entities.
+func (_u *UserUpdateOne) RemoveLeaderDepartment(v ...*Department) *UserUpdateOne {
 	ids := make([]uint32, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveOauthIDs(ids...)
+	return _u.RemoveLeaderDepartmentIDs(ids...)
 }
 
-// ClearTotp clears all "totp" edges to the UserTotp entity.
+// ClearTotp clears the "totp" edge to the UserTotp entity.
 func (_u *UserUpdateOne) ClearTotp() *UserUpdateOne {
 	_u.mutation.ClearTotp()
 	return _u
-}
-
-// RemoveTotpIDs removes the "totp" edge to UserTotp entities by IDs.
-func (_u *UserUpdateOne) RemoveTotpIDs(ids ...uint32) *UserUpdateOne {
-	_u.mutation.RemoveTotpIDs(ids...)
-	return _u
-}
-
-// RemoveTotp removes "totp" edges to UserTotp entities.
-func (_u *UserUpdateOne) RemoveTotp(v ...*UserTotp) *UserUpdateOne {
-	ids := make([]uint32, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveTotpIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1511,28 +1473,28 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.OauthsCleared() {
+	if _u.mutation.LeaderDepartmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedOauthsIDs(); len(nodes) > 0 && !_u.mutation.OauthsCleared() {
+	if nodes := _u.mutation.RemovedLeaderDepartmentIDs(); len(nodes) > 0 && !_u.mutation.LeaderDepartmentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -1540,15 +1502,15 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.OauthsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LeaderDepartmentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   user.OauthsTable,
-			Columns: []string{user.OauthsColumn},
+			Table:   user.LeaderDepartmentTable,
+			Columns: []string{user.LeaderDepartmentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(useroauth.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -1558,42 +1520,26 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.TotpCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   user.TotpTable,
 			Columns: []string{user.TotpColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedTotpIDs(); len(nodes) > 0 && !_u.mutation.TotpCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   user.TotpTable,
-			Columns: []string{user.TotpColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := _u.mutation.TotpIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   user.TotpTable,
 			Columns: []string{user.TotpColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32),
+				IDSpec: sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

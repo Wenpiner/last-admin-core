@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-core/rpc/ent/department"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
@@ -27,6 +28,7 @@ type DepartmentQuery struct {
 	withParent   *DepartmentQuery
 	withChildren *DepartmentQuery
 	withUsers    *UserQuery
+	withLeader   *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -122,6 +124,28 @@ func (_q *DepartmentQuery) QueryUsers() *UserQuery {
 			sqlgraph.From(department.Table, department.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, department.UsersTable, department.UsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryLeader chains the current query on the "leader" edge.
+func (_q *DepartmentQuery) QueryLeader() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, department.LeaderTable, department.LeaderColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -324,6 +348,7 @@ func (_q *DepartmentQuery) Clone() *DepartmentQuery {
 		withParent:   _q.withParent.Clone(),
 		withChildren: _q.withChildren.Clone(),
 		withUsers:    _q.withUsers.Clone(),
+		withLeader:   _q.withLeader.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -360,6 +385,17 @@ func (_q *DepartmentQuery) WithUsers(opts ...func(*UserQuery)) *DepartmentQuery 
 		opt(query)
 	}
 	_q.withUsers = query
+	return _q
+}
+
+// WithLeader tells the query-builder to eager-load the nodes that are connected to
+// the "leader" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DepartmentQuery) WithLeader(opts ...func(*UserQuery)) *DepartmentQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withLeader = query
 	return _q
 }
 
@@ -441,10 +477,11 @@ func (_q *DepartmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	var (
 		nodes       = []*Department{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withParent != nil,
 			_q.withChildren != nil,
 			_q.withUsers != nil,
+			_q.withLeader != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -482,6 +519,12 @@ func (_q *DepartmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 		if err := _q.loadUsers(ctx, query, nodes,
 			func(n *Department) { n.Edges.Users = []*User{} },
 			func(n *Department, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withLeader; query != nil {
+		if err := _q.loadLeader(ctx, query, nodes, nil,
+			func(n *Department, e *User) { n.Edges.Leader = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -583,6 +626,38 @@ func (_q *DepartmentQuery) loadUsers(ctx context.Context, query *UserQuery, node
 	}
 	return nil
 }
+func (_q *DepartmentQuery) loadLeader(ctx context.Context, query *UserQuery, nodes []*Department, init func(*Department), assign func(*Department, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Department)
+	for i := range nodes {
+		if nodes[i].LeaderUserID == nil {
+			continue
+		}
+		fk := *nodes[i].LeaderUserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "leader_user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *DepartmentQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -611,6 +686,9 @@ func (_q *DepartmentQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withParent != nil {
 			_spec.Node.AddColumnOnce(department.FieldParentID)
+		}
+		if _q.withLeader != nil {
+			_spec.Node.AddColumnOnce(department.FieldLeaderUserID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

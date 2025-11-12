@@ -18,21 +18,17 @@ import (
 type UserTotp struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uint32 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// 创建时间 / Creation time
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// 更新时间 / Update time
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 状态 / State
 	State bool `json:"state,omitempty"`
-	// 用户ID / User ID
-	UserID uuid.UUID `json:"user_id,omitempty"`
 	// TOTP密钥 / TOTP secret key
 	SecretKey string `json:"secret_key,omitempty"`
 	// 备用恢复码 / Backup recovery codes (JSON array)
 	BackupCodes *string `json:"backup_codes,omitempty"`
-	// 是否启用 / Whether enabled
-	IsEnabled bool `json:"is_enabled,omitempty"`
 	// 是否已验证 / Whether verified
 	IsVerified bool `json:"is_verified,omitempty"`
 	// 最后使用时间 / Last used time
@@ -43,13 +39,10 @@ type UserTotp struct {
 	DeviceName *string `json:"device_name,omitempty"`
 	// 发行者名称 / Issuer name
 	Issuer *string `json:"issuer,omitempty"`
-	// 失败次数 / Failure count
-	FailureCount int `json:"failure_count,omitempty"`
-	// 锁定到期时间 / Locked until time
-	LockedUntil *time.Time `json:"locked_until,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserTotpQuery when eager-loading is set.
 	Edges        UserTotpEdges `json:"edges"`
+	user_totp    *uuid.UUID
 	selectValues sql.SelectValues
 }
 
@@ -78,16 +71,16 @@ func (*UserTotp) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case usertotp.FieldState, usertotp.FieldIsEnabled, usertotp.FieldIsVerified:
+		case usertotp.FieldState, usertotp.FieldIsVerified:
 			values[i] = new(sql.NullBool)
-		case usertotp.FieldID, usertotp.FieldFailureCount:
-			values[i] = new(sql.NullInt64)
 		case usertotp.FieldSecretKey, usertotp.FieldBackupCodes, usertotp.FieldLastUsedCode, usertotp.FieldDeviceName, usertotp.FieldIssuer:
 			values[i] = new(sql.NullString)
-		case usertotp.FieldCreatedAt, usertotp.FieldUpdatedAt, usertotp.FieldLastUsedAt, usertotp.FieldLockedUntil:
+		case usertotp.FieldCreatedAt, usertotp.FieldUpdatedAt, usertotp.FieldLastUsedAt:
 			values[i] = new(sql.NullTime)
-		case usertotp.FieldUserID:
+		case usertotp.FieldID:
 			values[i] = new(uuid.UUID)
+		case usertotp.ForeignKeys[0]: // user_totp
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -104,11 +97,11 @@ func (_m *UserTotp) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case usertotp.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = uint32(value.Int64)
 		case usertotp.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -127,12 +120,6 @@ func (_m *UserTotp) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.State = value.Bool
 			}
-		case usertotp.FieldUserID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value != nil {
-				_m.UserID = *value
-			}
 		case usertotp.FieldSecretKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field secret_key", values[i])
@@ -145,12 +132,6 @@ func (_m *UserTotp) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.BackupCodes = new(string)
 				*_m.BackupCodes = value.String
-			}
-		case usertotp.FieldIsEnabled:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_enabled", values[i])
-			} else if value.Valid {
-				_m.IsEnabled = value.Bool
 			}
 		case usertotp.FieldIsVerified:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -186,18 +167,12 @@ func (_m *UserTotp) assignValues(columns []string, values []any) error {
 				_m.Issuer = new(string)
 				*_m.Issuer = value.String
 			}
-		case usertotp.FieldFailureCount:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field failure_count", values[i])
+		case usertotp.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field user_totp", values[i])
 			} else if value.Valid {
-				_m.FailureCount = int(value.Int64)
-			}
-		case usertotp.FieldLockedUntil:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field locked_until", values[i])
-			} else if value.Valid {
-				_m.LockedUntil = new(time.Time)
-				*_m.LockedUntil = value.Time
+				_m.user_totp = new(uuid.UUID)
+				*_m.user_totp = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -249,9 +224,6 @@ func (_m *UserTotp) String() string {
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", _m.State))
 	builder.WriteString(", ")
-	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
-	builder.WriteString(", ")
 	builder.WriteString("secret_key=")
 	builder.WriteString(_m.SecretKey)
 	builder.WriteString(", ")
@@ -259,9 +231,6 @@ func (_m *UserTotp) String() string {
 		builder.WriteString("backup_codes=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("is_enabled=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsEnabled))
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsVerified))
@@ -284,14 +253,6 @@ func (_m *UserTotp) String() string {
 	if v := _m.Issuer; v != nil {
 		builder.WriteString("issuer=")
 		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	builder.WriteString("failure_count=")
-	builder.WriteString(fmt.Sprintf("%v", _m.FailureCount))
-	builder.WriteString(", ")
-	if v := _m.LockedUntil; v != nil {
-		builder.WriteString("locked_until=")
-		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteByte(')')
 	return builder.String()

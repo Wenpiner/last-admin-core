@@ -43,34 +43,29 @@ func (l *ListOauthProviderLogic) ListOauthProvider(in *core.OauthProviderListReq
 		predicates = append(predicates, oauthprovider.ProviderCodeContains(*in.ProviderCode))
 	}
 
+	// 状态过滤
+	if in.State != nil {
+		predicates = append(predicates, oauthprovider.StateEQ(*in.State))
+	}
+
 	// 执行分页查询
 	query := l.svcCtx.DBEnt.OauthProvider.Query().Where(predicates...)
 
-	// 获取总数
-	total, err := query.Count(l.ctx)
-	if err != nil {
-		return nil, errorhandler.DBEntError(l.Logger, err, in)
-	}
-
 	// 分页查询
-	providers, err := query.
-		Offset(int((in.Page.PageNumber - 1) * in.Page.PageSize)).
-		Limit(int(in.Page.PageSize)).
-		All(l.ctx)
-
+	providers, err := query.Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
 
 	// 转换结果
 	var providerList []*core.OauthProviderInfo
-	for _, provider := range providers {
+	for _, provider := range providers.List {
 		providerList = append(providerList, l.convertOauthProviderToOauthProviderInfo(provider))
 	}
 
 	return &core.OauthProviderListResponse{
 		Page: &core.BasePageResp{
-			Total:      uint64(total),
+			Total:      providers.PageDetails.Total,
 			PageNumber: in.Page.PageNumber,
 			PageSize:   in.Page.PageSize,
 		},

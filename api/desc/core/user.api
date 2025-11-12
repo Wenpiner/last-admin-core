@@ -10,16 +10,28 @@ info (
 
 type (
 	UserInfo {
-		Avatar         string   `json:"avatar,optional"` // 头像URL / Avatar URL
-		RealName       string   `json:"realName,optional"` // 用户全名 / User full name
-		Roles          []string `json:"roles,optional"` // 用户角色 / User roles
-		UserId         string   `json:"userId,optional"` // 用户ID / User ID
-		Username       string   `json:"username,optional"` // 用户名 / Username
-		Desc           string   `json:"desc,optional"` // 用户描述 / User description
-		HomePath       string   `json:"homePath,optional"` // 首页地址 / Home page address
-		Email          string   `json:"email,optional"` // 邮箱 / Email
-		RoleNames      []string `json:"roleNames,optional"` // 用户角色名称 / User role names
-		DepartmentName string   `json:"departmentName,optional"` // 用户部门名称 / User department name
+		Avatar         string    `json:"avatar,optional"` // 头像URL / Avatar URL
+		RealName       string    `json:"realName,optional"` // 用户全名 / User full name
+		Roles          []string  `json:"roles,optional"` // 用户角色 / User roles
+		UserId         string    `json:"userId,optional"` // 用户ID / User ID
+		Username       string    `json:"username,optional"` // 用户名 / Username
+		Desc           string    `json:"desc,optional"` // 用户描述 / User description
+		HomePath       string    `json:"homePath,optional"` // 首页地址 / Home page address
+		Email          string    `json:"email,optional"` // 邮箱 / Email
+		RoleNames      []string  `json:"roleNames,optional"` // 用户角色名称 / User role names
+		DepartmentName string    `json:"departmentName,optional"` // 用户部门名称 / User department name
+		Mobile         string    `json:"mobile,optional"` // 手机号 / Mobile
+		DepartmentId   uint32    `json:"departmentId,optional"` // 用户部门ID / User department ID
+		PositionNames  []string  `json:"positionNames,optional"` // 用户职位名称 / User position names
+		PositionIds    []uint32  `json:"positionIds,optional"` // 用户职位ID / User position ID
+		State          bool      `json:"state,optional"` // 用户状态 / User state
+		CreatedAt      int64     `json:"createdAt,optional"` // 创建时间 / Create time
+		UpdatedAt      int64     `json:"updatedAt,optional"` // 更新时间 / Update time
+		LastLoginAt    int64     `json:"lastLoginAt,optional"` // 最后登录时间 / Last login time
+		LastLoginIp    string    `json:"lastLoginIp,optional"` // 最后登录IP / Last login IP
+		RoleIds        []uint32  `json:"roleIds,optional"` // 用户角色ID / User role ID
+		Password       *string   `json:"password,optional"` // 密码 / Password
+		TotpInfo       *TotpInfo `json:"totpInfo,optional"` // TOTP信息 / TOTP information
 	}
 	UserInfoResponse {
 		BaseDataInfo
@@ -39,5 +51,102 @@ service Core {
 	)
 	@handler GetUserInfoHandler
 	get /info returns (UserInfoResponse)
+}
+
+type (
+	UserListRequest {
+		PageRequest
+		Username     string `json:"username,optional"` // 用户名 / Username
+		Email        string `json:"email,optional"` // 邮箱 / Email
+		Mobile       string `json:"mobile,optional"` // 手机号 / Mobile
+		State        bool   `json:"state,optional"` // 用户状态 / User state
+		DepartmentId uint32 `json:"departmentId,optional"` // 用户部门ID / User department ID
+		UserID       string `json:"userId,optional"` // 用户ID / User ID
+	}
+	UserListInfo {
+		BaseListInfo
+		List []UserInfo `json:"list"` // 用户列表 / User list
+	}
+	UserListResponse {
+		BaseDataInfo
+		Data UserListInfo `json:"data"` // 用户列表 / User list
+	}
+	ModifyUserResponse {
+		BaseDataInfo
+		Data UserInfo `json:"data"` // 用户信息 / User information
+	}
+	TotpInfo {
+		Id           *string `json:"id,optional"` // TOTP ID / TOTP ID
+		CreatedAt    *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt    *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		State        *bool   `json:"state,optional"` // 状态 / State
+		IsVerified   *bool   `json:"isVerified,optional"` // 是否已验证 / Whether verified
+		LastUsedAt   *int64  `json:"lastUsedAt,optional"` // 最后使用时间 / Last used time
+		LastUsedCode *string `json:"lastUsedCode,optional"` // 最后使用的验证码 / Last used verification code
+		DeviceName   *string `json:"deviceName,optional"` // 设备名称 / Device name
+		Issuer       *string `json:"issuer,optional"` // 发行者名称 / Issuer name
+	}
+	EnableTotpRequest {
+		UserId string `json:"userId"` // 用户ID / User ID
+		Issuer string `json:"issuer"` // 发行者名称 / Issuer name
+		Domain string `json:"domain"` // 域名 / Domain
+	}
+	TotpSetupInfo {
+		QRText string `json:"qrText"` // 二维码内容 / QR code content
+	}
+	TotpSetupResponse {
+		BaseDataInfo
+		Data TotpSetupInfo `json:"data"` // TOTP信息 / TOTP information
+	}
+	VerifyTotpRequest {
+		UserId string `json:"userId"` // 用户ID / User ID
+		Code   string `json:"code"` // 验证码 / Verification code
+	}
+)
+
+// -------------- userManager -------
+@server (
+	prefix:     /user
+	group:      user
+	tags:       "用户管理"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取用户列表"
+	)
+	@handler ListUserHandler
+	post /list (UserListRequest) returns (UserListResponse)
+
+	@doc (
+		summary: "创建或更新用户"
+	)
+	@handler CreateOrUpdateUserHandler
+	post /createOrUpdate (UserInfo) returns (ModifyUserResponse)
+
+	@doc (
+		summary: "删除用户"
+	)
+	@handler DeleteUserHandler
+	post /delete (UUIDRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "创建/重置TOTP"
+	)
+	@handler EnableTotpHandler
+	post /totp/enable (EnableTotpRequest) returns (TotpSetupResponse)
+
+	@doc (
+		summary: "验证TOTP"
+	)
+	@handler VerifyTotpHandler
+	post /totp/verify (VerifyTotpRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "禁用TOTP"
+	)
+	@handler DisableTotpHandler
+	post /totp/disable (UUIDRequest) returns (BaseResponse)
 }
 

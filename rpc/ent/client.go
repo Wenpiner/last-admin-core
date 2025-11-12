@@ -28,7 +28,6 @@ import (
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
 	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 	"github.com/wenpiner/last-admin-core/rpc/ent/user"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
 	"github.com/wenpiner/last-admin-core/rpc/ent/usertotp"
 )
 
@@ -61,8 +60,6 @@ type Client struct {
 	Token *TokenClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
-	// UserOauth is the client for interacting with the UserOauth builders.
-	UserOauth *UserOauthClient
 	// UserTotp is the client for interacting with the UserTotp builders.
 	UserTotp *UserTotpClient
 }
@@ -88,7 +85,6 @@ func (c *Client) init() {
 	c.Role = NewRoleClient(c.config)
 	c.Token = NewTokenClient(c.config)
 	c.User = NewUserClient(c.config)
-	c.UserOauth = NewUserOauthClient(c.config)
 	c.UserTotp = NewUserTotpClient(c.config)
 }
 
@@ -194,7 +190,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Role:          NewRoleClient(cfg),
 		Token:         NewTokenClient(cfg),
 		User:          NewUserClient(cfg),
-		UserOauth:     NewUserOauthClient(cfg),
 		UserTotp:      NewUserTotpClient(cfg),
 	}, nil
 }
@@ -227,7 +222,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Role:          NewRoleClient(cfg),
 		Token:         NewTokenClient(cfg),
 		User:          NewUserClient(cfg),
-		UserOauth:     NewUserOauthClient(cfg),
 		UserTotp:      NewUserTotpClient(cfg),
 	}, nil
 }
@@ -260,7 +254,7 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.API, c.Configuration, c.Department, c.DictItem, c.DictType, c.Menu,
 		c.OauthProvider, c.OperationLog, c.Position, c.Role, c.Token, c.User,
-		c.UserOauth, c.UserTotp,
+		c.UserTotp,
 	} {
 		n.Use(hooks...)
 	}
@@ -272,7 +266,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.API, c.Configuration, c.Department, c.DictItem, c.DictType, c.Menu,
 		c.OauthProvider, c.OperationLog, c.Position, c.Role, c.Token, c.User,
-		c.UserOauth, c.UserTotp,
+		c.UserTotp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -305,8 +299,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Token.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
-	case *UserOauthMutation:
-		return c.UserOauth.mutate(ctx, m)
 	case *UserTotpMutation:
 		return c.UserTotp.mutate(ctx, m)
 	default:
@@ -729,6 +721,22 @@ func (c *DepartmentClient) QueryUsers(_m *Department) *UserQuery {
 			sqlgraph.From(department.Table, department.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, department.UsersTable, department.UsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLeader queries the leader edge of a Department.
+func (c *DepartmentClient) QueryLeader(_m *Department) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, department.LeaderTable, department.LeaderColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1348,15 +1356,15 @@ func (c *OauthProviderClient) GetX(ctx context.Context, id uint32) *OauthProvide
 	return obj
 }
 
-// QueryOauths queries the oauths edge of a OauthProvider.
-func (c *OauthProviderClient) QueryOauths(_m *OauthProvider) *UserOauthQuery {
-	query := (&UserOauthClient{config: c.config}).Query()
+// QueryTokens queries the tokens edge of a OauthProvider.
+func (c *OauthProviderClient) QueryTokens(_m *OauthProvider) *TokenQuery {
+	query := (&TokenClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(oauthprovider.Table, oauthprovider.FieldID, id),
-			sqlgraph.To(useroauth.Table, useroauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, oauthprovider.OauthsTable, oauthprovider.OauthsColumn),
+			sqlgraph.To(token.Table, token.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, oauthprovider.TokensTable, oauthprovider.TokensColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1976,6 +1984,22 @@ func (c *TokenClient) QueryUser(_m *Token) *UserQuery {
 	return query
 }
 
+// QueryProvider queries the provider edge of a Token.
+func (c *TokenClient) QueryProvider(_m *Token) *OauthProviderQuery {
+	query := (&OauthProviderClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(token.Table, token.FieldID, id),
+			sqlgraph.To(oauthprovider.Table, oauthprovider.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, token.ProviderTable, token.ProviderColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TokenClient) Hooks() []Hook {
 	return c.hooks.Token
@@ -2157,15 +2181,15 @@ func (c *UserClient) QueryDepartment(_m *User) *DepartmentQuery {
 	return query
 }
 
-// QueryOauths queries the oauths edge of a User.
-func (c *UserClient) QueryOauths(_m *User) *UserOauthQuery {
-	query := (&UserOauthClient{config: c.config}).Query()
+// QueryLeaderDepartment queries the leader_department edge of a User.
+func (c *UserClient) QueryLeaderDepartment(_m *User) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(useroauth.Table, useroauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.OauthsTable, user.OauthsColumn),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.LeaderDepartmentTable, user.LeaderDepartmentColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2181,7 +2205,7 @@ func (c *UserClient) QueryTotp(_m *User) *UserTotpQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(usertotp.Table, usertotp.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.TotpTable, user.TotpColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.TotpTable, user.TotpColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2211,171 +2235,6 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 		return (&UserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown User mutation op: %q", m.Op())
-	}
-}
-
-// UserOauthClient is a client for the UserOauth schema.
-type UserOauthClient struct {
-	config
-}
-
-// NewUserOauthClient returns a client for the UserOauth from the given config.
-func NewUserOauthClient(c config) *UserOauthClient {
-	return &UserOauthClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `useroauth.Hooks(f(g(h())))`.
-func (c *UserOauthClient) Use(hooks ...Hook) {
-	c.hooks.UserOauth = append(c.hooks.UserOauth, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `useroauth.Intercept(f(g(h())))`.
-func (c *UserOauthClient) Intercept(interceptors ...Interceptor) {
-	c.inters.UserOauth = append(c.inters.UserOauth, interceptors...)
-}
-
-// Create returns a builder for creating a UserOauth entity.
-func (c *UserOauthClient) Create() *UserOauthCreate {
-	mutation := newUserOauthMutation(c.config, OpCreate)
-	return &UserOauthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of UserOauth entities.
-func (c *UserOauthClient) CreateBulk(builders ...*UserOauthCreate) *UserOauthCreateBulk {
-	return &UserOauthCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *UserOauthClient) MapCreateBulk(slice any, setFunc func(*UserOauthCreate, int)) *UserOauthCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &UserOauthCreateBulk{err: fmt.Errorf("calling to UserOauthClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*UserOauthCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &UserOauthCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for UserOauth.
-func (c *UserOauthClient) Update() *UserOauthUpdate {
-	mutation := newUserOauthMutation(c.config, OpUpdate)
-	return &UserOauthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UserOauthClient) UpdateOne(_m *UserOauth) *UserOauthUpdateOne {
-	mutation := newUserOauthMutation(c.config, OpUpdateOne, withUserOauth(_m))
-	return &UserOauthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UserOauthClient) UpdateOneID(id uint32) *UserOauthUpdateOne {
-	mutation := newUserOauthMutation(c.config, OpUpdateOne, withUserOauthID(id))
-	return &UserOauthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for UserOauth.
-func (c *UserOauthClient) Delete() *UserOauthDelete {
-	mutation := newUserOauthMutation(c.config, OpDelete)
-	return &UserOauthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UserOauthClient) DeleteOne(_m *UserOauth) *UserOauthDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserOauthClient) DeleteOneID(id uint32) *UserOauthDeleteOne {
-	builder := c.Delete().Where(useroauth.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UserOauthDeleteOne{builder}
-}
-
-// Query returns a query builder for UserOauth.
-func (c *UserOauthClient) Query() *UserOauthQuery {
-	return &UserOauthQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUserOauth},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a UserOauth entity by its id.
-func (c *UserOauthClient) Get(ctx context.Context, id uint32) (*UserOauth, error) {
-	return c.Query().Where(useroauth.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UserOauthClient) GetX(ctx context.Context, id uint32) *UserOauth {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a UserOauth.
-func (c *UserOauthClient) QueryUser(_m *UserOauth) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(useroauth.Table, useroauth.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, useroauth.UserTable, useroauth.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProvider queries the provider edge of a UserOauth.
-func (c *UserOauthClient) QueryProvider(_m *UserOauth) *OauthProviderQuery {
-	query := (&OauthProviderClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(useroauth.Table, useroauth.FieldID, id),
-			sqlgraph.To(oauthprovider.Table, oauthprovider.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, useroauth.ProviderTable, useroauth.ProviderColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *UserOauthClient) Hooks() []Hook {
-	return c.hooks.UserOauth
-}
-
-// Interceptors returns the client interceptors.
-func (c *UserOauthClient) Interceptors() []Interceptor {
-	return c.inters.UserOauth
-}
-
-func (c *UserOauthClient) mutate(ctx context.Context, m *UserOauthMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UserOauthCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UserOauthUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UserOauthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UserOauthDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown UserOauth mutation op: %q", m.Op())
 	}
 }
 
@@ -2440,7 +2299,7 @@ func (c *UserTotpClient) UpdateOne(_m *UserTotp) *UserTotpUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserTotpClient) UpdateOneID(id uint32) *UserTotpUpdateOne {
+func (c *UserTotpClient) UpdateOneID(id uuid.UUID) *UserTotpUpdateOne {
 	mutation := newUserTotpMutation(c.config, OpUpdateOne, withUserTotpID(id))
 	return &UserTotpUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -2457,7 +2316,7 @@ func (c *UserTotpClient) DeleteOne(_m *UserTotp) *UserTotpDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserTotpClient) DeleteOneID(id uint32) *UserTotpDeleteOne {
+func (c *UserTotpClient) DeleteOneID(id uuid.UUID) *UserTotpDeleteOne {
 	builder := c.Delete().Where(usertotp.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -2474,12 +2333,12 @@ func (c *UserTotpClient) Query() *UserTotpQuery {
 }
 
 // Get returns a UserTotp entity by its id.
-func (c *UserTotpClient) Get(ctx context.Context, id uint32) (*UserTotp, error) {
+func (c *UserTotpClient) Get(ctx context.Context, id uuid.UUID) (*UserTotp, error) {
 	return c.Query().Where(usertotp.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserTotpClient) GetX(ctx context.Context, id uint32) *UserTotp {
+func (c *UserTotpClient) GetX(ctx context.Context, id uuid.UUID) *UserTotp {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -2495,7 +2354,7 @@ func (c *UserTotpClient) QueryUser(_m *UserTotp) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usertotp.Table, usertotp.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, usertotp.UserTable, usertotp.UserColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, usertotp.UserTable, usertotp.UserColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2532,11 +2391,10 @@ func (c *UserTotpClient) mutate(ctx context.Context, m *UserTotpMutation) (Value
 type (
 	hooks struct {
 		API, Configuration, Department, DictItem, DictType, Menu, OauthProvider,
-		OperationLog, Position, Role, Token, User, UserOauth, UserTotp []ent.Hook
+		OperationLog, Position, Role, Token, User, UserTotp []ent.Hook
 	}
 	inters struct {
 		API, Configuration, Department, DictItem, DictType, Menu, OauthProvider,
-		OperationLog, Position, Role, Token, User, UserOauth,
-		UserTotp []ent.Interceptor
+		OperationLog, Position, Role, Token, User, UserTotp []ent.Interceptor
 	}
 )

@@ -10,18 +10,20 @@ info (
 
 type (
 	MenuInfo {
-		Path       string     `json:"path"` // 菜单路径 / Menu path
-		Name       string     `json:"name"` // 菜单名称 / Menu name
-		Redirect   *string    `json:"redirect,optional"` // 重定向地址 / Redirect path
-		Component  *string    `json:"component,optional"` // 组件 / Component
-		Meta       Meta       `json:"meta"` // 菜单元数据 / Menu meta data
-		ParentId   *uint32    `json:"parentId,optional"` // 父级菜单ID / Parent menu ID
-		ID         uint32     `json:"id"` // 菜单ID / Menu ID
-		Children   []MenuInfo `json:"children,optional"` // 子菜单 / Children menu
-		State      *bool      `json:"state"` // 菜单状态 / Menu state
-		Service    string     `json:"service"` // 服务名称 / Service name
-		Permission *string    `json:"permission"` // 权限标识 / Permission identifier
-		CreatedAt  *int64     `json:"createdAt"` // 创建时间 / Creation time
+		Path        string     `json:"path"` // 菜单路径 / Menu path
+		Name        string     `json:"name"` // 菜单名称 / Menu name
+		Redirect    *string    `json:"redirect,optional"` // 重定向地址 / Redirect path
+		Component   *string    `json:"component,optional"` // 组件 / Component
+		Meta        Meta       `json:"meta"` // 菜单元数据 / Menu meta data
+		ParentId    *uint32    `json:"parentId,optional"` // 父级菜单ID / Parent menu ID
+		ID          uint32     `json:"id"` // 菜单ID / Menu ID
+		Children    []MenuInfo `json:"children,optional"` // 子菜单 / Children menu
+		State       *bool      `json:"state"` // 菜单状态 / Menu state
+		Service     string     `json:"service"` // 服务名称 / Service name
+		Permission  *string    `json:"permission"` // 权限标识 / Permission identifier
+		CreatedAt   *int64     `json:"createdAt"` // 创建时间 / Creation time
+		Type        string     `json:"type"` // 菜单类型 / Menu type
+		Description *string    `json:"description,optional"` // 描述 / Description
 	}
 	Meta {
 		Title         string  `json:"title,optional"` // 菜单标题 / Menu title
@@ -38,6 +40,10 @@ type (
 		BaseDataInfo
 		Data []MenuInfo `json:"data"` // 菜单列表 / Menu list
 	}
+	DeleteMenuRequest {
+		ID uint32 `json:"id"` // 菜单ID / Menu ID
+	}
+
 )
 
 @server (
@@ -59,5 +65,17 @@ service Core {
 	)
 	@handler GetAllMenusHandler
 	get /all-menus returns (MenuListResponse)
+
+	@doc (
+		summary: "删除菜单"
+	)
+	@handler DeleteMenuHandler
+	post /delete (DeleteMenuRequest) returns (BaseResponse)
+
+	@doc (
+		summary: "更新菜单"
+	)
+	@handler UpdateMenuHandler
+	put /update (MenuInfo) returns (BaseResponse)
 }
 

@@ -99,11 +99,6 @@ func (l *InitLogic) Init(in *core.EmptyRequest) (*core.BaseResponse, error) {
 
 // 初始化casbin配置
 func (l *InitLogic) initCasbin() error {
-	casbin, err := l.svcCtx.Config.CasbinConf.NewCasbin(l.svcCtx.Config.DatabaseConf.DBType, l.svcCtx.Config.DatabaseConf.GetDSN())
-	if err != nil {
-		logx.Errorw("初始化 Casbin 失败", logx.Field("detail", err.Error()))
-		return err
-	}
 
 	// 查询出来所有API信息
 	apis, err := l.svcCtx.DBEnt.API.Query().All(l.ctx)
@@ -128,14 +123,14 @@ func (l *InitLogic) initCasbin() error {
 	// }
 
 	var oldPolicies [][]string
-	oldPolicies, err = casbin.GetFilteredPolicy(0, enums.DefaultRoleValue)
+	oldPolicies, err = l.svcCtx.Casbin.GetFilteredPolicy(0, enums.DefaultRoleValue)
 	if err != nil {
 		logx.Errorw("查询 Casbin 策略失败", logx.Field("detail", err.Error()))
 		return errorx.NewInternalError(err.Error())
 	}
 
 	if len(oldPolicies) != 0 {
-		removeResult, err := casbin.RemoveFilteredPolicy(0, enums.DefaultRoleValue)
+		removeResult, err := l.svcCtx.Casbin.RemoveFilteredPolicy(0, enums.DefaultRoleValue)
 		if err != nil {
 			logx.Errorw("删除 Casbin 策略失败", logx.Field("detail", err.Error()))
 			return errorx.NewInternalError(err.Error())
@@ -147,7 +142,7 @@ func (l *InitLogic) initCasbin() error {
 	}
 
 	// 添加新的策略
-	if result, err := casbin.AddPolicies(policies); err != nil || !result {
+	if result, err := l.svcCtx.Casbin.AddPolicies(policies); err != nil || !result {
 		logx.Errorw("添加 Casbin 策略失败", logx.Field("detail", err.Error()))
 		return errorx.NewInternalError(err.Error())
 	}
@@ -235,13 +230,266 @@ func (l *InitLogic) initBaseApi() error {
 		SetPath("/menu/all").
 		SetServiceName("core").
 		SetName("获取用户角色当前所有菜单").SetIsRequired(true))
-		
+
 	apis = append(apis, l.svcCtx.DBEnt.API.Create().
 		SetAPIGroup("Menu").
 		SetMethod("GET").
 		SetPath("/menu/all-menus").
 		SetServiceName("core").
 		SetName("获取所有菜单").SetIsRequired(true))
+
+	// delete
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Menu").
+		SetMethod("POST").
+		SetPath("/menu/delete").
+		SetServiceName("core").
+		SetName("删除菜单").SetIsRequired(false))
+
+	// update
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Menu").
+		SetMethod("PUT").
+		SetPath("/menu/update").
+		SetServiceName("core").
+		SetName("更新菜单").SetIsRequired(false))
+
+	// Api
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Api").
+		SetMethod("POST").
+		SetPath("/api/list").
+		SetServiceName("core").
+		SetName("获取API列表").SetIsRequired(false))
+
+	// /api/all
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Api").
+		SetMethod("GET").
+		SetPath("/api/all").
+		SetServiceName("core").
+		SetName("获取所有API").SetIsRequired(false))
+
+	// create or update
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Api").
+		SetMethod("POST").
+		SetPath("/api/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新API").SetIsRequired(false))
+
+	// delete
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Api").
+		SetMethod("POST").
+		SetPath("/api/delete").
+		SetServiceName("core").
+		SetName("删除API").SetIsRequired(false))
+
+	// Department
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Department").
+		SetMethod("POST").
+		SetPath("/department/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新部门").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Department").
+		SetMethod("POST").
+		SetPath("/department/delete").
+		SetServiceName("core").
+		SetName("删除部门").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Department").
+		SetMethod("POST").
+		SetPath("/department/list").
+		SetServiceName("core").
+		SetName("获取部门列表").SetIsRequired(false))
+
+	// user
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("User").
+		SetMethod("POST").
+		SetPath("/user/list").
+		SetServiceName("core").
+		SetName("获取用户列表").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("User").
+		SetMethod("POST").
+		SetPath("/user/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新用户").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("User").
+		SetMethod("POST").
+		SetPath("/user/delete").
+		SetServiceName("core").
+		SetName("删除用户").SetIsRequired(false))
+
+	// role
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新角色").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/delete").
+		SetServiceName("core").
+		SetName("删除角色").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/list").
+		SetServiceName("core").
+		SetName("获取角色列表").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/assign/menu").
+		SetServiceName("core").
+		SetName("为角色分配菜单").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/assign/api").
+		SetServiceName("core").
+		SetName("为角色分配API").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/get/menu").
+		SetServiceName("core").
+		SetName("获取角色菜单").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/get/api").
+		SetServiceName("core").
+		SetName("获取角色API").SetIsRequired(false))
+
+	// Position
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Position").
+		SetMethod("POST").
+		SetPath("/position/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新岗位").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Position").
+		SetMethod("POST").
+		SetPath("/position/delete").
+		SetServiceName("core").
+		SetName("删除岗位").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Position").
+		SetMethod("POST").
+		SetPath("/position/list").
+		SetServiceName("core").
+		SetName("获取岗位列表").SetIsRequired(false))
+
+	// Dict
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新字典").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/delete").
+		SetServiceName("core").
+		SetName("删除字典").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/list").
+		SetServiceName("core").
+		SetName("获取字典列表").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/get").
+		SetServiceName("core").
+		SetName("获取字典").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/item/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新字典子项").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/item/delete").
+		SetServiceName("core").
+		SetName("删除字典子项").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/item/list").
+		SetServiceName("core").
+		SetName("获取字典子项列表").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Dict").
+		SetMethod("POST").
+		SetPath("/dict/item/get").
+		SetServiceName("core").
+		SetName("获取字典子项").SetIsRequired(false))
+
+	// Oauth
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Oauth").
+		SetMethod("POST").
+		SetPath("/oauth/list").
+		SetServiceName("core").
+		SetName("Oauth列表").SetIsRequired(false))
+	//  /oauth/createOrUpdate
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Oauth").
+		SetMethod("POST").
+		SetPath("/oauth/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新Oauth").SetIsRequired(false))
+	//  /oauth/delete
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Oauth").
+		SetMethod("POST").
+		SetPath("/oauth/delete").
+		SetServiceName("core").
+		SetName("删除Oauth").SetIsRequired(false))
+
+	// Token
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Token").
+		SetMethod("POST").
+		SetPath("/token/list").
+		SetServiceName("core").
+		SetName("获取Token列表").SetIsRequired(false))
+
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Token").
+		SetMethod("POST").
+		SetPath("/token/clean").
+		SetServiceName("core").
+		SetName("清理过期Token").SetIsRequired(false))
+		
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Token").
+		SetMethod("POST").
+		SetPath("/token/block").
+		SetServiceName("core").
+		SetName("拉黑用户Token").SetIsRequired(false))
+		
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Token").
+		SetMethod("POST").
+		SetPath("/token/unblock").
+		SetServiceName("core").
+		SetName("解封用户Token").SetIsRequired(false))
 
 	err := l.svcCtx.DBEnt.API.CreateBulk(apis...).Exec(l.ctx)
 	if err != nil {
@@ -288,7 +536,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuCode("system").
 		SetMenuName("系统管理").
 		SetMenuPath("/system").
-		SetSort(9997).
+		SetSort(0).
 		SetComponent("BasicLayout").
 		SetMenuType("directory").
 		SetServiceName("Core").
@@ -301,7 +549,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("菜单管理").
 		SetMenuPath("/system/menu").
 		SetComponent("/system/menu/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -313,7 +561,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("角色管理").
 		SetMenuPath("/system/role").
 		SetComponent("/system/role/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -325,7 +573,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("部门管理").
 		SetMenuPath("/system/department").
 		SetComponent("/system/department/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -337,7 +585,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("用户管理").
 		SetMenuPath("/system/user").
 		SetComponent("/system/user/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -349,7 +597,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("岗位管理").
 		SetMenuPath("/system/position").
 		SetComponent("/system/position/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -361,7 +609,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("字典管理").
 		SetMenuPath("/system/dict").
 		SetComponent("/system/dict/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -372,7 +620,7 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("API管理").
 		SetMenuPath("/system/api").
 		SetComponent("/system/api/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
@@ -384,31 +632,31 @@ func (l *InitLogic) initMenu() error {
 		SetMenuName("Oauth管理").
 		SetMenuPath("/system/oauth").
 		SetComponent("/system/oauth/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
 		SetIcon("tabler:brand-oauth"))
-	
+
 	// 系统管理 - Token
 	menus = append(menus, l.svcCtx.DBEnt.Menu.Create().
 		SetMenuCode("TokenManagement").
 		SetMenuName("Token管理").
 		SetMenuPath("/system/token").
 		SetComponent("/system/token/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).
 		SetIcon("material-symbols:lock-open-outline"))
-	
+
 	// 系统管理 - 审计日志
 	menus = append(menus, l.svcCtx.DBEnt.Menu.Create().
 		SetMenuCode("AuditLogManagement").
 		SetMenuName("审计日志").
 		SetMenuPath("/system/audit").
 		SetComponent("/system/audit/index").
-		SetSort(9997).
+		SetSort(0).
 		SetServiceName("Core").
 		SetMenuType("menu").
 		SetParentID(2).

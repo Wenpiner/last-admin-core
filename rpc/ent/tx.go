@@ -36,8 +36,6 @@ type Tx struct {
 	Token *TokenClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
-	// UserOauth is the client for interacting with the UserOauth builders.
-	UserOauth *UserOauthClient
 	// UserTotp is the client for interacting with the UserTotp builders.
 	UserTotp *UserTotpClient
 
@@ -183,7 +181,6 @@ func (tx *Tx) init() {
 	tx.Role = NewRoleClient(tx.config)
 	tx.Token = NewTokenClient(tx.config)
 	tx.User = NewUserClient(tx.config)
-	tx.UserOauth = NewUserOauthClient(tx.config)
 	tx.UserTotp = NewUserTotpClient(tx.config)
 }
 

@@ -6,8 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	last_i18n "github.com/wenpiner/last-admin-common/last-i18n"
-	"github.com/wenpiner/last-admin-common/utils/pointer"
-	"github.com/wenpiner/last-admin-core/rpc/ent"
 	"github.com/wenpiner/last-admin-core/rpc/internal/svc"
 	"github.com/wenpiner/last-admin-core/rpc/internal/utils/errorhandler"
 	"github.com/wenpiner/last-admin-core/rpc/types/core"
@@ -60,14 +58,14 @@ func (l *CreateTokenLogic) CreateToken(in *core.CreateTokenRequest) (*core.Token
 		SetNillableIPAddress(in.IpAddress).
 		SetNillableUserAgent(in.UserAgent).
 		SetNillableMetadata(in.Metadata).
-		SetNillableRefreshTokenID(in.RefreshTokenId).
+		SetNillableProviderID(in.ProviderId).
 		Save(l.ctx)
 
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
 
-	return l.convertTokenToTokenInfo(tokenEntity), nil
+	return ConvertTokenToTokenInfo(tokenEntity), nil
 }
 
 // validateCreateTokenRequest 验证创建Token请求
@@ -82,43 +80,4 @@ func (l *CreateTokenLogic) validateCreateTokenRequest(in *core.CreateTokenReques
 		return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
 	}
 	return nil
-}
-
-// convertTokenToTokenInfo 将Token实体转换为TokenInfo
-func (l *CreateTokenLogic) convertTokenToTokenInfo(tokenEntity *ent.Token) *core.TokenInfo {
-	return &core.TokenInfo{
-		Id:             pointer.ToUint32Ptr(uint32(tokenEntity.ID)),
-		CreatedAt:      pointer.ToInt64Ptr(tokenEntity.CreatedAt.UnixMilli()),
-		UpdatedAt:      pointer.ToInt64Ptr(tokenEntity.UpdatedAt.UnixMilli()),
-		State:          &tokenEntity.State,
-		TokenValue:     &tokenEntity.TokenValue,
-		TokenType:      &tokenEntity.TokenType,
-		UserId:         l.convertUserIDToString(tokenEntity.UserID),
-		ExpiresAt:      pointer.ToInt64Ptr(tokenEntity.ExpiresAt.UnixMilli()),
-		IsRevoked:      &tokenEntity.IsRevoked,
-		DeviceInfo:     tokenEntity.DeviceInfo,
-		IpAddress:      tokenEntity.IPAddress,
-		LastUsedAt:     l.convertTimeToInt64Ptr(tokenEntity.LastUsedAt),
-		UserAgent:      tokenEntity.UserAgent,
-		Metadata:       tokenEntity.Metadata,
-		RefreshTokenId: tokenEntity.RefreshTokenID,
-	}
-}
-
-// convertUserIDToString 将UUID转换为字符串指针
-func (l *CreateTokenLogic) convertUserIDToString(userID *uuid.UUID) *string {
-	if userID == nil {
-		return nil
-	}
-	userIDStr := userID.String()
-	return &userIDStr
-}
-
-// convertTimeToInt64Ptr 将时间转换为int64指针
-func (l *CreateTokenLogic) convertTimeToInt64Ptr(t *time.Time) *int64 {
-	if t == nil {
-		return nil
-	}
-	timestamp := t.UnixMilli()
-	return &timestamp
 }

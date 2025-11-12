@@ -8,6 +8,43 @@ type AccessCodesResponse struct {
 	Data []string `json:"data"` // 权限码 / Access codes
 }
 
+type ApiAllResponse struct {
+	BaseDataInfo
+	Data []ApiInfo `json:"data"` // API列表 / API list
+}
+
+type ApiInfo struct {
+	ID          uint32 `json:"id"`                   // API ID
+	CreatedAt   int64  `json:"createdAt"`            // 创建时间 / Creation time
+	UpdatedAt   int64  `json:"updatedAt"`            // 更新时间 / Update time
+	Name        string `json:"name,optional"`        // API名称 / API name
+	Method      string `json:"method"`               // 请求方法 / Request method
+	Path        string `json:"path"`                 // 请求路径 / Request path
+	Description string `json:"description,optional"` // API描述 / API description
+	IsRequired  bool   `json:"isRequired"`           // 是否必填 / Whether it is required
+	ServiceName string `json:"serviceName"`          // 服务名称 / Service name
+	ApiGroup    string `json:"apiGroup"`             // API分组 / API group
+}
+
+type ApiListInfo struct {
+	BaseListInfo
+	List []ApiInfo `json:"list"` // API列表 / API list
+}
+
+type ApiListRequest struct {
+	PageRequest
+	ServiceName string `json:"serviceName,optional"` // 服务名称 / Service name
+	ApiGroup    string `json:"apiGroup,optional"`    // API分组 / API group
+	Method      string `json:"method,optional"`      // 请求方法 / Request method
+	Description string `json:"description,optional"` // API描述 / API description
+	Path        string `json:"path,optional"`        // 请求路径 / Request path
+}
+
+type ApiListResponse struct {
+	BaseDataInfo
+	Data ApiListInfo `json:"data"` // API列表 / API list
+}
+
 type BaseDataInfo struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
@@ -42,6 +79,10 @@ type BaseUUIDInfo struct {
 	UpdatedAt *int64 `json:"updatedAt"`
 }
 
+type BlockTokenRequest struct {
+	ID uint32 `json:"id"` // 令牌ID / Token ID
+}
+
 type CallbackInfo struct {
 	UserID    string `json:"userId"`      // 用户ID / User ID
 	Token     string `json:"accessToken"` // 访问令牌 / Access token
@@ -58,6 +99,128 @@ type CaptchaInfo struct {
 	Value string `json:"value" validate:"required"` // 验证码值 / Captcha value
 }
 
+type CleanExpiredTokensRequest struct {
+	TokenType  *string `json:"tokenType,optional"`  // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+	BeforeTime *int64  `json:"beforeTime,optional"` // 清理指定时间之前的token，如果不指定则清理所有过期token / Clean up tokens before the specified time, if not specified, clean up all expired tokens
+}
+
+type CleanExpiredTokensResponse struct {
+	Message      string `json:"message"`      // 消息 / Message
+	CleanedCount int64  `json:"cleanedCount"` // 清理的令牌数量 / Number of cleaned tokens
+}
+
+type DeleteMenuRequest struct {
+	ID uint32 `json:"id"` // 菜单ID / Menu ID
+}
+
+type DepartmentInfo struct {
+	ID             *uint32 `json:"id,optional"`             // 部门ID / Department ID
+	CreatedAt      *int64  `json:"createdAt,optional"`      // 创建时间 / Creation time
+	UpdatedAt      *int64  `json:"updatedAt,optional"`      // 更新时间 / Update time
+	DeptName       string  `json:"deptName"`                // 部门名称 / Department name
+	DeptCode       string  `json:"deptCode"`                // 部门编码 / Department code
+	ParentId       *uint32 `json:"parentId"`                // 父部门ID / Parent department ID
+	SortOrder      int32   `json:"sortOrder"`               // 排序 / Sort
+	LeaderUserId   string  `json:"leaderUserId"`            // 部门负责人用户ID / Leader user ID
+	State          bool    `json:"state"`                   // 状态 / State
+	Description    *string `json:"description,optional"`    // 部门描述 / Department description
+	LeaderUsername *string `json:"leaderUsername,optional"` // 部门负责人用户名 / Leader username
+	LeaderPhone    *string `json:"leaderPhone,optional"`    // 部门负责人手机号 / Leader phone
+	LeaderEmail    *string `json:"leaderEmail,optional"`    // 部门负责人邮箱 / Leader email
+}
+
+type DepartmentListInfo struct {
+	BaseListInfo
+	List []DepartmentInfo `json:"list"` // 部门列表 / Department list
+}
+
+type DepartmentListRequest struct {
+	PageRequest
+	DeptName       string `json:"deptName,optional"`       // 部门名称 / Department name
+	DeptCode       string `json:"deptCode,optional"`       // 部门编码 / Department code
+	ParentId       uint32 `json:"parentId,optional"`       // 父部门ID / Parent department ID
+	LeaderUsername string `json:"leaderUsername,optional"` // 部门负责人用户名 / Leader username
+}
+
+type DepartmentListResponse struct {
+	BaseDataInfo
+	Data DepartmentListInfo `json:"data"` // 部门列表 / Department list
+}
+
+type DictInfo struct {
+	ID          *uint32 `json:"id,optional"`          // 字典ID / Dictionary ID
+	CreatedAt   *int64  `json:"createdAt,optional"`   // 创建时间 / Creation time
+	UpdatedAt   *int64  `json:"updatedAt,optional"`   // 更新时间 / Update time
+	Name        string  `json:"name"`                 // 字典名称 / Dictionary name
+	Code        string  `json:"code"`                 // 字典编码 / Dictionary code
+	Description string  `json:"description,optional"` // 描述 / Description
+	State       *bool   `json:"state,optional"`       // 状态 / State
+}
+
+type DictInfoResponse struct {
+	BaseDataInfo
+	Data DictInfo `json:"data"` // 字典 / Dictionary
+}
+
+type DictItemInfo struct {
+	ID          *uint32 `json:"id,optional"`          // 字典子项ID / Dictionary item ID
+	CreatedAt   *int64  `json:"createdAt,optional"`   // 创建时间 / Creation time
+	UpdatedAt   *int64  `json:"updatedAt,optional"`   // 更新时间 / Update time
+	Label       string  `json:"label"`                // 字典子项标签 / Dictionary item label
+	Value       string  `json:"value"`                // 字典子项值 / Dictionary item value
+	Color       string  `json:"color,optional"`       // 字典子项颜色 / Dictionary item color
+	Css         string  `json:"css,optional"`         // 字典子项CSS / Dictionary item CSS
+	SortOrder   int32   `json:"sortOrder"`            // 排序 / Sort order
+	Description string  `json:"description,optional"` // 描述 / Description
+	State       *bool   `json:"state,optional"`       // 状态 / State
+	DictID      uint32  `json:"dictId"`               // 字典类型ID / Dictionary type ID
+}
+
+type DictItemListInfo struct {
+	BaseListInfo
+	List []DictItemInfo `json:"list"` // 字典子项列表 / Dictionary item list
+}
+
+type DictItemListRequest struct {
+	PageRequest
+	DictId uint32 `json:"dictId,optional"` // 字典ID / Dictionary ID
+	Label  string `json:"label,optional"`  // 字典子项标签 / Dictionary item label
+	Value  string `json:"value,optional"`  // 字典子项值 / Dictionary item value
+}
+
+type DictItemListResponse struct {
+	BaseDataInfo
+	Data DictItemListInfo `json:"data"` // 字典子项列表 / Dictionary item list
+}
+
+type DictItemResponse struct {
+	BaseDataInfo
+	Data DictItemInfo `json:"data"` // 字典子项 / Dictionary item
+}
+
+type DictListInfo struct {
+	BaseListInfo
+	List []DictInfo `json:"list"` // 字典列表 / Dictionary list
+}
+
+type DictListRequest struct {
+	PageRequest
+	Name        string `json:"name,optional"`        // 字典名称 / Dictionary name
+	Code        string `json:"code,optional"`        // 字典编码 / Dictionary code
+	Description string `json:"description,optional"` // 描述 / Description
+}
+
+type DictListResponse struct {
+	BaseDataInfo
+	Data DictListInfo `json:"data"` // 字典列表 / Dictionary list
+}
+
+type EnableTotpRequest struct {
+	UserId string `json:"userId"` // 用户ID / User ID
+	Issuer string `json:"issuer"` // 发行者名称 / Issuer name
+	Domain string `json:"domain"` // 域名 / Domain
+}
+
 type GenerateCaptchaInfo struct {
 	ID          string `json:"id"`          // 验证码ID
 	Base64Blob  string `json:"base64Blob"`  // Base64编码的验证码图片/音频
@@ -67,6 +230,10 @@ type GenerateCaptchaInfo struct {
 type GenerateCaptchaResp struct {
 	BaseDataInfo
 	Data GenerateCaptchaInfo `json:"data"` // 验证码信息 / Captcha information
+}
+
+type ID32Request struct {
+	ID uint32 `json:"id" validate:"required,number,gt=0"`
 }
 
 type LoginInfo struct {
@@ -86,18 +253,20 @@ type LoginResponse struct {
 }
 
 type MenuInfo struct {
-	Path       string     `json:"path"`               // 菜单路径 / Menu path
-	Name       string     `json:"name"`               // 菜单名称 / Menu name
-	Redirect   *string    `json:"redirect,optional"`  // 重定向地址 / Redirect path
-	Component  *string    `json:"component,optional"` // 组件 / Component
-	Meta       Meta       `json:"meta"`               // 菜单元数据 / Menu meta data
-	ParentId   *uint32    `json:"parentId,optional"`  // 父级菜单ID / Parent menu ID
-	ID         uint32     `json:"id"`                 // 菜单ID / Menu ID
-	Children   []MenuInfo `json:"children,optional"`  // 子菜单 / Children menu
-	State      *bool      `json:"state"`              // 菜单状态 / Menu state
-	Service    string     `json:"service"`            // 服务名称 / Service name
-	Permission *string    `json:"permission"`         // 权限标识 / Permission identifier
-	CreatedAt  *int64     `json:"createdAt"`          // 创建时间 / Creation time
+	Path        string     `json:"path"`                 // 菜单路径 / Menu path
+	Name        string     `json:"name"`                 // 菜单名称 / Menu name
+	Redirect    *string    `json:"redirect,optional"`    // 重定向地址 / Redirect path
+	Component   *string    `json:"component,optional"`   // 组件 / Component
+	Meta        Meta       `json:"meta"`                 // 菜单元数据 / Menu meta data
+	ParentId    *uint32    `json:"parentId,optional"`    // 父级菜单ID / Parent menu ID
+	ID          uint32     `json:"id"`                   // 菜单ID / Menu ID
+	Children    []MenuInfo `json:"children,optional"`    // 子菜单 / Children menu
+	State       *bool      `json:"state"`                // 菜单状态 / Menu state
+	Service     string     `json:"service"`              // 服务名称 / Service name
+	Permission  *string    `json:"permission"`           // 权限标识 / Permission identifier
+	CreatedAt   *int64     `json:"createdAt"`            // 创建时间 / Creation time
+	Type        string     `json:"type"`                 // 菜单类型 / Menu type
+	Description *string    `json:"description,optional"` // 描述 / Description
 }
 
 type MenuListResponse struct {
@@ -117,9 +286,69 @@ type Meta struct {
 	KeepAlive     *bool   `json:"keepAlive,optional"`     // 是否缓存 / Whether to cache
 }
 
+type ModifyDepartmentResponse struct {
+	BaseDataInfo
+	Data DepartmentInfo `json:"data"` // 部门信息 / Department information
+}
+
+type ModifyPositionResponse struct {
+	BaseDataInfo
+	Data PositionInfo `json:"data"` // 岗位信息 / Position information
+}
+
+type ModifyRoleResponse struct {
+	BaseDataInfo
+	Data RoleInfo `json:"data"` // 角色信息 / Role information
+}
+
+type ModifyUserResponse struct {
+	BaseDataInfo
+	Data UserInfo `json:"data"` // 用户信息 / User information
+}
+
 type OauthLoginRequest struct {
 	Provider string `json:"provider" validate:"required"`     // Oauth 提供商 / Oauth provider
 	State    string `json:"state" validate:"required,len=32"` // 状态 / State
+}
+
+type OauthModifyResponse struct {
+	BaseDataInfo
+	Data OauthProviderInfo `json:"data"` // 提供商信息 / Provider information
+}
+
+type OauthProviderInfo struct {
+	ID               *uint32 `json:"id,optional"`               // 提供商ID / Provider ID
+	CreatedAt        *int64  `json:"createdAt,optional"`        // 创建时间 / Creation time
+	UpdatedAt        *int64  `json:"updatedAt,optional"`        // 更新时间 / Update time
+	State            *bool   `json:"state,optional"`            // 状态 / State
+	ProviderName     *string `json:"providerName,optional"`     // 提供商名称 / Provider name
+	ProviderCode     *string `json:"providerCode,optional"`     // 提供商编码 / Provider code
+	ClientId         *string `json:"clientId,optional"`         // 客户端ID / Client ID
+	ClientSecret     *string `json:"clientSecret,optional"`     // 客户端密钥 / Client secret
+	RedirectUri      *string `json:"redirectUri,optional"`      // 重定向URI / Redirect URI
+	Scopes           *string `json:"scopes,optional"`           // 授权范围 / Scopes
+	AuthorizationUrl *string `json:"authorizationUrl,optional"` // 授权URL / Authorization URL
+	TokenUrl         *string `json:"tokenUrl,optional"`         // 令牌URL / Token URL
+	UserinfoUrl      *string `json:"userinfoUrl,optional"`      // 用户信息URL / User info URL
+	LogoutUrl        *string `json:"logoutUrl,optional"`        // 登出URL / Logout URL
+	AuthStyle        *uint8  `json:"authStyle,optional"`        // 认证方式 / Auth style
+}
+
+type OauthProviderInfoList struct {
+	BaseListInfo
+	List []OauthProviderInfo `json:"list"` // 提供商列表 / Provider list
+}
+
+type OauthProviderListRequest struct {
+	PageRequest
+	ProviderName string `json:"providerName,optional"` // 提供商名称 / Provider name
+	ProviderCode string `json:"providerCode,optional"` // 提供商编码 / Provider code
+	State        *bool  `json:"state,optional"`        // 状态 / State
+}
+
+type OauthProviderListResponse struct {
+	BaseDataInfo
+	Data OauthProviderInfoList `json:"data"` // 提供商列表 / Provider list
 }
 
 type OauthRedirectResponse struct {
@@ -127,9 +356,41 @@ type OauthRedirectResponse struct {
 	Data string `json:"data"` // 重定向地址 / Redirect url
 }
 
+type Page struct {
+	PageSize    uint32 `json:"pageSize"`
+	CurrentPage uint32 `json:"currentPage"`
+}
+
 type PageRequest struct {
-	PageNumer uint32 `json:"pageNumber" validate:"required,number,gt=0"`
-	PageSize  uint32 `json:"pageSize" validate:"required,number,lt=100000"`
+	Page Page `json:"page"`
+}
+
+type PositionInfo struct {
+	ID           *uint32 `json:"id,optional"`          // 岗位ID / Position ID
+	CreatedAt    *int64  `json:"createdAt,optional"`   // 创建时间 / Creation time
+	UpdatedAt    *int64  `json:"updatedAt,optional"`   // 更新时间 / Update time
+	PositionName string  `json:"positionName"`         // 岗位名称 / Position name
+	PositionCode string  `json:"positionCode"`         // 岗位编码 / Position code
+	SortOrder    int32   `json:"sortOrder"`            // 排序 / Sort
+	State        *bool   `json:"state,optional"`       // 状态 / State
+	Description  *string `json:"description,optional"` // 岗位描述 / Position description
+}
+
+type PositionListInfo struct {
+	BaseListInfo
+	List []PositionInfo `json:"list"` // 岗位列表 / Position list
+}
+
+type PositionListRequest struct {
+	PageRequest
+	PositionName string `json:"positionName,optional"` // 岗位名称 / Position name
+	PositionCode string `json:"positionCode,optional"` // 岗位编码 / Position code
+	State        bool   `json:"state,optional"`        // 状态 / State
+}
+
+type PositionListResponse struct {
+	BaseDataInfo
+	Data []PositionListInfo `json:"data"` // 岗位列表 / Position list
 }
 
 type RegisterRequest struct {
@@ -138,12 +399,119 @@ type RegisterRequest struct {
 	Username string `json:"username" validate:"required,min=4,max=16"` // 用户名 / Username
 }
 
+type RoleApiListResponse struct {
+	BaseDataInfo
+	Data []string `json:"data"` // API列表 / API list
+}
+
+type RoleApiRequest struct {
+	RoleId uint32   `json:"roleId"` // 角色ID / Role ID
+	ApiIds []uint32 `json:"apiIds"` // API ID / API ID
+}
+
+type RoleInfo struct {
+	ID          *uint32 `json:"id,optional"`          // 角色ID / Role ID
+	CreatedAt   *int64  `json:"createdAt,optional"`   // 创建时间 / Creation time
+	UpdatedAt   *int64  `json:"updatedAt,optional"`   // 更新时间 / Update time
+	RoleName    string  `json:"roleName"`             // 角色名称 / Role name
+	RoleCode    string  `json:"roleCode"`             // 角色编码 / Role code
+	Description string  `json:"description,optional"` // 角色描述 / Role description
+	State       *bool   `json:"state,optional"`       // 角色状态 / Role state
+}
+
+type RoleListInfo struct {
+	BaseListInfo
+	List []RoleInfo `json:"list"` // 角色列表 / Role list
+}
+
+type RoleListRequest struct {
+	PageRequest
+	RoleName string `json:"roleName,optional"` // 角色名称 / Role name
+	RoleCode string `json:"roleCode,optional"` // 角色编码 / Role code
+	State    bool   `json:"state,optional"`    // 角色状态 / Role state
+}
+
+type RoleListResponse struct {
+	BaseDataInfo
+	Data RoleListInfo `json:"data"` // 角色列表 / Role list
+}
+
+type RoleMenuRequest struct {
+	RoleId  uint32   `json:"roleId"`  // 角色ID / Role ID
+	MenuIds []uint32 `json:"menuIds"` // 菜单ID / Menu ID
+}
+
 type SendEmailCaptchaReq struct {
 	Email string `json:"email" validate:"required,email"` // 邮箱
 }
 
 type SendSmsCaptchaReq struct {
 	Phone string `json:"phone" validate:"required,numeric"` // 手机号
+}
+
+type StringIDRequest struct {
+	ID string `json:"id" validate:"required"`
+}
+
+type TokenInfo struct {
+	Id           *uint32 `json:"id,optional"`           // Token ID / Token ID
+	CreatedAt    *int64  `json:"createdAt,optional"`    // 创建时间 / Creation time
+	UpdatedAt    *int64  `json:"updatedAt,optional"`    // 更新时间 / Update time
+	State        *bool   `json:"state,optional"`        // 状态 / State
+	TokenValue   *string `json:"tokenValue,optional"`   // 令牌值 / Token value
+	TokenType    *string `json:"tokenType,optional"`    // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+	UserId       *string `json:"userId,optional"`       // 用户ID / User ID
+	ExpiresAt    *int64  `json:"expiresAt,optional"`    // 过期时间 / Expiration time
+	DeviceInfo   *string `json:"deviceInfo,optional"`   // 设备信息 / Device information
+	IpAddress    *string `json:"ipAddress,optional"`    // IP地址 / IP address
+	LastUsedAt   *int64  `json:"lastUsedAt,optional"`   // 最后使用时间 / Last used time
+	UserAgent    *string `json:"userAgent,optional"`    // 用户代理 / User agent
+	Metadata     *string `json:"metadata,optional"`     // 元数据 / Metadata (JSON format)
+	ProviderId   *uint32 `json:"providerId,optional"`   // 提供商ID / Provider ID
+	Username     *string `json:"username,optional"`     // 用户名 / Username
+	ProviderName *string `json:"providerName,optional"` // 提供商名称 / Provider name
+	FullName     *string `json:"fullName,optional"`     // 用户全名 / User full name
+}
+
+type TokenInfoList struct {
+	BaseListInfo
+	List []TokenInfo `json:"list"` // 令牌列表 / Token list
+}
+
+type TokenListRequest struct {
+	PageRequest
+	TokenType  *string `json:"tokenType,optional"`  // 令牌类型 / Token type (access_token, refresh_token, reset_password, email_verify, api_token, sso_token)
+	UserId     *string `json:"userId,optional"`     // 用户ID / User ID
+	IsRevoked  *bool   `json:"isRevoked,optional"`  // 是否已撤销 / Whether revoked
+	IpAddress  *string `json:"ipAddress,optional"`  // IP地址 / IP address
+	DeviceInfo *string `json:"deviceInfo,optional"` // 设备信息 / Device information
+	ProviderId *uint32 `json:"providerId,optional"` // 提供商ID / Provider ID
+}
+
+type TokenListResponse struct {
+	BaseDataInfo
+	Data TokenInfoList `json:"data"` // 令牌列表 / Token list
+}
+
+type TotpInfo struct {
+	Id           *string `json:"id,optional"`           // TOTP ID / TOTP ID
+	CreatedAt    *int64  `json:"createdAt,optional"`    // 创建时间 / Creation time
+	UpdatedAt    *int64  `json:"updatedAt,optional"`    // 更新时间 / Update time
+	State        *bool   `json:"state,optional"`        // 状态 / State
+	IsVerified   *bool   `json:"isVerified,optional"`   // 是否已验证 / Whether verified
+	LastUsedAt   *int64  `json:"lastUsedAt,optional"`   // 最后使用时间 / Last used time
+	LastUsedCode *string `json:"lastUsedCode,optional"` // 最后使用的验证码 / Last used verification code
+	DeviceName   *string `json:"deviceName,optional"`   // 设备名称 / Device name
+	Issuer       *string `json:"issuer,optional"`       // 发行者名称 / Issuer name
+}
+
+type TotpSetupInfo struct {
+	QRText string `json:"qrText"` // 二维码内容 / QR code content
+}
+
+type TotpSetupResponse struct {
+	BaseDataInfo
+	Data TotpSetupInfo `json:"data"` // TOTP信息 / TOTP information
 }
 
 type TotpVerifyRequest struct {
@@ -156,20 +524,61 @@ type TotpVerifyResponse struct {
 	Data map[string]interface{} `json:"data"` // 认证后返回值 / Data after authentication
 }
 
+type UUIDRequest struct {
+	ID string `json:"id" validate:"required"`
+}
+
 type UserInfo struct {
-	Avatar         string   `json:"avatar,optional"`         // 头像URL / Avatar URL
-	RealName       string   `json:"realName,optional"`       // 用户全名 / User full name
-	Roles          []string `json:"roles,optional"`          // 用户角色 / User roles
-	UserId         string   `json:"userId,optional"`         // 用户ID / User ID
-	Username       string   `json:"username,optional"`       // 用户名 / Username
-	Desc           string   `json:"desc,optional"`           // 用户描述 / User description
-	HomePath       string   `json:"homePath,optional"`       // 首页地址 / Home page address
-	Email          string   `json:"email,optional"`          // 邮箱 / Email
-	RoleNames      []string `json:"roleNames,optional"`      // 用户角色名称 / User role names
-	DepartmentName string   `json:"departmentName,optional"` // 用户部门名称 / User department name
+	Avatar         string    `json:"avatar,optional"`         // 头像URL / Avatar URL
+	RealName       string    `json:"realName,optional"`       // 用户全名 / User full name
+	Roles          []string  `json:"roles,optional"`          // 用户角色 / User roles
+	UserId         string    `json:"userId,optional"`         // 用户ID / User ID
+	Username       string    `json:"username,optional"`       // 用户名 / Username
+	Desc           string    `json:"desc,optional"`           // 用户描述 / User description
+	HomePath       string    `json:"homePath,optional"`       // 首页地址 / Home page address
+	Email          string    `json:"email,optional"`          // 邮箱 / Email
+	RoleNames      []string  `json:"roleNames,optional"`      // 用户角色名称 / User role names
+	DepartmentName string    `json:"departmentName,optional"` // 用户部门名称 / User department name
+	Mobile         string    `json:"mobile,optional"`         // 手机号 / Mobile
+	DepartmentId   uint32    `json:"departmentId,optional"`   // 用户部门ID / User department ID
+	PositionNames  []string  `json:"positionNames,optional"`  // 用户职位名称 / User position names
+	PositionIds    []uint32  `json:"positionIds,optional"`    // 用户职位ID / User position ID
+	State          bool      `json:"state,optional"`          // 用户状态 / User state
+	CreatedAt      int64     `json:"createdAt,optional"`      // 创建时间 / Create time
+	UpdatedAt      int64     `json:"updatedAt,optional"`      // 更新时间 / Update time
+	LastLoginAt    int64     `json:"lastLoginAt,optional"`    // 最后登录时间 / Last login time
+	LastLoginIp    string    `json:"lastLoginIp,optional"`    // 最后登录IP / Last login IP
+	RoleIds        []uint32  `json:"roleIds,optional"`        // 用户角色ID / User role ID
+	Password       *string   `json:"password,optional"`       // 密码 / Password
+	TotpInfo       *TotpInfo `json:"totpInfo,optional"`       // TOTP信息 / TOTP information
 }
 
 type UserInfoResponse struct {
 	BaseDataInfo
 	Data UserInfo `json:"data"` // 用户信息 / User information
+}
+
+type UserListInfo struct {
+	BaseListInfo
+	List []UserInfo `json:"list"` // 用户列表 / User list
+}
+
+type UserListRequest struct {
+	PageRequest
+	Username     string `json:"username,optional"`     // 用户名 / Username
+	Email        string `json:"email,optional"`        // 邮箱 / Email
+	Mobile       string `json:"mobile,optional"`       // 手机号 / Mobile
+	State        bool   `json:"state,optional"`        // 用户状态 / User state
+	DepartmentId uint32 `json:"departmentId,optional"` // 用户部门ID / User department ID
+	UserID       string `json:"userId,optional"`       // 用户ID / User ID
+}
+
+type UserListResponse struct {
+	BaseDataInfo
+	Data UserListInfo `json:"data"` // 用户列表 / User list
+}
+
+type VerifyTotpRequest struct {
+	UserId string `json:"userId"` // 用户ID / User ID
+	Code   string `json:"code"`   // 验证码 / Verification code
 }

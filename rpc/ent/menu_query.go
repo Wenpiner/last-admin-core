@@ -492,7 +492,10 @@ func (_q *MenuQuery) loadParent(ctx context.Context, query *MenuQuery, nodes []*
 	ids := make([]uint32, 0, len(nodes))
 	nodeids := make(map[uint32][]*Menu)
 	for i := range nodes {
-		fk := nodes[i].ParentID
+		if nodes[i].ParentID == nil {
+			continue
+		}
+		fk := *nodes[i].ParentID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -539,9 +542,12 @@ func (_q *MenuQuery) loadChildren(ctx context.Context, query *MenuQuery, nodes [
 	}
 	for _, n := range neighbors {
 		fk := n.ParentID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "parent_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "parent_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "parent_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -14,7 +14,7 @@ func ConvertMenuToMenuInfo(menu *ent.Menu) *core.MenuInfo {
 		UpdatedAt:   pointer.ToInt64Ptr(menu.UpdatedAt.UnixMilli()),
 		MenuCode:    &menu.MenuCode,
 		MenuName:    &menu.MenuName,
-		ParentId:    &menu.ParentID,
+		ParentId:    menu.ParentID,
 		MenuPath:    menu.MenuPath,
 		State:       &menu.State,
 		Sort:        &menu.Sort,

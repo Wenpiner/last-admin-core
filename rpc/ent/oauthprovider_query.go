@@ -14,7 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/wenpiner/last-admin-core/rpc/ent/oauthprovider"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
-	"github.com/wenpiner/last-admin-core/rpc/ent/useroauth"
+	"github.com/wenpiner/last-admin-core/rpc/ent/token"
 )
 
 // OauthProviderQuery is the builder for querying OauthProvider entities.
@@ -24,7 +24,7 @@ type OauthProviderQuery struct {
 	order      []oauthprovider.OrderOption
 	inters     []Interceptor
 	predicates []predicate.OauthProvider
-	withOauths *UserOauthQuery
+	withTokens *TokenQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (_q *OauthProviderQuery) Order(o ...oauthprovider.OrderOption) *OauthProvid
 	return _q
 }
 
-// QueryOauths chains the current query on the "oauths" edge.
-func (_q *OauthProviderQuery) QueryOauths() *UserOauthQuery {
-	query := (&UserOauthClient{config: _q.config}).Query()
+// QueryTokens chains the current query on the "tokens" edge.
+func (_q *OauthProviderQuery) QueryTokens() *TokenQuery {
+	query := (&TokenClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (_q *OauthProviderQuery) QueryOauths() *UserOauthQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(oauthprovider.Table, oauthprovider.FieldID, selector),
-			sqlgraph.To(useroauth.Table, useroauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, oauthprovider.OauthsTable, oauthprovider.OauthsColumn),
+			sqlgraph.To(token.Table, token.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, oauthprovider.TokensTable, oauthprovider.TokensColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -275,21 +275,21 @@ func (_q *OauthProviderQuery) Clone() *OauthProviderQuery {
 		order:      append([]oauthprovider.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.OauthProvider{}, _q.predicates...),
-		withOauths: _q.withOauths.Clone(),
+		withTokens: _q.withTokens.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithOauths tells the query-builder to eager-load the nodes that are connected to
-// the "oauths" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *OauthProviderQuery) WithOauths(opts ...func(*UserOauthQuery)) *OauthProviderQuery {
-	query := (&UserOauthClient{config: _q.config}).Query()
+// WithTokens tells the query-builder to eager-load the nodes that are connected to
+// the "tokens" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *OauthProviderQuery) WithTokens(opts ...func(*TokenQuery)) *OauthProviderQuery {
+	query := (&TokenClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withOauths = query
+	_q.withTokens = query
 	return _q
 }
 
@@ -372,7 +372,7 @@ func (_q *OauthProviderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		nodes       = []*OauthProvider{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			_q.withOauths != nil,
+			_q.withTokens != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (_q *OauthProviderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withOauths; query != nil {
-		if err := _q.loadOauths(ctx, query, nodes,
-			func(n *OauthProvider) { n.Edges.Oauths = []*UserOauth{} },
-			func(n *OauthProvider, e *UserOauth) { n.Edges.Oauths = append(n.Edges.Oauths, e) }); err != nil {
+	if query := _q.withTokens; query != nil {
+		if err := _q.loadTokens(ctx, query, nodes,
+			func(n *OauthProvider) { n.Edges.Tokens = []*Token{} },
+			func(n *OauthProvider, e *Token) { n.Edges.Tokens = append(n.Edges.Tokens, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *OauthProviderQuery) loadOauths(ctx context.Context, query *UserOauthQuery, nodes []*OauthProvider, init func(*OauthProvider), assign func(*OauthProvider, *UserOauth)) error {
+func (_q *OauthProviderQuery) loadTokens(ctx context.Context, query *TokenQuery, nodes []*OauthProvider, init func(*OauthProvider), assign func(*OauthProvider, *Token)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uint32]*OauthProvider)
 	for i := range nodes {
@@ -414,10 +414,10 @@ func (_q *OauthProviderQuery) loadOauths(ctx context.Context, query *UserOauthQu
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(useroauth.FieldProviderID)
+		query.ctx.AppendFieldOnce(token.FieldProviderID)
 	}
-	query.Where(predicate.UserOauth(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(oauthprovider.OauthsColumn), fks...))
+	query.Where(predicate.Token(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(oauthprovider.TokensColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -425,9 +425,12 @@ func (_q *OauthProviderQuery) loadOauths(ctx context.Context, query *UserOauthQu
 	}
 	for _, n := range neighbors {
 		fk := n.ProviderID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "provider_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "provider_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "provider_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

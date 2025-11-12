@@ -19,7 +19,6 @@ type UserTotp struct {
 // Mixin of the UserTotp.
 func (UserTotp) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixins.ID32Mixin{},
 		mixins.TimestampMixin{},
 		mixins.StateMixin{},
 	}
@@ -28,8 +27,8 @@ func (UserTotp) Mixin() []ent.Mixin {
 // Fields of the UserTotp.
 func (UserTotp) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("user_id", uuid.UUID{}).
-			Comment("用户ID / User ID"),
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New),
 		field.String("secret_key").
 			MaxLen(255).
 			NotEmpty().
@@ -39,9 +38,6 @@ func (UserTotp) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("备用恢复码 / Backup recovery codes (JSON array)"),
-		field.Bool("is_enabled").
-			Default(false).
-			Comment("是否启用 / Whether enabled"),
 		field.Bool("is_verified").
 			Default(false).
 			Comment("是否已验证 / Whether verified"),
@@ -64,22 +60,15 @@ func (UserTotp) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("发行者名称 / Issuer name"),
-		field.Int("failure_count").
-			Default(0).
-			Comment("失败次数 / Failure count"),
-		field.Time("locked_until").
-			Optional().
-			Nillable().
-			Comment("锁定到期时间 / Locked until time"),
 	}
 }
 
 // Edges of the UserTotp.
 func (UserTotp) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("user", User.Type).
-			Field("user_id").
-			Unique().
+		edge.From("user", User.Type).
+			Ref("totp"). // 引用 User schema 中定义的 "profile" 边
+			Unique().       
 			Required(),
 	}
 }
@@ -88,13 +77,11 @@ func (UserTotp) Edges() []ent.Edge {
 func (UserTotp) Indexes() []ent.Index {
 	return []ent.Index{
 		// 复合唯一索引：用户ID
-		index.Fields("user_id").
+		index.Fields("id").
 			Unique().
 			StorageKey("sys_user_totp_user_unique"),
 		// 普通索引：用户ID
-		index.Fields("user_id"),
-		// 普通索引：是否启用
-		index.Fields("is_enabled"),
+		index.Fields("id"),
 		// 普通索引：是否已验证
 		index.Fields("is_verified"),
 		// 普通索引：最后使用时间

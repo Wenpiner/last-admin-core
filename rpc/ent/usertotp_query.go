@@ -25,6 +25,7 @@ type UserTotpQuery struct {
 	inters     []Interceptor
 	predicates []predicate.UserTotp
 	withUser   *UserQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,7 +76,7 @@ func (_q *UserTotpQuery) QueryUser() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usertotp.Table, usertotp.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, usertotp.UserTable, usertotp.UserColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, usertotp.UserTable, usertotp.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -107,8 +108,8 @@ func (_q *UserTotpQuery) FirstX(ctx context.Context) *UserTotp {
 
 // FirstID returns the first UserTotp ID from the query.
 // Returns a *NotFoundError when no UserTotp ID was found.
-func (_q *UserTotpQuery) FirstID(ctx context.Context) (id uint32, err error) {
-	var ids []uint32
+func (_q *UserTotpQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -120,7 +121,7 @@ func (_q *UserTotpQuery) FirstID(ctx context.Context) (id uint32, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserTotpQuery) FirstIDX(ctx context.Context) uint32 {
+func (_q *UserTotpQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -158,8 +159,8 @@ func (_q *UserTotpQuery) OnlyX(ctx context.Context) *UserTotp {
 // OnlyID is like Only, but returns the only UserTotp ID in the query.
 // Returns a *NotSingularError when more than one UserTotp ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserTotpQuery) OnlyID(ctx context.Context) (id uint32, err error) {
-	var ids []uint32
+func (_q *UserTotpQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -175,7 +176,7 @@ func (_q *UserTotpQuery) OnlyID(ctx context.Context) (id uint32, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserTotpQuery) OnlyIDX(ctx context.Context) uint32 {
+func (_q *UserTotpQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -203,7 +204,7 @@ func (_q *UserTotpQuery) AllX(ctx context.Context) []*UserTotp {
 }
 
 // IDs executes the query and returns a list of UserTotp IDs.
-func (_q *UserTotpQuery) IDs(ctx context.Context) (ids []uint32, err error) {
+func (_q *UserTotpQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -215,7 +216,7 @@ func (_q *UserTotpQuery) IDs(ctx context.Context) (ids []uint32, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserTotpQuery) IDsX(ctx context.Context) []uint32 {
+func (_q *UserTotpQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -370,11 +371,18 @@ func (_q *UserTotpQuery) prepareQuery(ctx context.Context) error {
 func (_q *UserTotpQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserTotp, error) {
 	var (
 		nodes       = []*UserTotp{}
+		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
 			_q.withUser != nil,
 		}
 	)
+	if _q.withUser != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, usertotp.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*UserTotp).scanValues(nil, columns)
 	}
@@ -406,7 +414,10 @@ func (_q *UserTotpQuery) loadUser(ctx context.Context, query *UserQuery, nodes [
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*UserTotp)
 	for i := range nodes {
-		fk := nodes[i].UserID
+		if nodes[i].user_totp == nil {
+			continue
+		}
+		fk := *nodes[i].user_totp
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -423,7 +434,7 @@ func (_q *UserTotpQuery) loadUser(ctx context.Context, query *UserQuery, nodes [
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_totp" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -442,7 +453,7 @@ func (_q *UserTotpQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserTotpQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUint32))
+	_spec := sqlgraph.NewQuerySpec(usertotp.Table, usertotp.Columns, sqlgraph.NewFieldSpec(usertotp.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -456,9 +467,6 @@ func (_q *UserTotpQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != usertotp.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withUser != nil {
-			_spec.Node.AddColumnOnce(usertotp.FieldUserID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

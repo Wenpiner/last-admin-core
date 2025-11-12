@@ -53,6 +53,10 @@ func (l *ListApiLogic) ListApi(in *core.ApiListRequest) (*core.ApiListResponse, 
 		predicates = append(predicates, api.DescriptionContains(*in.Description))
 	}
 
+	if in.Path != nil && *in.Path != "" {
+		predicates = append(predicates, api.PathContains(*in.Path))
+	}
+
 	// 执行分页查询
 	query := l.svcCtx.DBEnt.API.Query().Where(predicates...)
 

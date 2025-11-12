@@ -67,24 +67,27 @@ func (l *LoginByPasswordLogic) LoginByPassword(req *types.LoginRequest) (resp *t
 		return nil, errorx.NewApiError(errorx.CodeAccountDisabled, "user.disabled")
 	}
 
-	if pointer.GetBool(user.TotpEnabled) == true {
-		if req.TotpCode == nil || *req.TotpCode == "" {
-			return nil, errorx.NewApiError(errorx.CodeTOTPRequired, "totp.notProvided")
-		} else {
-			// 验证TOTP
-			verifyReq := &userservice.VerifyTotpCodeRequest{
-				UserId:   *user.Id,
-				TotpCode: *req.TotpCode,
-			}
-			verifyResp, err := l.svcCtx.UserRpc.VerifyTotpCode(l.ctx, verifyReq)
-			if err != nil {
-				return nil, err
-			}
-			if verifyResp.IsValid == false {
-				return nil, errorx.NewApiError(errorx.CodeTOTPVerifyFailed, "totp.verifyFailed")
+	if user.TotpInfo != nil {
+		if pointer.GetBool(user.TotpInfo.State) == true {
+			if req.TotpCode == nil || *req.TotpCode == "" {
+				return nil, errorx.NewApiError(errorx.CodeTOTPRequired, "totp.notProvided")
+			}else{
+				// 验证TOTP
+				verifyReq := &userservice.VerifyTotpCodeRequest{
+					UserId:   *user.Id,
+					TotpCode: *req.TotpCode,
+				}
+				verifyResp, err := l.svcCtx.UserRpc.VerifyTotpCode(l.ctx, verifyReq)
+				if err != nil {
+					return nil, err
+				}
+				if verifyResp.IsValid == false {
+					return nil, errorx.NewApiError(errorx.CodeTOTPVerifyFailed, "totp.verifyFailed")
+				}
 			}
 		}
 	}
+
 	// 生成Token
 	accessToken, err := generateToken(user, l.svcCtx.Config.Auth.AccessExpire, l.svcCtx.Config.Auth.AccessSecret)
 	if err != nil {
@@ -121,10 +124,14 @@ func generateToken(user *userservice.UserInfo, expire int64, secret string) (acc
 	claims := make(jwt.MapClaims)
 	iat := time.Now().Unix()
 	claims["iat"] = iat
-	claims["exp"] = iat + 3600
+	claims["exp"] = iat + expire
 	claims["userId"] = *user.Id
 	claims["deptId"] = *user.DepartmentId
 	claims["roleId"] = strings.Join(user.RoleValues, ",")
+	claims["providerId"] = 0
+	if user.ProviderId != nil {
+		claims["providerId"] = *user.ProviderId
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	accessToken, err = token.SignedString([]byte(secret))
 	if err != nil {

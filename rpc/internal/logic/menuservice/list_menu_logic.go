@@ -3,6 +3,7 @@ package menuservicelogic
 import (
 	"context"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/wenpiner/last-admin-core/rpc/ent/menu"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/internal/utils/errorhandler"
@@ -37,7 +38,7 @@ func (l *ListMenuLogic) ListMenu(in *core.MenuListRequest) (*core.MenuListRespon
 		predicates = append(predicates, menu.MenuCodeContains(*in.MenuCode))
 	}
 
-	page, err := l.svcCtx.DBEnt.Menu.Query().Where(predicates...).Order(menu.ByMenuLevel(), menu.BySort()).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	page, err := l.svcCtx.DBEnt.Menu.Query().Where(predicates...).Order(menu.ByMenuLevel(), menu.BySort(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}

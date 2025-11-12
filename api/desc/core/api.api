@@ -1,0 +1,82 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "API相关接口"
+	desc:    "API相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	ApiInfo {
+		ID          uint32 `json:"id"` // API ID
+		CreatedAt   int64  `json:"createdAt"` // 创建时间 / Creation time
+		UpdatedAt   int64  `json:"updatedAt"` // 更新时间 / Update time
+		Name        string `json:"name,optional"` // API名称 / API name
+		Method      string `json:"method"` // 请求方法 / Request method
+		Path        string `json:"path"` // 请求路径 / Request path
+		Description string `json:"description,optional"` // API描述 / API description
+		IsRequired  bool   `json:"isRequired"` // 是否必填 / Whether it is required
+		ServiceName string `json:"serviceName"` // 服务名称 / Service name
+		ApiGroup    string `json:"apiGroup"` // API分组 / API group
+	}
+	ApiListRequest {
+		PageRequest
+		ServiceName string `json:"serviceName,optional"` // 服务名称 / Service name
+		ApiGroup    string `json:"apiGroup,optional"` // API分组 / API group
+		Method      string `json:"method,optional"` // 请求方法 / Request method
+		Description string `json:"description,optional"` // API描述 / API description
+		Path        string `json:"path,optional"` // 请求路径 / Request path
+	}
+	ApiListInfo {
+		BaseListInfo
+		List []ApiInfo `json:"list"` // API列表 / API list
+	}
+	ApiListResponse {
+		BaseDataInfo
+		Data ApiListInfo `json:"data"` // API列表 / API list
+	}
+
+	ApiAllResponse {
+		BaseDataInfo
+		Data []ApiInfo `json:"data"` // API列表 / API list
+	}
+)
+
+// {message,code,data:{list,total}}
+@server (
+	prefix:     /api
+	group:      api
+	tags:       "API"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取API列表"
+	)
+	@handler ListApiHandler
+	post /list (ApiListRequest) returns (ApiListResponse)
+
+	@doc (
+		summary: "创建或更新API"
+	)
+	@handler CreateOrUpdateApiHandler
+	post /createOrUpdate (ApiInfo) returns (ApiInfo)
+
+	@doc (
+		summary: "删除API"
+	)
+	@handler DeleteApiHandler
+	post /delete (ID32Request) returns (BaseResponse)
+
+	@doc(
+		summary: "获取所有API"
+	)
+	@handler GetAllApiHandler
+	get /all returns (ApiAllResponse)
+}
+

@@ -49,8 +49,8 @@ const (
 	EdgePositions = "positions"
 	// EdgeDepartment holds the string denoting the department edge name in mutations.
 	EdgeDepartment = "department"
-	// EdgeOauths holds the string denoting the oauths edge name in mutations.
-	EdgeOauths = "oauths"
+	// EdgeLeaderDepartment holds the string denoting the leader_department edge name in mutations.
+	EdgeLeaderDepartment = "leader_department"
 	// EdgeTotp holds the string denoting the totp edge name in mutations.
 	EdgeTotp = "totp"
 	// Table holds the table name of the user in the database.
@@ -72,20 +72,20 @@ const (
 	DepartmentInverseTable = "sys_departments"
 	// DepartmentColumn is the table column denoting the department relation/edge.
 	DepartmentColumn = "department_id"
-	// OauthsTable is the table that holds the oauths relation/edge.
-	OauthsTable = "sys_user_oauth"
-	// OauthsInverseTable is the table name for the UserOauth entity.
-	// It exists in this package in order to avoid circular dependency with the "useroauth" package.
-	OauthsInverseTable = "sys_user_oauth"
-	// OauthsColumn is the table column denoting the oauths relation/edge.
-	OauthsColumn = "user_id"
+	// LeaderDepartmentTable is the table that holds the leader_department relation/edge.
+	LeaderDepartmentTable = "sys_departments"
+	// LeaderDepartmentInverseTable is the table name for the Department entity.
+	// It exists in this package in order to avoid circular dependency with the "department" package.
+	LeaderDepartmentInverseTable = "sys_departments"
+	// LeaderDepartmentColumn is the table column denoting the leader_department relation/edge.
+	LeaderDepartmentColumn = "leader_user_id"
 	// TotpTable is the table that holds the totp relation/edge.
 	TotpTable = "sys_user_totp"
 	// TotpInverseTable is the table name for the UserTotp entity.
 	// It exists in this package in order to avoid circular dependency with the "usertotp" package.
 	TotpInverseTable = "sys_user_totp"
 	// TotpColumn is the table column denoting the totp relation/edge.
-	TotpColumn = "user_id"
+	TotpColumn = "user_totp"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -268,31 +268,24 @@ func ByDepartmentField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByOauthsCount orders the results by oauths count.
-func ByOauthsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByLeaderDepartmentCount orders the results by leader_department count.
+func ByLeaderDepartmentCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOauthsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newLeaderDepartmentStep(), opts...)
 	}
 }
 
-// ByOauths orders the results by oauths terms.
-func ByOauths(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByLeaderDepartment orders the results by leader_department terms.
+func ByLeaderDepartment(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOauthsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newLeaderDepartmentStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByTotpCount orders the results by totp count.
-func ByTotpCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTotpField orders the results by totp field.
+func ByTotpField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newTotpStep(), opts...)
-	}
-}
-
-// ByTotp orders the results by totp terms.
-func ByTotp(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTotpStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTotpStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newRolesStep() *sqlgraph.Step {
@@ -316,17 +309,17 @@ func newDepartmentStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, false, DepartmentTable, DepartmentColumn),
 	)
 }
-func newOauthsStep() *sqlgraph.Step {
+func newLeaderDepartmentStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OauthsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, OauthsTable, OauthsColumn),
+		sqlgraph.To(LeaderDepartmentInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, LeaderDepartmentTable, LeaderDepartmentColumn),
 	)
 }
 func newTotpStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TotpInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, TotpTable, TotpColumn),
+		sqlgraph.Edge(sqlgraph.O2O, false, TotpTable, TotpColumn),
 	)
 }

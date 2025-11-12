@@ -21,8 +21,6 @@ type Menu struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// 更新时间 / Update time
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// 删除时间 / Deleted time
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// 状态 / State
 	State bool `json:"state,omitempty"`
 	// 排序 / Sort
@@ -32,7 +30,7 @@ type Menu struct {
 	// 菜单名称 / Menu name
 	MenuName string `json:"menu_name,omitempty"`
 	// 父菜单ID / Parent menu ID
-	ParentID uint32 `json:"parent_id,omitempty"`
+	ParentID *uint32 `json:"parent_id,omitempty"`
 	// 菜单路径 / Menu path
 	MenuPath *string `json:"menu_path,omitempty"`
 	// 前端组件 / Frontend component
@@ -124,7 +122,7 @@ func (*Menu) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case menu.FieldMenuCode, menu.FieldMenuName, menu.FieldMenuPath, menu.FieldComponent, menu.FieldRedirect, menu.FieldIcon, menu.FieldPermission, menu.FieldServiceName, menu.FieldMenuType, menu.FieldFrameSrc, menu.FieldDescription, menu.FieldLink:
 			values[i] = new(sql.NullString)
-		case menu.FieldCreatedAt, menu.FieldUpdatedAt, menu.FieldDeletedAt:
+		case menu.FieldCreatedAt, menu.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -159,13 +157,6 @@ func (_m *Menu) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
 			}
-		case menu.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				_m.DeletedAt = new(time.Time)
-				*_m.DeletedAt = value.Time
-			}
 		case menu.FieldState:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
@@ -194,7 +185,8 @@ func (_m *Menu) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
 			} else if value.Valid {
-				_m.ParentID = uint32(value.Int64)
+				_m.ParentID = new(uint32)
+				*_m.ParentID = uint32(value.Int64)
 			}
 		case menu.FieldMenuPath:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -363,11 +355,6 @@ func (_m *Menu) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", _m.State))
 	builder.WriteString(", ")
@@ -380,8 +367,10 @@ func (_m *Menu) String() string {
 	builder.WriteString("menu_name=")
 	builder.WriteString(_m.MenuName)
 	builder.WriteString(", ")
-	builder.WriteString("parent_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ParentID))
+	if v := _m.ParentID; v != nil {
+		builder.WriteString("parent_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := _m.MenuPath; v != nil {
 		builder.WriteString("menu_path=")

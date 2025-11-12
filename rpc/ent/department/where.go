@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 )
 
@@ -96,7 +97,7 @@ func ParentID(v uint32) predicate.Department {
 }
 
 // LeaderUserID applies equality check predicate on the "leader_user_id" field. It's identical to LeaderUserIDEQ.
-func LeaderUserID(v uint32) predicate.Department {
+func LeaderUserID(v uuid.UUID) predicate.Department {
 	return predicate.Department(sql.FieldEQ(FieldLeaderUserID, v))
 }
 
@@ -456,43 +457,23 @@ func ParentIDNotNil() predicate.Department {
 }
 
 // LeaderUserIDEQ applies the EQ predicate on the "leader_user_id" field.
-func LeaderUserIDEQ(v uint32) predicate.Department {
+func LeaderUserIDEQ(v uuid.UUID) predicate.Department {
 	return predicate.Department(sql.FieldEQ(FieldLeaderUserID, v))
 }
 
 // LeaderUserIDNEQ applies the NEQ predicate on the "leader_user_id" field.
-func LeaderUserIDNEQ(v uint32) predicate.Department {
+func LeaderUserIDNEQ(v uuid.UUID) predicate.Department {
 	return predicate.Department(sql.FieldNEQ(FieldLeaderUserID, v))
 }
 
 // LeaderUserIDIn applies the In predicate on the "leader_user_id" field.
-func LeaderUserIDIn(vs ...uint32) predicate.Department {
+func LeaderUserIDIn(vs ...uuid.UUID) predicate.Department {
 	return predicate.Department(sql.FieldIn(FieldLeaderUserID, vs...))
 }
 
 // LeaderUserIDNotIn applies the NotIn predicate on the "leader_user_id" field.
-func LeaderUserIDNotIn(vs ...uint32) predicate.Department {
+func LeaderUserIDNotIn(vs ...uuid.UUID) predicate.Department {
 	return predicate.Department(sql.FieldNotIn(FieldLeaderUserID, vs...))
-}
-
-// LeaderUserIDGT applies the GT predicate on the "leader_user_id" field.
-func LeaderUserIDGT(v uint32) predicate.Department {
-	return predicate.Department(sql.FieldGT(FieldLeaderUserID, v))
-}
-
-// LeaderUserIDGTE applies the GTE predicate on the "leader_user_id" field.
-func LeaderUserIDGTE(v uint32) predicate.Department {
-	return predicate.Department(sql.FieldGTE(FieldLeaderUserID, v))
-}
-
-// LeaderUserIDLT applies the LT predicate on the "leader_user_id" field.
-func LeaderUserIDLT(v uint32) predicate.Department {
-	return predicate.Department(sql.FieldLT(FieldLeaderUserID, v))
-}
-
-// LeaderUserIDLTE applies the LTE predicate on the "leader_user_id" field.
-func LeaderUserIDLTE(v uint32) predicate.Department {
-	return predicate.Department(sql.FieldLTE(FieldLeaderUserID, v))
 }
 
 // LeaderUserIDIsNil applies the IsNil predicate on the "leader_user_id" field.
@@ -641,6 +622,29 @@ func HasUsers() predicate.Department {
 func HasUsersWith(preds ...predicate.User) predicate.Department {
 	return predicate.Department(func(s *sql.Selector) {
 		step := newUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasLeader applies the HasEdge predicate on the "leader" edge.
+func HasLeader() predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, LeaderTable, LeaderColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasLeaderWith applies the HasEdge predicate on the "leader" edge with a given conditions (other predicates).
+func HasLeaderWith(preds ...predicate.User) predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := newLeaderStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -9,7 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/wenpiner/last-admin-core/rpc/ent/department"
+	"github.com/wenpiner/last-admin-core/rpc/ent/user"
 )
 
 // 部门表 / Department table
@@ -34,7 +36,7 @@ type Department struct {
 	// 父部门ID / Parent department ID
 	ParentID *uint32 `json:"parent_id,omitempty"`
 	// 部门负责人用户ID / Leader user ID
-	LeaderUserID *uint32 `json:"leader_user_id,omitempty"`
+	LeaderUserID *uuid.UUID `json:"leader_user_id,omitempty"`
 	// 部门描述 / Department description
 	Description *string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -51,9 +53,11 @@ type DepartmentEdges struct {
 	Children []*Department `json:"children,omitempty"`
 	// Users holds the value of the users edge.
 	Users []*User `json:"users,omitempty"`
+	// Leader holds the value of the leader edge.
+	Leader *User `json:"leader,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // ParentOrErr returns the Parent value or an error if the edge
@@ -85,14 +89,27 @@ func (e DepartmentEdges) UsersOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "users"}
 }
 
+// LeaderOrErr returns the Leader value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DepartmentEdges) LeaderOrErr() (*User, error) {
+	if e.Leader != nil {
+		return e.Leader, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "leader"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Department) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case department.FieldLeaderUserID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case department.FieldState:
 			values[i] = new(sql.NullBool)
-		case department.FieldID, department.FieldSort, department.FieldParentID, department.FieldLeaderUserID:
+		case department.FieldID, department.FieldSort, department.FieldParentID:
 			values[i] = new(sql.NullInt64)
 		case department.FieldDeptName, department.FieldDeptCode, department.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -170,11 +187,11 @@ func (_m *Department) assignValues(columns []string, values []any) error {
 				*_m.ParentID = uint32(value.Int64)
 			}
 		case department.FieldLeaderUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field leader_user_id", values[i])
 			} else if value.Valid {
-				_m.LeaderUserID = new(uint32)
-				*_m.LeaderUserID = uint32(value.Int64)
+				_m.LeaderUserID = new(uuid.UUID)
+				*_m.LeaderUserID = *value.S.(*uuid.UUID)
 			}
 		case department.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -209,6 +226,11 @@ func (_m *Department) QueryChildren() *DepartmentQuery {
 // QueryUsers queries the "users" edge of the Department entity.
 func (_m *Department) QueryUsers() *UserQuery {
 	return NewDepartmentClient(_m.config).QueryUsers(_m)
+}
+
+// QueryLeader queries the "leader" edge of the Department entity.
+func (_m *Department) QueryLeader() *UserQuery {
+	return NewDepartmentClient(_m.config).QueryLeader(_m)
 }
 
 // Update returns a builder for updating this Department.

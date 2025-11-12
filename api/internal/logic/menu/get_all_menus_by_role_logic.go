@@ -67,17 +67,18 @@ func ConvertToMenuInfo(menus []*core.MenuInfo) []types.MenuInfo {
 			}
 		}
 		menu := types.MenuInfo{
-			Path:      pointer.GetString(m.MenuPath),
-			Name:      pointer.GetString(m.MenuCode),
-			Redirect:  m.Redirect,
-			Component: m.Component,
-			Meta:      meta,
-			ParentId:  m.ParentId,
-			State:     m.State,
-			ID:        *m.Id,
-			Service:   pointer.GetString(m.ServiceName),
+			Path:       pointer.GetString(m.MenuPath),
+			Name:       pointer.GetString(m.MenuCode),
+			Redirect:   m.Redirect,
+			Component:  m.Component,
+			Meta:       meta,
+			ParentId:   m.ParentId,
+			State:      m.State,
+			ID:         *m.Id,
+			Service:    pointer.GetString(m.ServiceName),
 			Permission: m.Permission,
 			CreatedAt:  m.CreatedAt,
+			Type:       pointer.GetString(m.MenuType),
 		}
 
 		rMenus = append(rMenus, menu)

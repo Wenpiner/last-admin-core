@@ -1,0 +1,76 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "部门相关接口"
+	desc:    "部门相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	DepartmentInfo {
+		ID             *uint32 `json:"id,optional"` // 部门ID / Department ID
+		CreatedAt      *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt      *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		DeptName       string  `json:"deptName"` // 部门名称 / Department name
+		DeptCode       string  `json:"deptCode"` // 部门编码 / Department code
+		ParentId       *uint32 `json:"parentId"` // 父部门ID / Parent department ID
+		SortOrder      int32   `json:"sortOrder"` // 排序 / Sort
+		LeaderUserId   string  `json:"leaderUserId"` // 部门负责人用户ID / Leader user ID
+		State          bool    `json:"state"` // 状态 / State
+		Description    *string `json:"description,optional"` // 部门描述 / Department description
+		LeaderUsername *string `json:"leaderUsername,optional"` // 部门负责人用户名 / Leader username
+		LeaderPhone    *string `json:"leaderPhone,optional"` // 部门负责人手机号 / Leader phone
+		LeaderEmail    *string `json:"leaderEmail,optional"` // 部门负责人邮箱 / Leader email
+	}
+	DepartmentListRequest {
+		PageRequest
+		DeptName       string `json:"deptName,optional"` // 部门名称 / Department name
+		DeptCode       string `json:"deptCode,optional"` // 部门编码 / Department code
+		ParentId       uint32 `json:"parentId,optional"` // 父部门ID / Parent department ID
+		LeaderUsername string `json:"leaderUsername,optional"` // 部门负责人用户名 / Leader username
+	}
+	DepartmentListInfo {
+		BaseListInfo
+		List []DepartmentInfo `json:"list"` // 部门列表 / Department list
+	}
+	DepartmentListResponse {
+		BaseDataInfo
+		Data DepartmentListInfo `json:"data"` // 部门列表 / Department list
+	}
+	ModifyDepartmentResponse {
+		BaseDataInfo
+		Data DepartmentInfo `json:"data"` // 部门信息 / Department information
+	}
+)
+
+@server (
+	prefix:     /department
+	group:      department
+	tags:       "部门"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取部门列表"
+	)
+	@handler ListDepartmentHandler
+	post /list (DepartmentListRequest) returns (DepartmentListResponse)
+
+	@doc (
+		summary: "创建或更新部门"
+	)
+	@handler CreateOrUpdateDepartmentHandler
+	post /createOrUpdate (DepartmentInfo) returns (ModifyDepartmentResponse)
+
+	@doc (
+		summary: "删除部门"
+	)
+	@handler DeleteDepartmentHandler
+	post /delete (ID32Request) returns (BaseResponse)
+}
+

@@ -38,15 +38,14 @@ func (l *GetTotpStatusLogic) GetTotpStatus(in *core.UUIDRequest) (*core.TotpStat
 
 	// 查询用户的TOTP记录
 	totpRecord, err := l.svcCtx.DBEnt.UserTotp.Query().
-		Where(usertotp.UserIDEQ(userID)).
+		Where(usertotp.IDEQ(userID)).
 		First(l.ctx)
 	if err != nil {
 		// 如果没有找到TOTP记录，返回未启用状态
 		return &core.TotpStatusResponse{
-			IsEnabled:        false,
+			State:        false,
 			IsVerified:       false,
 			BackupCodesCount: 0,
-			FailureCount:     0,
 		}, nil
 	}
 
@@ -61,10 +60,9 @@ func (l *GetTotpStatusLogic) GetTotpStatus(in *core.UUIDRequest) (*core.TotpStat
 
 	// 构建响应
 	response := &core.TotpStatusResponse{
-		IsEnabled:        totpRecord.IsEnabled,
+		State:        totpRecord.State,
 		IsVerified:       totpRecord.IsVerified,
 		BackupCodesCount: backupCodesCount,
-		FailureCount:     int32(totpRecord.FailureCount),
 	}
 
 	// 设置可选字段
@@ -76,11 +74,5 @@ func (l *GetTotpStatusLogic) GetTotpStatus(in *core.UUIDRequest) (*core.TotpStat
 		timestamp := totpRecord.LastUsedAt.UnixMilli()
 		response.LastUsedAt = &timestamp
 	}
-
-	if totpRecord.LockedUntil != nil {
-		timestamp := totpRecord.LockedUntil.UnixMilli()
-		response.LockedUntil = &timestamp
-	}
-
 	return response, nil
 }

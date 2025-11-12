@@ -1,0 +1,70 @@
+syntax = "v1"
+
+info (
+	title:   "岗位相关接口"
+	desc:    "岗位相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+    PositionInfo {
+        ID           *uint32 `json:"id,optional"` // 岗位ID / Position ID
+        CreatedAt    *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+        UpdatedAt    *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+        PositionName string  `json:"positionName"` // 岗位名称 / Position name
+        PositionCode string  `json:"positionCode"` // 岗位编码 / Position code
+        SortOrder    int32   `json:"sortOrder"` // 排序 / Sort
+        State        *bool   `json:"state,optional"` // 状态 / State
+        Description  *string `json:"description,optional"` // 岗位描述 / Position description
+    }
+    PositionListRequest {
+        PageRequest
+        PositionName string `json:"positionName,optional"` // 岗位名称 / Position name
+        PositionCode string `json:"positionCode,optional"` // 岗位编码 / Position code
+        State        bool   `json:"state,optional"` // 状态 / State
+    }
+
+    PositionListInfo {
+        BaseListInfo
+        List []PositionInfo `json:"list"` // 岗位列表 / Position list
+    }
+
+    PositionListResponse {
+        BaseDataInfo
+        Data []PositionListInfo `json:"data"` // 岗位列表 / Position list
+    }
+    ModifyPositionResponse {
+        BaseDataInfo
+        Data PositionInfo `json:"data"` // 岗位信息 / Position information
+    }
+)
+
+@server (
+    prefix:     /position
+    group:      position
+    tags:       "岗位"
+    middleware: AuthMiddleware
+    jwt:        Auth
+)
+service Core {
+    @doc (
+        summary: "获取岗位列表"
+    )
+    @handler ListPositionHandler
+    post /list (PositionListRequest) returns (PositionListResponse)
+
+    @doc (
+        summary: "创建或更新岗位"
+    )
+    @handler CreateOrUpdatePositionHandler
+    post /createOrUpdate (PositionInfo) returns (ModifyPositionResponse)
+
+    @doc (
+        summary: "删除岗位"
+    )
+    @handler DeletePositionHandler
+    post /delete (ID32Request) returns (BaseResponse)
+}
+

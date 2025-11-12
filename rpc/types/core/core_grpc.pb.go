@@ -610,6 +610,9 @@ const (
 	RoleService_GetRole_FullMethodName            = "/core.RoleService/GetRole"
 	RoleService_ListRole_FullMethodName           = "/core.RoleService/ListRole"
 	RoleService_GetRoleByValue_FullMethodName     = "/core.RoleService/GetRoleByValue"
+	RoleService_AssignMenu_FullMethodName         = "/core.RoleService/AssignMenu"
+	RoleService_AssignApi_FullMethodName          = "/core.RoleService/AssignApi"
+	RoleService_GetMenu_FullMethodName            = "/core.RoleService/GetMenu"
 )
 
 // RoleServiceClient is the client API for RoleService service.
@@ -626,6 +629,12 @@ type RoleServiceClient interface {
 	ListRole(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
 	// 通过值获取角色
 	GetRoleByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleInfo, error)
+	// 为角色分配菜单
+	AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 为角色分配API
+	AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 获取角色菜单
+	GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error)
 }
 
 type roleServiceClient struct {
@@ -686,6 +695,36 @@ func (c *roleServiceClient) GetRoleByValue(ctx context.Context, in *StringReques
 	return out, nil
 }
 
+func (c *roleServiceClient) AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, RoleService_AssignMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, RoleService_AssignApi_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleMenuListResponse)
+	err := c.cc.Invoke(ctx, RoleService_GetMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoleServiceServer is the server API for RoleService service.
 // All implementations must embed UnimplementedRoleServiceServer
 // for forward compatibility
@@ -700,6 +739,12 @@ type RoleServiceServer interface {
 	ListRole(context.Context, *RoleListRequest) (*RoleListResponse, error)
 	// 通过值获取角色
 	GetRoleByValue(context.Context, *StringRequest) (*RoleInfo, error)
+	// 为角色分配菜单
+	AssignMenu(context.Context, *RoleMenuRequest) (*BaseResponse, error)
+	// 为角色分配API
+	AssignApi(context.Context, *RoleApiRequest) (*BaseResponse, error)
+	// 获取角色菜单
+	GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error)
 	mustEmbedUnimplementedRoleServiceServer()
 }
 
@@ -721,6 +766,15 @@ func (UnimplementedRoleServiceServer) ListRole(context.Context, *RoleListRequest
 }
 func (UnimplementedRoleServiceServer) GetRoleByValue(context.Context, *StringRequest) (*RoleInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRoleByValue not implemented")
+}
+func (UnimplementedRoleServiceServer) AssignMenu(context.Context, *RoleMenuRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssignMenu not implemented")
+}
+func (UnimplementedRoleServiceServer) AssignApi(context.Context, *RoleApiRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssignApi not implemented")
+}
+func (UnimplementedRoleServiceServer) GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
 }
 func (UnimplementedRoleServiceServer) mustEmbedUnimplementedRoleServiceServer() {}
 
@@ -825,6 +879,60 @@ func _RoleService_GetRoleByValue_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoleService_AssignMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleMenuRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).AssignMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_AssignMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).AssignMenu(ctx, req.(*RoleMenuRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleService_AssignApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleApiRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).AssignApi(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_AssignApi_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).AssignApi(ctx, req.(*RoleApiRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleService_GetMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ID32Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).GetMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_GetMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).GetMenu(ctx, req.(*ID32Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RoleService_ServiceDesc is the grpc.ServiceDesc for RoleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -851,6 +959,18 @@ var RoleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRoleByValue",
 			Handler:    _RoleService_GetRoleByValue_Handler,
+		},
+		{
+			MethodName: "AssignMenu",
+			Handler:    _RoleService_AssignMenu_Handler,
+		},
+		{
+			MethodName: "AssignApi",
+			Handler:    _RoleService_AssignApi_Handler,
+		},
+		{
+			MethodName: "GetMenu",
+			Handler:    _RoleService_GetMenu_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -2445,18 +2565,13 @@ var OauthProviderService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	TokenService_CreateToken_FullMethodName            = "/core.TokenService/CreateToken"
-	TokenService_GetToken_FullMethodName               = "/core.TokenService/GetToken"
-	TokenService_GetTokenByValue_FullMethodName        = "/core.TokenService/GetTokenByValue"
-	TokenService_ValidateToken_FullMethodName          = "/core.TokenService/ValidateToken"
-	TokenService_UpdateToken_FullMethodName            = "/core.TokenService/UpdateToken"
-	TokenService_DeleteToken_FullMethodName            = "/core.TokenService/DeleteToken"
-	TokenService_RevokeToken_FullMethodName            = "/core.TokenService/RevokeToken"
-	TokenService_RevokeUserTokens_FullMethodName       = "/core.TokenService/RevokeUserTokens"
-	TokenService_ListToken_FullMethodName              = "/core.TokenService/ListToken"
-	TokenService_CleanExpiredTokens_FullMethodName     = "/core.TokenService/CleanExpiredTokens"
-	TokenService_UpdateTokenLastUsed_FullMethodName    = "/core.TokenService/UpdateTokenLastUsed"
-	TokenService_GetTokenByRefreshToken_FullMethodName = "/core.TokenService/GetTokenByRefreshToken"
+	TokenService_CreateToken_FullMethodName         = "/core.TokenService/CreateToken"
+	TokenService_GetTokenByValue_FullMethodName     = "/core.TokenService/GetTokenByValue"
+	TokenService_UpdateToken_FullMethodName         = "/core.TokenService/UpdateToken"
+	TokenService_DeleteToken_FullMethodName         = "/core.TokenService/DeleteToken"
+	TokenService_ListToken_FullMethodName           = "/core.TokenService/ListToken"
+	TokenService_CleanExpiredTokens_FullMethodName  = "/core.TokenService/CleanExpiredTokens"
+	TokenService_UpdateTokenLastUsed_FullMethodName = "/core.TokenService/UpdateTokenLastUsed"
 )
 
 // TokenServiceClient is the client API for TokenService service.
@@ -2467,28 +2582,18 @@ const (
 type TokenServiceClient interface {
 	// 创建Token
 	CreateToken(ctx context.Context, in *CreateTokenRequest, opts ...grpc.CallOption) (*TokenInfo, error)
-	// 获取Token
-	GetToken(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*TokenInfo, error)
 	// 根据Token值获取Token信息
 	GetTokenByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*TokenInfo, error)
-	// 验证Token
-	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 	// 更新Token
 	UpdateToken(ctx context.Context, in *TokenInfo, opts ...grpc.CallOption) (*TokenInfo, error)
 	// 删除Token
 	DeleteToken(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*BaseResponse, error)
-	// 撤销Token
-	RevokeToken(ctx context.Context, in *RevokeTokenRequest, opts ...grpc.CallOption) (*BaseResponse, error)
-	// 撤销用户的所有Token（除了blockUserAllToken功能）
-	RevokeUserTokens(ctx context.Context, in *RevokeUserTokensRequest, opts ...grpc.CallOption) (*BaseResponse, error)
 	// 获取Token列表
 	ListToken(ctx context.Context, in *TokenListRequest, opts ...grpc.CallOption) (*TokenListResponse, error)
 	// 清理过期Token
 	CleanExpiredTokens(ctx context.Context, in *CleanExpiredTokensRequest, opts ...grpc.CallOption) (*CleanExpiredTokensResponse, error)
 	// 更新Token最后使用时间
 	UpdateTokenLastUsed(ctx context.Context, in *UpdateTokenLastUsedRequest, opts ...grpc.CallOption) (*BaseResponse, error)
-	// 根据刷新Token ID获取相关的访问Token
-	GetTokenByRefreshToken(ctx context.Context, in *GetTokenByRefreshTokenRequest, opts ...grpc.CallOption) (*TokenInfo, error)
 }
 
 type tokenServiceClient struct {
@@ -2509,30 +2614,10 @@ func (c *tokenServiceClient) CreateToken(ctx context.Context, in *CreateTokenReq
 	return out, nil
 }
 
-func (c *tokenServiceClient) GetToken(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*TokenInfo, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenInfo)
-	err := c.cc.Invoke(ctx, TokenService_GetToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tokenServiceClient) GetTokenByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*TokenInfo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TokenInfo)
 	err := c.cc.Invoke(ctx, TokenService_GetTokenByValue_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tokenServiceClient) ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateTokenResponse)
-	err := c.cc.Invoke(ctx, TokenService_ValidateToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2553,26 +2638,6 @@ func (c *tokenServiceClient) DeleteToken(ctx context.Context, in *ID32Request, o
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BaseResponse)
 	err := c.cc.Invoke(ctx, TokenService_DeleteToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tokenServiceClient) RevokeToken(ctx context.Context, in *RevokeTokenRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BaseResponse)
-	err := c.cc.Invoke(ctx, TokenService_RevokeToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tokenServiceClient) RevokeUserTokens(ctx context.Context, in *RevokeUserTokensRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BaseResponse)
-	err := c.cc.Invoke(ctx, TokenService_RevokeUserTokens_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2609,16 +2674,6 @@ func (c *tokenServiceClient) UpdateTokenLastUsed(ctx context.Context, in *Update
 	return out, nil
 }
 
-func (c *tokenServiceClient) GetTokenByRefreshToken(ctx context.Context, in *GetTokenByRefreshTokenRequest, opts ...grpc.CallOption) (*TokenInfo, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenInfo)
-	err := c.cc.Invoke(ctx, TokenService_GetTokenByRefreshToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // TokenServiceServer is the server API for TokenService service.
 // All implementations must embed UnimplementedTokenServiceServer
 // for forward compatibility
@@ -2627,28 +2682,18 @@ func (c *tokenServiceClient) GetTokenByRefreshToken(ctx context.Context, in *Get
 type TokenServiceServer interface {
 	// 创建Token
 	CreateToken(context.Context, *CreateTokenRequest) (*TokenInfo, error)
-	// 获取Token
-	GetToken(context.Context, *ID32Request) (*TokenInfo, error)
 	// 根据Token值获取Token信息
 	GetTokenByValue(context.Context, *StringRequest) (*TokenInfo, error)
-	// 验证Token
-	ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error)
 	// 更新Token
 	UpdateToken(context.Context, *TokenInfo) (*TokenInfo, error)
 	// 删除Token
 	DeleteToken(context.Context, *ID32Request) (*BaseResponse, error)
-	// 撤销Token
-	RevokeToken(context.Context, *RevokeTokenRequest) (*BaseResponse, error)
-	// 撤销用户的所有Token（除了blockUserAllToken功能）
-	RevokeUserTokens(context.Context, *RevokeUserTokensRequest) (*BaseResponse, error)
 	// 获取Token列表
 	ListToken(context.Context, *TokenListRequest) (*TokenListResponse, error)
 	// 清理过期Token
 	CleanExpiredTokens(context.Context, *CleanExpiredTokensRequest) (*CleanExpiredTokensResponse, error)
 	// 更新Token最后使用时间
 	UpdateTokenLastUsed(context.Context, *UpdateTokenLastUsedRequest) (*BaseResponse, error)
-	// 根据刷新Token ID获取相关的访问Token
-	GetTokenByRefreshToken(context.Context, *GetTokenByRefreshTokenRequest) (*TokenInfo, error)
 	mustEmbedUnimplementedTokenServiceServer()
 }
 
@@ -2659,26 +2704,14 @@ type UnimplementedTokenServiceServer struct {
 func (UnimplementedTokenServiceServer) CreateToken(context.Context, *CreateTokenRequest) (*TokenInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateToken not implemented")
 }
-func (UnimplementedTokenServiceServer) GetToken(context.Context, *ID32Request) (*TokenInfo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetToken not implemented")
-}
 func (UnimplementedTokenServiceServer) GetTokenByValue(context.Context, *StringRequest) (*TokenInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTokenByValue not implemented")
-}
-func (UnimplementedTokenServiceServer) ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 func (UnimplementedTokenServiceServer) UpdateToken(context.Context, *TokenInfo) (*TokenInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateToken not implemented")
 }
 func (UnimplementedTokenServiceServer) DeleteToken(context.Context, *ID32Request) (*BaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteToken not implemented")
-}
-func (UnimplementedTokenServiceServer) RevokeToken(context.Context, *RevokeTokenRequest) (*BaseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RevokeToken not implemented")
-}
-func (UnimplementedTokenServiceServer) RevokeUserTokens(context.Context, *RevokeUserTokensRequest) (*BaseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RevokeUserTokens not implemented")
 }
 func (UnimplementedTokenServiceServer) ListToken(context.Context, *TokenListRequest) (*TokenListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListToken not implemented")
@@ -2688,9 +2721,6 @@ func (UnimplementedTokenServiceServer) CleanExpiredTokens(context.Context, *Clea
 }
 func (UnimplementedTokenServiceServer) UpdateTokenLastUsed(context.Context, *UpdateTokenLastUsedRequest) (*BaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTokenLastUsed not implemented")
-}
-func (UnimplementedTokenServiceServer) GetTokenByRefreshToken(context.Context, *GetTokenByRefreshTokenRequest) (*TokenInfo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTokenByRefreshToken not implemented")
 }
 func (UnimplementedTokenServiceServer) mustEmbedUnimplementedTokenServiceServer() {}
 
@@ -2723,24 +2753,6 @@ func _TokenService_CreateToken_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TokenService_GetToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ID32Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TokenServiceServer).GetToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TokenService_GetToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenServiceServer).GetToken(ctx, req.(*ID32Request))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TokenService_GetTokenByValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StringRequest)
 	if err := dec(in); err != nil {
@@ -2755,24 +2767,6 @@ func _TokenService_GetTokenByValue_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokenServiceServer).GetTokenByValue(ctx, req.(*StringRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TokenService_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TokenServiceServer).ValidateToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TokenService_ValidateToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenServiceServer).ValidateToken(ctx, req.(*ValidateTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2809,42 +2803,6 @@ func _TokenService_DeleteToken_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokenServiceServer).DeleteToken(ctx, req.(*ID32Request))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TokenService_RevokeToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TokenServiceServer).RevokeToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TokenService_RevokeToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenServiceServer).RevokeToken(ctx, req.(*RevokeTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TokenService_RevokeUserTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeUserTokensRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TokenServiceServer).RevokeUserTokens(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TokenService_RevokeUserTokens_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenServiceServer).RevokeUserTokens(ctx, req.(*RevokeUserTokensRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2903,24 +2861,6 @@ func _TokenService_UpdateTokenLastUsed_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TokenService_GetTokenByRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTokenByRefreshTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TokenServiceServer).GetTokenByRefreshToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TokenService_GetTokenByRefreshToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenServiceServer).GetTokenByRefreshToken(ctx, req.(*GetTokenByRefreshTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // TokenService_ServiceDesc is the grpc.ServiceDesc for TokenService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2933,16 +2873,8 @@ var TokenService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TokenService_CreateToken_Handler,
 		},
 		{
-			MethodName: "GetToken",
-			Handler:    _TokenService_GetToken_Handler,
-		},
-		{
 			MethodName: "GetTokenByValue",
 			Handler:    _TokenService_GetTokenByValue_Handler,
-		},
-		{
-			MethodName: "ValidateToken",
-			Handler:    _TokenService_ValidateToken_Handler,
 		},
 		{
 			MethodName: "UpdateToken",
@@ -2951,14 +2883,6 @@ var TokenService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteToken",
 			Handler:    _TokenService_DeleteToken_Handler,
-		},
-		{
-			MethodName: "RevokeToken",
-			Handler:    _TokenService_RevokeToken_Handler,
-		},
-		{
-			MethodName: "RevokeUserTokens",
-			Handler:    _TokenService_RevokeUserTokens_Handler,
 		},
 		{
 			MethodName: "ListToken",
@@ -2971,10 +2895,6 @@ var TokenService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateTokenLastUsed",
 			Handler:    _TokenService_UpdateTokenLastUsed_Handler,
-		},
-		{
-			MethodName: "GetTokenByRefreshToken",
-			Handler:    _TokenService_GetTokenByRefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
