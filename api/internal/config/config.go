@@ -25,7 +25,5 @@ type Config struct {
 }
 
 type ProjectConfig struct {
-	OpenRegister      bool   `json:",default=false"` // 是否开启注册
-	OpenInit          bool   `json:",default=true"`  // 是否运行初始化
 	RegisterRoleValue string `json:",default=admin"` // 注册用户默认角色
 }

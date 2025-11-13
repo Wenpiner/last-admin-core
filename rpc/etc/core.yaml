@@ -18,48 +18,38 @@ OAuthStateSecret: "7kR9mL2pQ5xW8vN3jB6cF1dE4sT0uY9aZ"
 
 CasbinConf:
   ModelText: |
-    # model.conf
-    # 这是一个基于角色的访问控制 (RBAC) 模型，支持 API 路径的模糊匹配。
-
     [request_definition]
-    # r = sub, obj, act
-    # r.sub: 请求的主体，通常是用户ID或用户名。
-    # r.obj: 请求的客体，通常是 API 路径。
-    # r.act: 请求的操作，通常是 HTTP 方法 (GET, POST, PUT, DELETE)。
-    r = sub, obj, act
+    # r = sub, dom, obj, act
+    # r.sub: 主体 (用户)
+    # r.dom: 域 (在这里就是您的“资源类型”，如 'api', 'configuration')
+    # r.obj: 客体 (资源路径)
+    # r.act: 动作 (HTTP方法 或 'read'/'write'/'view')
+    r = sub, dom, obj, act
 
     [policy_definition]
-    # p = sub, obj, act
-    # p.sub: 策略的主体，在这里代表一个“角色”。
-    # p.obj: 策略的客体，代表一个 API 路径模式。
-    # p.act: 策略的操作，代表允许的 HTTP 方法。
-    p = sub, obj, act
+    # p = sub, dom, obj, act
+    # p.sub: 主体 (角色)
+    # p.dom: 域 (资源类型)
+    # p.obj: 客体 (资源路径)
+    # p.act: 动作
+    p = sub, dom, obj, act
 
     [role_definition]
     # g = _, _
-    # 定义了分组或角色关系。
-    # 格式通常是：g, user_or_role_A, role_B
-    # 表示 user_or_role_A 拥有 role_B 的权限（user 属于 role，或 role_A 继承 role_B）。
+    # 我们保持角色是全局的，不分域
     g = _, _
 
     [policy_effect]
-    # e = some(where (p.eft == allow))
-    # 策略生效器：只要有一个匹配的策略允许访问，就允许。
-    # 这是最常见的“默认拒绝，显式允许”模型。
-    # 如果需要拒绝策略，可以修改为：e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
     e = some(where (p.eft == allow))
 
     [matchers]
-    # m = g(r.sub, p.sub) && keyMatch2(r.obj,p.obj) && r.act == p.act
-    # 匹配器：定义如何将请求 (r) 与策略 (p) 进行匹配。
-    # 1. g(r.sub, p.sub): 检查请求中的主体 (r.sub，即用户) 是否属于策略中的主体 (p.sub，即角色)。
-    #    Casbin 会自动处理 g 关系中的继承，例如如果 user_alice 属于 admin 角色，admin 角色属于 viewer 角色，
-    #    那么 g(user_alice, viewer) 也会返回 true。
-    # 2. keyMatch2(r.obj, p.obj): 使用 keyMatch2 函数进行 API 路径匹配。
-    #    支持通配符 '*' (匹配零个或多个字符) 和 '{param}' (匹配一个路径段并捕获)。
-    #    例如：p.obj 可以是 "/api/v1/users/*" 或 "/api/v1/products/{id}"。
-    # 3. r.act == p.act: 请求的操作 (HTTP 方法) 必须与策略的操作精确匹配。
-    m = g(r.sub, p.sub) && keyMatch2(r.obj,p.obj) && r.act == p.act
+    # m = g(r.sub, p.sub) && r.dom == p.dom && keyMatch2(r.obj,p.obj) && (r.act == p.act || p.act == '*')
+    # 核心改动：增加了 r.dom == p.dom
+    # 1. 检查用户(r.sub)是否属于角色(p.sub)
+    # 2. 检查请求的域(r.dom)是否与策略的域(p.dom)完全匹配
+    # 3. 检查资源路径(r.obj)是否匹配 (继续使用 keyMatch2)
+    # 4. 检查动作(r.act)是否匹配 (如果 p.act == '*' 则表示允许所有动作)
+    m = g(r.sub, p.sub) && r.dom == p.dom && keyMatch2(r.obj, p.obj) && (r.act == p.act || p.act == '*')
 
 # Redis配置
 RedisConf:

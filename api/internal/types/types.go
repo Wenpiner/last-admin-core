@@ -109,6 +109,35 @@ type CleanExpiredTokensResponse struct {
 	CleanedCount int64  `json:"cleanedCount"` // 清理的令牌数量 / Number of cleaned tokens
 }
 
+type ConfigurationInfo struct {
+	Key         string  `json:"key"`                  // 配置键 / Configuration key
+	Value       string  `json:"value"`                // 配置值 / Configuration value
+	Name        string  `json:"name"`                 // 配置名称 / Configuration name
+	Group       string  `json:"group"`                // 配置分组 / Configuration group
+	Description *string `json:"description,optional"` // 配置描述 / Configuration description
+}
+
+type ConfigurationListInfo struct {
+	BaseListInfo
+	List []ConfigurationInfo `json:"list"` // 配置列表 / Configuration list
+}
+
+type ConfigurationListRequest struct {
+	PageRequest
+	Key   string `json:"key,optional"`   // 配置键 / Configuration key
+	Name  string `json:"name,optional"`  // 配置名称 / Configuration name
+	Group string `json:"group,optional"` // 配置分组 / Configuration group
+}
+
+type ConfigurationListResponse struct {
+	BaseDataInfo
+	Data ConfigurationListInfo `json:"data"` // 配置列表 / Configuration list
+}
+
+type DeleteConfigurationRequest struct {
+	Key string `json:"key"` // 配置键 / Configuration key
+}
+
 type DeleteMenuRequest struct {
 	ID uint32 `json:"id"` // 菜单ID / Menu ID
 }
@@ -286,6 +315,11 @@ type Meta struct {
 	KeepAlive     *bool   `json:"keepAlive,optional"`     // 是否缓存 / Whether to cache
 }
 
+type ModifyConfigurationResponse struct {
+	BaseDataInfo
+	Data ConfigurationInfo `json:"data"` // 配置信息 / Configuration information
+}
+
 type ModifyDepartmentResponse struct {
 	BaseDataInfo
 	Data DepartmentInfo `json:"data"` // 部门信息 / Department information
@@ -407,6 +441,16 @@ type RoleApiListResponse struct {
 type RoleApiRequest struct {
 	RoleId uint32   `json:"roleId"` // 角色ID / Role ID
 	ApiIds []uint32 `json:"apiIds"` // API ID / API ID
+}
+
+type RoleConfigurationGroupListResponse struct {
+	BaseDataInfo
+	Data []string `json:"data"` // 配置项分组列表 / Configuration group list
+}
+
+type RoleConfigurationGroupRequest struct {
+	RoleValue           string   `json:"roleValue"`           // 角色值 / Role value
+	ConfigurationGroups []string `json:"configurationGroups"` // 配置项分组 / Configuration groups
 }
 
 type RoleInfo struct {

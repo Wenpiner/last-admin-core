@@ -605,14 +605,16 @@ var DictService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	RoleService_CreateOrUpdateRole_FullMethodName = "/core.RoleService/CreateOrUpdateRole"
-	RoleService_DeleteRole_FullMethodName         = "/core.RoleService/DeleteRole"
-	RoleService_GetRole_FullMethodName            = "/core.RoleService/GetRole"
-	RoleService_ListRole_FullMethodName           = "/core.RoleService/ListRole"
-	RoleService_GetRoleByValue_FullMethodName     = "/core.RoleService/GetRoleByValue"
-	RoleService_AssignMenu_FullMethodName         = "/core.RoleService/AssignMenu"
-	RoleService_AssignApi_FullMethodName          = "/core.RoleService/AssignApi"
-	RoleService_GetMenu_FullMethodName            = "/core.RoleService/GetMenu"
+	RoleService_CreateOrUpdateRole_FullMethodName       = "/core.RoleService/CreateOrUpdateRole"
+	RoleService_DeleteRole_FullMethodName               = "/core.RoleService/DeleteRole"
+	RoleService_GetRole_FullMethodName                  = "/core.RoleService/GetRole"
+	RoleService_ListRole_FullMethodName                 = "/core.RoleService/ListRole"
+	RoleService_GetRoleByValue_FullMethodName           = "/core.RoleService/GetRoleByValue"
+	RoleService_AssignMenu_FullMethodName               = "/core.RoleService/AssignMenu"
+	RoleService_AssignApi_FullMethodName                = "/core.RoleService/AssignApi"
+	RoleService_GetMenu_FullMethodName                  = "/core.RoleService/GetMenu"
+	RoleService_AssignConfigurationGroup_FullMethodName = "/core.RoleService/AssignConfigurationGroup"
+	RoleService_GetConfigurationGroup_FullMethodName    = "/core.RoleService/GetConfigurationGroup"
 )
 
 // RoleServiceClient is the client API for RoleService service.
@@ -635,6 +637,10 @@ type RoleServiceClient interface {
 	AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error)
 	// 获取角色菜单
 	GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error)
+	// 为角色分配配置项分组权限
+	AssignConfigurationGroup(ctx context.Context, in *RoleConfigurationGroupRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error)
+	// 获取角色配置项分组权限
+	GetConfigurationGroup(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error)
 }
 
 type roleServiceClient struct {
@@ -725,6 +731,26 @@ func (c *roleServiceClient) GetMenu(ctx context.Context, in *ID32Request, opts .
 	return out, nil
 }
 
+func (c *roleServiceClient) AssignConfigurationGroup(ctx context.Context, in *RoleConfigurationGroupRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleConfigurationGroupListResponse)
+	err := c.cc.Invoke(ctx, RoleService_AssignConfigurationGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) GetConfigurationGroup(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleConfigurationGroupListResponse)
+	err := c.cc.Invoke(ctx, RoleService_GetConfigurationGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoleServiceServer is the server API for RoleService service.
 // All implementations must embed UnimplementedRoleServiceServer
 // for forward compatibility
@@ -745,6 +771,10 @@ type RoleServiceServer interface {
 	AssignApi(context.Context, *RoleApiRequest) (*BaseResponse, error)
 	// 获取角色菜单
 	GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error)
+	// 为角色分配配置项分组权限
+	AssignConfigurationGroup(context.Context, *RoleConfigurationGroupRequest) (*RoleConfigurationGroupListResponse, error)
+	// 获取角色配置项分组权限
+	GetConfigurationGroup(context.Context, *StringRequest) (*RoleConfigurationGroupListResponse, error)
 	mustEmbedUnimplementedRoleServiceServer()
 }
 
@@ -775,6 +805,12 @@ func (UnimplementedRoleServiceServer) AssignApi(context.Context, *RoleApiRequest
 }
 func (UnimplementedRoleServiceServer) GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
+}
+func (UnimplementedRoleServiceServer) AssignConfigurationGroup(context.Context, *RoleConfigurationGroupRequest) (*RoleConfigurationGroupListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssignConfigurationGroup not implemented")
+}
+func (UnimplementedRoleServiceServer) GetConfigurationGroup(context.Context, *StringRequest) (*RoleConfigurationGroupListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConfigurationGroup not implemented")
 }
 func (UnimplementedRoleServiceServer) mustEmbedUnimplementedRoleServiceServer() {}
 
@@ -933,6 +969,42 @@ func _RoleService_GetMenu_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoleService_AssignConfigurationGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleConfigurationGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).AssignConfigurationGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_AssignConfigurationGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).AssignConfigurationGroup(ctx, req.(*RoleConfigurationGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleService_GetConfigurationGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StringRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).GetConfigurationGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_GetConfigurationGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).GetConfigurationGroup(ctx, req.(*StringRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RoleService_ServiceDesc is the grpc.ServiceDesc for RoleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -971,6 +1043,14 @@ var RoleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMenu",
 			Handler:    _RoleService_GetMenu_Handler,
+		},
+		{
+			MethodName: "AssignConfigurationGroup",
+			Handler:    _RoleService_AssignConfigurationGroup_Handler,
+		},
+		{
+			MethodName: "GetConfigurationGroup",
+			Handler:    _RoleService_GetConfigurationGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -2990,6 +3070,255 @@ var InitService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Init",
 			Handler:    _InitService_Init_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rpc/core.proto",
+}
+
+const (
+	ConfigurationService_GetConfiguration_FullMethodName            = "/core.ConfigurationService/GetConfiguration"
+	ConfigurationService_ListConfiguration_FullMethodName           = "/core.ConfigurationService/ListConfiguration"
+	ConfigurationService_CreateOrUpdateConfiguration_FullMethodName = "/core.ConfigurationService/CreateOrUpdateConfiguration"
+	ConfigurationService_DeleteConfiguration_FullMethodName         = "/core.ConfigurationService/DeleteConfiguration"
+	ConfigurationService_ValidateConfiguration_FullMethodName       = "/core.ConfigurationService/ValidateConfiguration"
+)
+
+// ConfigurationServiceClient is the client API for ConfigurationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Configuration 服务
+type ConfigurationServiceClient interface {
+	GetConfiguration(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*ConfigurationInfo, error)
+	ListConfiguration(ctx context.Context, in *ConfigurationListRequest, opts ...grpc.CallOption) (*ConfigurationListResponse, error)
+	CreateOrUpdateConfiguration(ctx context.Context, in *ConfigurationInfo, opts ...grpc.CallOption) (*ConfigurationInfo, error)
+	DeleteConfiguration(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 验证某个配置的值是否有效
+	ValidateConfiguration(ctx context.Context, in *ValidateConfigurationRequest, opts ...grpc.CallOption) (*ValidateConfigurationResponse, error)
+}
+
+type configurationServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConfigurationServiceClient(cc grpc.ClientConnInterface) ConfigurationServiceClient {
+	return &configurationServiceClient{cc}
+}
+
+func (c *configurationServiceClient) GetConfiguration(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*ConfigurationInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigurationInfo)
+	err := c.cc.Invoke(ctx, ConfigurationService_GetConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configurationServiceClient) ListConfiguration(ctx context.Context, in *ConfigurationListRequest, opts ...grpc.CallOption) (*ConfigurationListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigurationListResponse)
+	err := c.cc.Invoke(ctx, ConfigurationService_ListConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configurationServiceClient) CreateOrUpdateConfiguration(ctx context.Context, in *ConfigurationInfo, opts ...grpc.CallOption) (*ConfigurationInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigurationInfo)
+	err := c.cc.Invoke(ctx, ConfigurationService_CreateOrUpdateConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configurationServiceClient) DeleteConfiguration(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, ConfigurationService_DeleteConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configurationServiceClient) ValidateConfiguration(ctx context.Context, in *ValidateConfigurationRequest, opts ...grpc.CallOption) (*ValidateConfigurationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateConfigurationResponse)
+	err := c.cc.Invoke(ctx, ConfigurationService_ValidateConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ConfigurationServiceServer is the server API for ConfigurationService service.
+// All implementations must embed UnimplementedConfigurationServiceServer
+// for forward compatibility
+//
+// Configuration 服务
+type ConfigurationServiceServer interface {
+	GetConfiguration(context.Context, *StringRequest) (*ConfigurationInfo, error)
+	ListConfiguration(context.Context, *ConfigurationListRequest) (*ConfigurationListResponse, error)
+	CreateOrUpdateConfiguration(context.Context, *ConfigurationInfo) (*ConfigurationInfo, error)
+	DeleteConfiguration(context.Context, *StringRequest) (*BaseResponse, error)
+	// 验证某个配置的值是否有效
+	ValidateConfiguration(context.Context, *ValidateConfigurationRequest) (*ValidateConfigurationResponse, error)
+	mustEmbedUnimplementedConfigurationServiceServer()
+}
+
+// UnimplementedConfigurationServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedConfigurationServiceServer struct {
+}
+
+func (UnimplementedConfigurationServiceServer) GetConfiguration(context.Context, *StringRequest) (*ConfigurationInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConfiguration not implemented")
+}
+func (UnimplementedConfigurationServiceServer) ListConfiguration(context.Context, *ConfigurationListRequest) (*ConfigurationListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListConfiguration not implemented")
+}
+func (UnimplementedConfigurationServiceServer) CreateOrUpdateConfiguration(context.Context, *ConfigurationInfo) (*ConfigurationInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrUpdateConfiguration not implemented")
+}
+func (UnimplementedConfigurationServiceServer) DeleteConfiguration(context.Context, *StringRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteConfiguration not implemented")
+}
+func (UnimplementedConfigurationServiceServer) ValidateConfiguration(context.Context, *ValidateConfigurationRequest) (*ValidateConfigurationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateConfiguration not implemented")
+}
+func (UnimplementedConfigurationServiceServer) mustEmbedUnimplementedConfigurationServiceServer() {}
+
+// UnsafeConfigurationServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ConfigurationServiceServer will
+// result in compilation errors.
+type UnsafeConfigurationServiceServer interface {
+	mustEmbedUnimplementedConfigurationServiceServer()
+}
+
+func RegisterConfigurationServiceServer(s grpc.ServiceRegistrar, srv ConfigurationServiceServer) {
+	s.RegisterService(&ConfigurationService_ServiceDesc, srv)
+}
+
+func _ConfigurationService_GetConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StringRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigurationServiceServer).GetConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigurationService_GetConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigurationServiceServer).GetConfiguration(ctx, req.(*StringRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConfigurationService_ListConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigurationListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigurationServiceServer).ListConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigurationService_ListConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigurationServiceServer).ListConfiguration(ctx, req.(*ConfigurationListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConfigurationService_CreateOrUpdateConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigurationInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigurationServiceServer).CreateOrUpdateConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigurationService_CreateOrUpdateConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigurationServiceServer).CreateOrUpdateConfiguration(ctx, req.(*ConfigurationInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConfigurationService_DeleteConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StringRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigurationServiceServer).DeleteConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigurationService_DeleteConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigurationServiceServer).DeleteConfiguration(ctx, req.(*StringRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConfigurationService_ValidateConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateConfigurationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigurationServiceServer).ValidateConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigurationService_ValidateConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigurationServiceServer).ValidateConfiguration(ctx, req.(*ValidateConfigurationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ConfigurationService_ServiceDesc is the grpc.ServiceDesc for ConfigurationService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ConfigurationService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "core.ConfigurationService",
+	HandlerType: (*ConfigurationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetConfiguration",
+			Handler:    _ConfigurationService_GetConfiguration_Handler,
+		},
+		{
+			MethodName: "ListConfiguration",
+			Handler:    _ConfigurationService_ListConfiguration_Handler,
+		},
+		{
+			MethodName: "CreateOrUpdateConfiguration",
+			Handler:    _ConfigurationService_CreateOrUpdateConfiguration_Handler,
+		},
+		{
+			MethodName: "DeleteConfiguration",
+			Handler:    _ConfigurationService_DeleteConfiguration_Handler,
+		},
+		{
+			MethodName: "ValidateConfiguration",
+			Handler:    _ConfigurationService_ValidateConfiguration_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -27,27 +27,6 @@ func (_u *ConfigurationUpdate) Where(ps ...predicate.Configuration) *Configurati
 	return _u
 }
 
-// SetSort sets the "sort" field.
-func (_u *ConfigurationUpdate) SetSort(v int32) *ConfigurationUpdate {
-	_u.mutation.ResetSort()
-	_u.mutation.SetSort(v)
-	return _u
-}
-
-// SetNillableSort sets the "sort" field if the given value is not nil.
-func (_u *ConfigurationUpdate) SetNillableSort(v *int32) *ConfigurationUpdate {
-	if v != nil {
-		_u.SetSort(*v)
-	}
-	return _u
-}
-
-// AddSort adds value to the "sort" field.
-func (_u *ConfigurationUpdate) AddSort(v int32) *ConfigurationUpdate {
-	_u.mutation.AddSort(v)
-	return _u
-}
-
 // SetState sets the "state" field.
 func (_u *ConfigurationUpdate) SetState(v bool) *ConfigurationUpdate {
 	_u.mutation.SetState(v)
@@ -213,12 +192,6 @@ func (_u *ConfigurationUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			}
 		}
 	}
-	if value, ok := _u.mutation.Sort(); ok {
-		_spec.SetField(configuration.FieldSort, field.TypeInt32, value)
-	}
-	if value, ok := _u.mutation.AddedSort(); ok {
-		_spec.AddField(configuration.FieldSort, field.TypeInt32, value)
-	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(configuration.FieldState, field.TypeBool, value)
 	}
@@ -261,27 +234,6 @@ type ConfigurationUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ConfigurationMutation
-}
-
-// SetSort sets the "sort" field.
-func (_u *ConfigurationUpdateOne) SetSort(v int32) *ConfigurationUpdateOne {
-	_u.mutation.ResetSort()
-	_u.mutation.SetSort(v)
-	return _u
-}
-
-// SetNillableSort sets the "sort" field if the given value is not nil.
-func (_u *ConfigurationUpdateOne) SetNillableSort(v *int32) *ConfigurationUpdateOne {
-	if v != nil {
-		_u.SetSort(*v)
-	}
-	return _u
-}
-
-// AddSort adds value to the "sort" field.
-func (_u *ConfigurationUpdateOne) AddSort(v int32) *ConfigurationUpdateOne {
-	_u.mutation.AddSort(v)
-	return _u
 }
 
 // SetState sets the "state" field.
@@ -478,12 +430,6 @@ func (_u *ConfigurationUpdateOne) sqlSave(ctx context.Context) (_node *Configura
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := _u.mutation.Sort(); ok {
-		_spec.SetField(configuration.FieldSort, field.TypeInt32, value)
-	}
-	if value, ok := _u.mutation.AddedSort(); ok {
-		_spec.AddField(configuration.FieldSort, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(configuration.FieldState, field.TypeBool, value)

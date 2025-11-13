@@ -10,6 +10,7 @@ import (
 	auth "github.com/wenpiner/last-admin-core/api/internal/handler/auth"
 	base "github.com/wenpiner/last-admin-core/api/internal/handler/base"
 	captcha "github.com/wenpiner/last-admin-core/api/internal/handler/captcha"
+	configuration "github.com/wenpiner/last-admin-core/api/internal/handler/configuration"
 	department "github.com/wenpiner/last-admin-core/api/internal/handler/department"
 	dict "github.com/wenpiner/last-admin-core/api/internal/handler/dict"
 	menu "github.com/wenpiner/last-admin-core/api/internal/handler/menu"
@@ -107,6 +108,34 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/captcha"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					// 新增/更新配置
+					Method:  http.MethodPost,
+					Path:    "/createOrUpdate",
+					Handler: configuration.CreateOrUpdateConfigurationHandler(serverCtx),
+				},
+				{
+					// 删除配置
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: configuration.DeleteConfigurationHandler(serverCtx),
+				},
+				{
+					// 获取配置列表
+					Method:  http.MethodPost,
+					Path:    "/list",
+					Handler: configuration.ListConfigurationHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/configuration"),
 	)
 
 	server.AddRoutes(
@@ -326,6 +355,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: role.AssignApiToRoleHandler(serverCtx),
 				},
 				{
+					// 为角色分配配置项分组权限
+					Method:  http.MethodPost,
+					Path:    "/assign/configurationGroup",
+					Handler: role.AssignConfigurationGroupToRoleHandler(serverCtx),
+				},
+				{
 					// 为角色分配菜单
 					Method:  http.MethodPost,
 					Path:    "/assign/menu",
@@ -348,6 +383,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/get/api",
 					Handler: role.GetRoleApiHandler(serverCtx),
+				},
+				{
+					// 获取角色配置项分组权限
+					Method:  http.MethodPost,
+					Path:    "/get/configurationGroup",
+					Handler: role.GetRoleConfigurationGroupHandler(serverCtx),
+				},
+				{
+					// 获取当前系统中的所有分组列表
+					Method:  http.MethodGet,
+					Path:    "/get/configurationGroupList",
+					Handler: role.GetConfigurationGroupListHandler(serverCtx),
 				},
 				{
 					// 获取角色菜单

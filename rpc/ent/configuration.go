@@ -16,8 +16,6 @@ type Configuration struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// 排序 / Sort
-	Sort int32 `json:"sort,omitempty"`
 	// 状态 / State
 	State bool `json:"state,omitempty"`
 	// 配置名称 / Configuration name
@@ -40,7 +38,7 @@ func (*Configuration) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case configuration.FieldState:
 			values[i] = new(sql.NullBool)
-		case configuration.FieldID, configuration.FieldSort:
+		case configuration.FieldID:
 			values[i] = new(sql.NullInt64)
 		case configuration.FieldName, configuration.FieldGroup, configuration.FieldKey, configuration.FieldValue, configuration.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -65,12 +63,6 @@ func (_m *Configuration) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
-		case configuration.FieldSort:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field sort", values[i])
-			} else if value.Valid {
-				_m.Sort = int32(value.Int64)
-			}
 		case configuration.FieldState:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
@@ -143,9 +135,6 @@ func (_m *Configuration) String() string {
 	var builder strings.Builder
 	builder.WriteString("Configuration(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("sort=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Sort))
-	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", _m.State))
 	builder.WriteString(", ")

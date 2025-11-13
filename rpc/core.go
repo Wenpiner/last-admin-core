@@ -6,6 +6,7 @@ import (
 
 	"github.com/wenpiner/last-admin-core/rpc/internal/config"
 	apiserviceServer "github.com/wenpiner/last-admin-core/rpc/internal/server/apiservice"
+	configurationserviceServer "github.com/wenpiner/last-admin-core/rpc/internal/server/configurationservice"
 	departmentserviceServer "github.com/wenpiner/last-admin-core/rpc/internal/server/departmentservice"
 	dictserviceServer "github.com/wenpiner/last-admin-core/rpc/internal/server/dictservice"
 	initserviceServer "github.com/wenpiner/last-admin-core/rpc/internal/server/initservice"
@@ -47,6 +48,7 @@ func main() {
 		core.RegisterOauthProviderServiceServer(grpcServer, oauthproviderserviceServer.NewOauthProviderServiceServer(ctx))
 		core.RegisterInitServiceServer(grpcServer, initserviceServer.NewInitServiceServer(ctx))
 		core.RegisterTokenServiceServer(grpcServer, tokenserviceServer.NewTokenServiceServer(ctx))
+		core.RegisterConfigurationServiceServer(grpcServer, configurationserviceServer.NewConfigurationServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

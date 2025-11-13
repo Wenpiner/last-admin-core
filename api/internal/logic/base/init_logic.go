@@ -4,9 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/wenpiner/last-admin-common/enums"
 	"github.com/wenpiner/last-admin-core/api/internal/svc"
 	"github.com/wenpiner/last-admin-core/api/internal/types"
 	"github.com/wenpiner/last-admin-core/rpc/client/initservice"
+	"github.com/wenpiner/last-admin-core/rpc/types/core"
 
 	"github.com/zeromicro/go-zero/core/errorx"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -29,10 +31,16 @@ func NewInitLogic(r *http.Request, svcCtx *svc.ServiceContext) *InitLogic {
 }
 
 func (l *InitLogic) Init() (resp *types.BaseDataInfo, err error) {
-	if !l.svcCtx.Config.ProjectConf.OpenInit {
+	// 校验是否开启初始化
+	response, _ := l.svcCtx.ConfigurationRpc.GetConfiguration(l.ctx, &core.StringRequest{
+		Value: enums.ConfigurationInit,
+	})
+	// 检查是否开启初始化
+	if response != nil && response.Value == "true" {
 		return nil, errorx.NewApiError(errorx.CodeForbidden, "init.closed")
 	}
-	 _, err = l.svcCtx.InitRpc.Init(l.ctx, &initservice.EmptyRequest{})
+
+	_, err = l.svcCtx.InitRpc.Init(l.ctx, &initservice.EmptyRequest{})
 
 	return
 }

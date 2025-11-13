@@ -1,0 +1,70 @@
+syntax = "v1"
+
+import "../base.api"	
+
+info (
+	title:   "配置相关接口"
+	desc:    "配置相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	ConfigurationInfo {
+		Key         string  `json:"key"` // 配置键 / Configuration key
+		Value       string  `json:"value"` // 配置值 / Configuration value
+		Name        string  `json:"name"` // 配置名称 / Configuration name
+		Group       string  `json:"group"` // 配置分组 / Configuration group
+		Description *string `json:"description,optional"` // 配置描述 / Configuration description
+	}
+	ConfigurationListRequest {
+		PageRequest
+		Key   string `json:"key,optional"` // 配置键 / Configuration key
+		Name  string `json:"name,optional"` // 配置名称 / Configuration name
+		Group string `json:"group,optional"` // 配置分组 / Configuration group
+	}
+	ConfigurationListInfo {
+		BaseListInfo
+		List []ConfigurationInfo `json:"list"` // 配置列表 / Configuration list
+	}
+	ConfigurationListResponse {
+		BaseDataInfo
+		Data ConfigurationListInfo `json:"data"` // 配置列表 / Configuration list
+	}
+	ModifyConfigurationResponse {
+		BaseDataInfo
+		Data ConfigurationInfo `json:"data"` // 配置信息 / Configuration information
+	}
+	DeleteConfigurationRequest {
+		Key string `json:"key"` // 配置键 / Configuration key
+	}
+)
+
+@server (
+	prefix:     /configuration
+	group:      configuration
+	tags:       "配置"
+	middleware: AuthMiddleware
+	jwt:        Auth
+)
+service Core {
+	@doc (
+		summary: "获取配置列表"
+	)
+	@handler ListConfigurationHandler
+	post /list (ConfigurationListRequest) returns (ConfigurationListResponse)
+
+	@doc (
+		summary: "新增/更新配置"
+	)
+	@handler CreateOrUpdateConfigurationHandler
+	post /createOrUpdate (ConfigurationInfo) returns (ConfigurationInfo)
+
+	@doc (
+		summary: "删除配置"
+	)
+	@handler DeleteConfigurationHandler
+	post /delete (DeleteConfigurationRequest) returns (BaseResponse)
+}
+

@@ -262,12 +262,12 @@ func (_q *ConfigurationQuery) Clone() *ConfigurationQuery {
 // Example:
 //
 //	var v []struct {
-//		Sort int32 `json:"sort,omitempty"`
+//		State bool `json:"state,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Configuration.Query().
-//		GroupBy(configuration.FieldSort).
+//		GroupBy(configuration.FieldState).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ConfigurationQuery) GroupBy(field string, fields ...string) *ConfigurationGroupBy {
@@ -285,11 +285,11 @@ func (_q *ConfigurationQuery) GroupBy(field string, fields ...string) *Configura
 // Example:
 //
 //	var v []struct {
-//		Sort int32 `json:"sort,omitempty"`
+//		State bool `json:"state,omitempty"`
 //	}
 //
 //	client.Configuration.Query().
-//		Select(configuration.FieldSort).
+//		Select(configuration.FieldState).
 //		Scan(ctx, &v)
 func (_q *ConfigurationQuery) Select(fields ...string) *ConfigurationSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

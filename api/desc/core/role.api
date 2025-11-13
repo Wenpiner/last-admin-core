@@ -39,16 +39,24 @@ type (
 		Data RoleInfo `json:"data"` // 角色信息 / Role information
 	}
 	RoleMenuRequest {
-		RoleId uint32   `json:"roleId"` // 角色ID / Role ID
+		RoleId  uint32   `json:"roleId"` // 角色ID / Role ID
 		MenuIds []uint32 `json:"menuIds"` // 菜单ID / Menu ID
 	}
 	RoleApiRequest {
 		RoleId uint32   `json:"roleId"` // 角色ID / Role ID
-		ApiIds  []uint32 `json:"apiIds"` // API ID / API ID
+		ApiIds []uint32 `json:"apiIds"` // API ID / API ID
 	}
 	RoleApiListResponse {
 		BaseDataInfo
 		Data []string `json:"data"` // API列表 / API list
+	}
+	RoleConfigurationGroupRequest {
+		RoleValue           string   `json:"roleValue"` // 角色值 / Role value
+		ConfigurationGroups []string `json:"configurationGroups"` // 配置项分组 / Configuration groups
+	}
+	RoleConfigurationGroupListResponse {
+		BaseDataInfo
+		Data []string `json:"data"` // 配置项分组列表 / Configuration group list
 	}
 )
 
@@ -96,11 +104,29 @@ service Core {
 	@handler GetRoleApiHandler
 	post /get/api (StringIDRequest) returns (RoleApiListResponse)
 
-	@doc(
+	@doc (
 		summary: "获取角色菜单"
 	)
 	@handler GetRoleMenuHandler
 	post /get/menu (StringIDRequest) returns (MenuListResponse)
+
+	@doc (
+		summary: "为角色分配配置项分组权限"
+	)
+	@handler AssignConfigurationGroupToRoleHandler
+	post /assign/configurationGroup (RoleConfigurationGroupRequest) returns (RoleConfigurationGroupListResponse)
+
+	@doc(
+		summary: "获取当前系统中的所有分组列表"
+	)
+	@handler GetConfigurationGroupListHandler
+	get /get/configurationGroupList () returns (RoleConfigurationGroupListResponse)	
 	
+
+	@doc (
+		summary: "获取角色配置项分组权限"
+	)
+	@handler GetRoleConfigurationGroupHandler
+	post /get/configurationGroup (StringIDRequest) returns (RoleConfigurationGroupListResponse)
 }
 

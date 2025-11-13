@@ -132,16 +132,10 @@ func init() {
 	_ = configurationMixinFields0
 	configurationMixinFields1 := configurationMixin[1].Fields()
 	_ = configurationMixinFields1
-	configurationMixinFields2 := configurationMixin[2].Fields()
-	_ = configurationMixinFields2
 	configurationFields := schema.Configuration{}.Fields()
 	_ = configurationFields
-	// configurationDescSort is the schema descriptor for sort field.
-	configurationDescSort := configurationMixinFields1[0].Descriptor()
-	// configuration.DefaultSort holds the default value on creation for the sort field.
-	configuration.DefaultSort = configurationDescSort.Default.(int32)
 	// configurationDescState is the schema descriptor for state field.
-	configurationDescState := configurationMixinFields2[0].Descriptor()
+	configurationDescState := configurationMixinFields1[0].Descriptor()
 	// configuration.DefaultState holds the default value on creation for the state field.
 	configuration.DefaultState = configurationDescState.Default.(bool)
 	// configurationDescName is the schema descriptor for name field.

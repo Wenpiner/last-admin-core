@@ -39,12 +39,11 @@ var (
 	// SysConfigurationColumns holds the columns for the "sys_configuration" table.
 	SysConfigurationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "sort", Type: field.TypeInt32, Comment: "排序 / Sort", Default: 0},
 		{Name: "state", Type: field.TypeBool, Nullable: true, Comment: "状态 / State", Default: true},
 		{Name: "name", Type: field.TypeString, Comment: "配置名称 / Configuration name"},
 		{Name: "group", Type: field.TypeString, Comment: "配置分组 / Configuration group"},
 		{Name: "key", Type: field.TypeString, Comment: "配置键 / Configuration key"},
-		{Name: "value", Type: field.TypeString, Comment: "配置值 / Configuration value"},
+		{Name: "value", Type: field.TypeString, Size: 2147483647, Comment: "配置值 / Configuration value"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "配置描述 / Configuration description"},
 	}
 	// SysConfigurationTable holds the schema information for the "sys_configuration" table.
@@ -56,8 +55,8 @@ var (
 		Indexes: []*schema.Index{
 			{
 				Name:    "configuration_key",
-				Unique:  false,
-				Columns: []*schema.Column{SysConfigurationColumns[5]},
+				Unique:  true,
+				Columns: []*schema.Column{SysConfigurationColumns[4]},
 			},
 		},
 	}

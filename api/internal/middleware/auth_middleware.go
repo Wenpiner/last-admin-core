@@ -62,7 +62,7 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 func check(cbn *casbin.Enforcer, rolesIds []string, obj, act string) bool {
 	var reqs [][]any
 	for _, v := range rolesIds {
-		reqs = append(reqs, []any{v, obj, act})
+		reqs = append(reqs, []any{v, "api", obj, act})
 	}
 
 	res, err := cbn.BatchEnforce(reqs)

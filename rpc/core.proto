@@ -216,6 +216,16 @@ message RoleApiListResponse {
   repeated uint32 list = 1;
 }
 
+message RoleConfigurationGroupRequest {
+  // 角色ID
+  string role_value = 1;
+  // 配置项分组
+  repeated string configuration_groups = 2;
+}
+
+message RoleConfigurationGroupListResponse {
+  repeated string list = 1;
+}
 
 
 service RoleService {
@@ -235,6 +245,10 @@ service RoleService {
   rpc AssignApi(RoleApiRequest) returns (BaseResponse);
   // 获取角色菜单
   rpc GetMenu(ID32Request) returns (RoleMenuListResponse);
+  // 为角色分配配置项分组权限
+  rpc AssignConfigurationGroup(RoleConfigurationGroupRequest) returns (RoleConfigurationGroupListResponse);
+  // 获取角色配置项分组权限
+  rpc GetConfigurationGroup(StringRequest) returns (RoleConfigurationGroupListResponse);
 }
 
 
@@ -660,7 +674,7 @@ message TokenListRequest {
   // 设备信息
   optional string device_info = 5;
   // 提供商ID
-  optional uint32 provider_id = 6;  
+  optional uint32 provider_id = 6;
 }
 
 // Token列表响应
@@ -736,4 +750,103 @@ service TokenService {
 // 初始化服务
 service InitService {
   rpc Init(EmptyRequest) returns (BaseResponse);
+}
+
+message ConfigurationInfo {
+  string key = 1;
+  string value = 2;
+  string name = 3;
+  string group = 4;
+  optional string description = 5;
+}
+
+message ConfigurationListRequest {
+  BasePageRequest page = 1;
+  optional string key = 2;
+  optional string name = 3;
+  optional string group = 4;
+}
+
+message ConfigurationListResponse {
+  BasePageResp page = 1;
+  repeated ConfigurationInfo list = 2;
+}
+
+message ValidateConfigurationRequest {
+  string key = 1;
+  // cel 表达式，用于验证配置值
+  string exp = 2;
+  optional string error_message = 3;
+}
+
+message ValidateConfigurationResponse {
+  bool is_valid = 1;
+  string message = 2;
+}
+
+// Configuration 服务
+service ConfigurationService {
+  rpc GetConfiguration(StringRequest) returns (ConfigurationInfo);
+  rpc ListConfiguration(ConfigurationListRequest) returns (ConfigurationListResponse);
+  rpc CreateOrUpdateConfiguration(ConfigurationInfo) returns (ConfigurationInfo);
+  rpc DeleteConfiguration(StringRequest) returns (BaseResponse);
+  // 验证某个配置的值是否有效
+  rpc ValidateConfiguration(ValidateConfigurationRequest) returns (ValidateConfigurationResponse);
+}
+
+
+// 记录操作日志
+message OperationLogInfo {
+  optional uint32 id = 1;
+  optional int64 created_at = 2;
+  optional int64 updated_at = 3;
+  optional string user_id = 4;
+  optional string username = 5;
+  optional string operation_type = 6;
+  optional string module = 7;
+  optional string business_type = 8;
+  optional string method = 9;
+  optional string request_url = 10;
+  optional string request_params = 11;
+  optional string response_data = 12;
+  optional string ip_address = 13;
+  optional string user_agent = 14;
+  optional string location = 15;
+  optional bool is_success = 16;
+  optional string error_message = 17;
+  optional int32 execution_time = 18;
+  optional string description = 19;
+}
+
+message TimeRangeQuery {
+  optional string start_time = 1;
+  optional string end_time = 2;
+}
+
+message OperationLogListRequest {
+  BasePageRequest page = 1;
+  optional string user_id = 2;
+  optional string username = 3;
+  optional string operation_type = 4;
+  optional string module = 5;
+  optional string business_type = 6;
+  optional string method = 7;
+  optional string request_url = 8;
+  optional string request_params = 9;
+  optional string response_data = 10;
+  optional string ip_address = 11;
+  optional string user_agent = 12;
+  optional string location = 13;
+  optional bool is_success = 14;
+  optional TimeRangeQuery execution_time = 15;
+}
+
+message OperationLogListResponse {
+  BasePageResp page = 1;
+  repeated OperationLogInfo list = 2;
+}
+
+service OperationLogService {
+  rpc CreateOperationLog(OperationLogInfo) returns (BaseResponse);
+  rpc ListOperationLog(OperationLogListRequest) returns (OperationLogListResponse);
 }

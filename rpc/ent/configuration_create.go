@@ -19,20 +19,6 @@ type ConfigurationCreate struct {
 	hooks    []Hook
 }
 
-// SetSort sets the "sort" field.
-func (_c *ConfigurationCreate) SetSort(v int32) *ConfigurationCreate {
-	_c.mutation.SetSort(v)
-	return _c
-}
-
-// SetNillableSort sets the "sort" field if the given value is not nil.
-func (_c *ConfigurationCreate) SetNillableSort(v *int32) *ConfigurationCreate {
-	if v != nil {
-		_c.SetSort(*v)
-	}
-	return _c
-}
-
 // SetState sets the "state" field.
 func (_c *ConfigurationCreate) SetState(v bool) *ConfigurationCreate {
 	_c.mutation.SetState(v)
@@ -126,10 +112,6 @@ func (_c *ConfigurationCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ConfigurationCreate) defaults() {
-	if _, ok := _c.mutation.Sort(); !ok {
-		v := configuration.DefaultSort
-		_c.mutation.SetSort(v)
-	}
 	if _, ok := _c.mutation.State(); !ok {
 		v := configuration.DefaultState
 		_c.mutation.SetState(v)
@@ -138,9 +120,6 @@ func (_c *ConfigurationCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ConfigurationCreate) check() error {
-	if _, ok := _c.mutation.Sort(); !ok {
-		return &ValidationError{Name: "sort", err: errors.New(`ent: missing required field "Configuration.sort"`)}
-	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Configuration.name"`)}
 	}
@@ -209,10 +188,6 @@ func (_c *ConfigurationCreate) createSpec() (*Configuration, *sqlgraph.CreateSpe
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
-	}
-	if value, ok := _c.mutation.Sort(); ok {
-		_spec.SetField(configuration.FieldSort, field.TypeInt32, value)
-		_node.Sort = value
 	}
 	if value, ok := _c.mutation.State(); ok {
 		_spec.SetField(configuration.FieldState, field.TypeBool, value)

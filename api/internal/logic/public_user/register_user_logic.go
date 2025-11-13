@@ -8,6 +8,7 @@ import (
 	"github.com/wenpiner/last-admin-core/api/internal/svc"
 	"github.com/wenpiner/last-admin-core/api/internal/types"
 	"github.com/wenpiner/last-admin-core/rpc/client/userservice"
+	"github.com/wenpiner/last-admin-core/rpc/types/core"
 
 	"net/http"
 
@@ -33,8 +34,16 @@ func NewRegisterUserLogic(r *http.Request, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterUserLogic) RegisterUser(req *types.RegisterRequest) (resp *types.BaseResponse, err error) {
+	// 校验是否开启注册
+	response, err := l.svcCtx.ConfigurationRpc.ValidateConfiguration(l.ctx, &core.ValidateConfigurationRequest{
+		Key: enums.ConfigurationRegister,
+		Exp: "value == 'true'",
+	})
+	if err != nil {
+		return nil, err
+	}
 	// 检查是否开启注册
-	if l.svcCtx.Config.ProjectConf.OpenRegister == false {
+	if response.IsValid == false {
 		return nil, errorx.NewInvalidArgumentError("register.registerClosed")
 	}
 

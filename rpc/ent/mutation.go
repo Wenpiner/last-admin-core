@@ -863,8 +863,6 @@ type ConfigurationMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	sort          *int32
-	addsort       *int32
 	state         *bool
 	name          *string
 	group         *string
@@ -979,62 +977,6 @@ func (m *ConfigurationMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetSort sets the "sort" field.
-func (m *ConfigurationMutation) SetSort(i int32) {
-	m.sort = &i
-	m.addsort = nil
-}
-
-// Sort returns the value of the "sort" field in the mutation.
-func (m *ConfigurationMutation) Sort() (r int32, exists bool) {
-	v := m.sort
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSort returns the old "sort" field's value of the Configuration entity.
-// If the Configuration object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ConfigurationMutation) OldSort(ctx context.Context) (v int32, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSort is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSort requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSort: %w", err)
-	}
-	return oldValue.Sort, nil
-}
-
-// AddSort adds i to the "sort" field.
-func (m *ConfigurationMutation) AddSort(i int32) {
-	if m.addsort != nil {
-		*m.addsort += i
-	} else {
-		m.addsort = &i
-	}
-}
-
-// AddedSort returns the value that was added to the "sort" field in this mutation.
-func (m *ConfigurationMutation) AddedSort() (r int32, exists bool) {
-	v := m.addsort
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetSort resets all changes to the "sort" field.
-func (m *ConfigurationMutation) ResetSort() {
-	m.sort = nil
-	m.addsort = nil
 }
 
 // SetState sets the "state" field.
@@ -1313,10 +1255,7 @@ func (m *ConfigurationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConfigurationMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.sort != nil {
-		fields = append(fields, configuration.FieldSort)
-	}
+	fields := make([]string, 0, 6)
 	if m.state != nil {
 		fields = append(fields, configuration.FieldState)
 	}
@@ -1343,8 +1282,6 @@ func (m *ConfigurationMutation) Fields() []string {
 // schema.
 func (m *ConfigurationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case configuration.FieldSort:
-		return m.Sort()
 	case configuration.FieldState:
 		return m.State()
 	case configuration.FieldName:
@@ -1366,8 +1303,6 @@ func (m *ConfigurationMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ConfigurationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case configuration.FieldSort:
-		return m.OldSort(ctx)
 	case configuration.FieldState:
 		return m.OldState(ctx)
 	case configuration.FieldName:
@@ -1389,13 +1324,6 @@ func (m *ConfigurationMutation) OldField(ctx context.Context, name string) (ent.
 // type.
 func (m *ConfigurationMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case configuration.FieldSort:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSort(v)
-		return nil
 	case configuration.FieldState:
 		v, ok := value.(bool)
 		if !ok {
@@ -1445,21 +1373,13 @@ func (m *ConfigurationMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ConfigurationMutation) AddedFields() []string {
-	var fields []string
-	if m.addsort != nil {
-		fields = append(fields, configuration.FieldSort)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ConfigurationMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case configuration.FieldSort:
-		return m.AddedSort()
-	}
 	return nil, false
 }
 
@@ -1468,13 +1388,6 @@ func (m *ConfigurationMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ConfigurationMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case configuration.FieldSort:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddSort(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Configuration numeric field %s", name)
 }
@@ -1517,9 +1430,6 @@ func (m *ConfigurationMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ConfigurationMutation) ResetField(name string) error {
 	switch name {
-	case configuration.FieldSort:
-		m.ResetSort()
-		return nil
 	case configuration.FieldState:
 		m.ResetState()
 		return nil

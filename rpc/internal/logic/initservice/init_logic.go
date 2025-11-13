@@ -10,6 +10,7 @@ import (
 	"github.com/wenpiner/last-admin-common/enums"
 	"github.com/wenpiner/last-admin-common/utils/encrypt"
 	"github.com/wenpiner/last-admin-core/rpc/ent"
+	"github.com/wenpiner/last-admin-core/rpc/ent/configuration"
 	"github.com/wenpiner/last-admin-core/rpc/internal/svc"
 	"github.com/wenpiner/last-admin-core/rpc/types/core"
 
@@ -52,6 +53,11 @@ func (l *InitLogic) Init(in *core.EmptyRequest) (*core.BaseResponse, error) {
 		logx.Errorw("初始化数据库失败", logx.Field("detail", err.Error()))
 		_ = l.svcCtx.Redis.Set(l.ctx, "INIT:DATABASE:ERROR", err.Error(), 300*time.Second).Err()
 		return nil, errorx.NewInternalError(err.Error())
+	}
+
+	// 初始化配置
+	if err := l.initConfiguration(); err != nil {
+		return nil, err
 	}
 
 	// 初始化角色信息
@@ -109,7 +115,24 @@ func (l *InitLogic) initCasbin() error {
 
 	var policies [][]string
 	for _, api := range apis {
-		policies = append(policies, []string{enums.DefaultRoleValue, api.Path, api.Method})
+		policies = append(policies, []string{enums.DefaultRoleValue, "api", api.Path, api.Method})
+	}
+
+	// policies = append(policies, []string{enums.DefaultRoleValue, "configuration", "/system/register", "write"})
+	// policies = append(policies, []string{enums.DefaultRoleValue, "configuration", "/system/init", "write"})
+
+	var list []struct{
+		Group string `json:"group,omitempty"`
+	}
+
+	// 读取所有配置项目的Key，并为他赋予write权限
+	err = l.svcCtx.DBEnt.Configuration.Query().GroupBy(configuration.FieldGroup).Scan(l.ctx,&list)
+	if err != nil {
+		logx.Errorw("查询配置信息失败", logx.Field("detail", err.Error()))
+		return errorx.NewInternalError(err.Error())
+	}
+	for _, configuration := range list {
+		policies = append(policies, []string{enums.DefaultRoleValue, "configuration", configuration.Group, "write"})
 	}
 
 	// // 查询所有菜单
@@ -369,6 +392,27 @@ func (l *InitLogic) initBaseApi() error {
 		SetPath("/role/get/api").
 		SetServiceName("core").
 		SetName("获取角色API").SetIsRequired(false))
+	//role/get/configurationGroup
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/get/configurationGroup").
+		SetServiceName("core").
+		SetName("获取角色配置项分组权限").SetIsRequired(false))
+	// /get/configurationGroupList
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("GET").
+		SetPath("/role/get/configurationGroupList").
+		SetServiceName("core").
+		SetName("获取当前系统中的所有分组列表").SetIsRequired(false))
+
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Role").
+		SetMethod("POST").
+		SetPath("/role/assign/configurationGroup").
+		SetServiceName("core").
+		SetName("为角色分配配置项分组权限").SetIsRequired(false))
 
 	// Position
 	apis = append(apis, l.svcCtx.DBEnt.API.Create().
@@ -476,20 +520,41 @@ func (l *InitLogic) initBaseApi() error {
 		SetPath("/token/clean").
 		SetServiceName("core").
 		SetName("清理过期Token").SetIsRequired(false))
-		
+
 	apis = append(apis, l.svcCtx.DBEnt.API.Create().
 		SetAPIGroup("Token").
 		SetMethod("POST").
 		SetPath("/token/block").
 		SetServiceName("core").
 		SetName("拉黑用户Token").SetIsRequired(false))
-		
+
 	apis = append(apis, l.svcCtx.DBEnt.API.Create().
 		SetAPIGroup("Token").
 		SetMethod("POST").
 		SetPath("/token/unblock").
 		SetServiceName("core").
 		SetName("解封用户Token").SetIsRequired(false))
+
+	// Configuration
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Configuration").
+		SetMethod("POST").
+		SetPath("/configuration/list").
+		SetServiceName("core").
+		SetName("获取配置列表").SetIsRequired(false))
+
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Configuration").
+		SetMethod("POST").
+		SetPath("/configuration/createOrUpdate").
+		SetServiceName("core").
+		SetName("创建或更新配置").SetIsRequired(false))
+	apis = append(apis, l.svcCtx.DBEnt.API.Create().
+		SetAPIGroup("Configuration").
+		SetMethod("POST").
+		SetPath("/configuration/delete").
+		SetServiceName("core").
+		SetName("删除配置").SetIsRequired(false))
 
 	err := l.svcCtx.DBEnt.API.CreateBulk(apis...).Exec(l.ctx)
 	if err != nil {
@@ -662,6 +727,18 @@ func (l *InitLogic) initMenu() error {
 		SetParentID(2).
 		SetIcon("tabler:info-square"))
 
+	// 系统管理 - 配置项
+	menus = append(menus, l.svcCtx.DBEnt.Menu.Create().
+		SetMenuCode("ConfigurationManagement").
+		SetMenuName("配置项").
+		SetMenuPath("/system/configuration").
+		SetComponent("/system/configuration/index").
+		SetSort(0).
+		SetServiceName("Core").
+		SetMenuType("menu").
+		SetParentID(2).
+		SetIcon("tabler:settings-automation"))
+
 	err := l.svcCtx.DBEnt.Menu.CreateBulk(menus...).Exec(l.ctx)
 	if err != nil {
 		logx.Errorw("初始化菜单信息失败", logx.Field("detail", err.Error()))
@@ -773,5 +850,29 @@ func (l *InitLogic) initRoleMenu() error {
 	}
 	// 更新角色
 	err = l.svcCtx.DBEnt.Role.UpdateOneID(1).AddMenuIDs(menus...).Exec(l.ctx)
+	return nil
+}
+
+// 初始化配置
+func (l *InitLogic) initConfiguration() error {
+	var configurations []*ent.ConfigurationCreate
+	configurations = append(configurations, l.svcCtx.DBEnt.Configuration.Create().
+		SetName("注册").
+		SetGroup(enums.ConfigurationGroupSystem).
+		SetKey(enums.ConfigurationRegister).
+		SetValue("false").
+		SetDescription("是否开启注册"))
+	configurations = append(configurations, l.svcCtx.DBEnt.Configuration.Create().
+		SetName("初始化").
+		SetGroup(enums.ConfigurationGroupSystem).
+		SetKey(enums.ConfigurationInit).
+		SetValue("true").
+		SetDescription("是否开启初始化"))
+
+	err := l.svcCtx.DBEnt.Configuration.CreateBulk(configurations...).Exec(l.ctx)
+	if err != nil {
+		logx.Errorw("初始化配置失败", logx.Field("detail", err.Error()))
+		return errorx.NewInternalError(err.Error())
+	}
 	return nil
 }

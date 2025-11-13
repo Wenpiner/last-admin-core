@@ -70,3 +70,15 @@ func (s *RoleServiceServer) GetMenu(ctx context.Context, in *core.ID32Request) (
 	l := roleservicelogic.NewGetMenuLogic(ctx, s.svcCtx)
 	return l.GetMenu(in)
 }
+
+// 为角色分配配置项分组权限
+func (s *RoleServiceServer) AssignConfigurationGroup(ctx context.Context, in *core.RoleConfigurationGroupRequest) (*core.RoleConfigurationGroupListResponse, error) {
+	l := roleservicelogic.NewAssignConfigurationGroupLogic(ctx, s.svcCtx)
+	return l.AssignConfigurationGroup(in)
+}
+
+// 获取角色配置项分组权限
+func (s *RoleServiceServer) GetConfigurationGroup(ctx context.Context, in *core.StringRequest) (*core.RoleConfigurationGroupListResponse, error) {
+	l := roleservicelogic.NewGetConfigurationGroupLogic(ctx, s.svcCtx)
+	return l.GetConfigurationGroup(in)
+}

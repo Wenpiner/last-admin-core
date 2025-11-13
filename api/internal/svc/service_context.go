@@ -15,6 +15,7 @@ import (
 	"github.com/wenpiner/last-admin-core/api/internal/i18n"
 	"github.com/wenpiner/last-admin-core/api/internal/middleware"
 	"github.com/wenpiner/last-admin-core/rpc/client/apiservice"
+	"github.com/wenpiner/last-admin-core/rpc/client/configurationservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/departmentservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/dictservice"
 	"github.com/wenpiner/last-admin-core/rpc/client/initservice"
@@ -48,6 +49,7 @@ type ServiceContext struct {
 	RoleRpc        roleservice.RoleService
 	DictRpc        dictservice.DictService
 	PositionRpc    positionservice.PositionService
+	ConfigurationRpc configurationservice.ConfigurationService
 
 	validator *validator.Validator
 
@@ -103,6 +105,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RoleRpc:        roleservice.NewRoleService(coreRpc),
 		DictRpc:        dictservice.NewDictService(coreRpc),
 		PositionRpc:    positionservice.NewPositionService(coreRpc),
+		ConfigurationRpc: configurationservice.NewConfigurationService(coreRpc),
 		Redis:          redisClient,
 		Casbin:         casbin,
 	}

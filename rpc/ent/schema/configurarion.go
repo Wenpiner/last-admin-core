@@ -18,21 +18,20 @@ func (Configuration) Fields() []ent.Field {
 		field.String("name").NotEmpty().Comment("配置名称 / Configuration name"),
 		field.String("group").NotEmpty().Comment("配置分组 / Configuration group"),
 		field.String("key").NotEmpty().Comment("配置键 / Configuration key"),
-		field.String("value").NotEmpty().Comment("配置值 / Configuration value"),
+		field.Text("value").NotEmpty().Comment("配置值 / Configuration value"),
 		field.String("description").Optional().Comment("配置描述 / Configuration description"),
 	}
 }
 func (Configuration) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixins.IDMixin{},
-		mixins.SortMixin{},
 		mixins.StateMixin{},
 	}
 }
 
 func (Configuration) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("key"),
+		index.Fields("key").Unique(),
 	}
 }
 

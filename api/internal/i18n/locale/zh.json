@@ -7,7 +7,11 @@
         "databaseError": "数据库错误",
         "deleteSuccess": "删除成功",
         "forbidden": "没有权限访问",
-        "api-forbidden": "您当前没有权限访问该资源"
+        "api-forbidden": "您当前没有权限访问该资源",
+        "invalidArgument": "参数错误",
+        "configuration": {
+            "forbidden": "没有权限操作当前分组的配置项"
+        }
     },
     "captcha": {
         "generateCaptchaFailed": "生成验证码失败",
@@ -49,7 +53,8 @@
     },
     "init": {
         "pending": "正在初始化中...",
-        "failed": "初始化失败"
+        "failed": "初始化失败",
+        "closed": "初始化已关闭，请联系管理员"
     },
     "menu": {
         "hasChildren": "当前菜单存在子菜单，请先删除子菜单"

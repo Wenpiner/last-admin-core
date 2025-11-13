@@ -11,8 +11,6 @@ const (
 	Label = "configuration"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldSort holds the string denoting the sort field in the database.
-	FieldSort = "sort"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
 	// FieldName holds the string denoting the name field in the database.
@@ -32,7 +30,6 @@ const (
 // Columns holds all SQL columns for configuration fields.
 var Columns = []string{
 	FieldID,
-	FieldSort,
 	FieldState,
 	FieldName,
 	FieldGroup,
@@ -52,8 +49,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultSort holds the default value on creation for the "sort" field.
-	DefaultSort int32
 	// DefaultState holds the default value on creation for the "state" field.
 	DefaultState bool
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
@@ -74,11 +69,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// BySort orders the results by the sort field.
-func BySort(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSort, opts...).ToFunc()
 }
 
 // ByState orders the results by the state field.
