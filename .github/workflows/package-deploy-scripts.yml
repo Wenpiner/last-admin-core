@@ -1,0 +1,73 @@
+name: Package Deploy Scripts
+
+on:
+  push:
+    paths:
+      - 'last-admin-core/deploy/**'
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release'
+        required: false
+        default: 'false'
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from git tag or timestamp
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            IS_TAG=true
+          else
+            VERSION=$(date +%Y%m%d-%H%M%S)
+            IS_TAG=false
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "is_tag=${IS_TAG}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+          echo "Is Tag: ${IS_TAG}"
+
+      - name: Create deploy scripts archive
+        run: |
+          cd last-admin-core
+          tar -czf deploy-scripts-${{ steps.version.outputs.version }}.tar.gz deploy/
+          ls -lh deploy-scripts-*.tar.gz
+
+      - name: Create Release (from tag)
+        uses: softprops/action-gh-release@v1
+        if: steps.version.outputs.is_tag == 'true'
+        with:
+          files: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release (manual trigger)
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
+        with:
+          files: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          tag_name: deploy-${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact for manual trigger
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-scripts-${{ steps.version.outputs.version }}
+          path: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          retention-days: 30
+

@@ -104,7 +104,25 @@ last-admin-core/
 
 ### 部署
 
-项目提供了自动化部署脚本，支持一键快速部署：
+项目提供了自动化部署脚本，支持多种部署方式：
+
+#### 方式 1：快速安装（推荐）
+
+无需克隆整个仓库，直接下载并运行安装脚本：
+
+**Linux/macOS：**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+```
+
+或使用 wget：
+```bash
+wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+```
+
+#### 方式 2：本地部署
+
+如果已克隆仓库，可以使用本地脚本：
 
 **Linux/macOS：**
 ```bash
@@ -118,13 +136,19 @@ cd deploy
 .\install.ps1
 ```
 
-**Docker Compose：**
+#### 方式 3：Docker Compose
+
+使用 Docker Compose 快速启动所有服务：
 ```bash
 cd deploy
 docker-compose up -d
 ```
 
-详细的部署配置说明，请参考 `deploy/` 目录下的脚本文件。
+### 部署文档
+
+- **[快速开始](./QUICK_START.md)** - 一行命令快速部署指南
+- **[详细部署指南](./DEPLOYMENT.md)** - 完整的部署配置和故障排除
+- **[部署脚本](./deploy/)** - 部署脚本和配置文件
 
 ## 开发指南
 
