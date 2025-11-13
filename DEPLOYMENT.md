@@ -26,20 +26,20 @@ Last Admin 提供了多种部署方式，适应不同的使用场景：
 #### 使用 curl（推荐）
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 #### 使用 wget
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 #### 手动下载并运行
 
 ```bash
 # 下载脚本
-curl -fsSL -o install-bootstrap.sh https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh
+curl -fsSL -o install-bootstrap.sh https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh
 
 # 赋予执行权限
 chmod +x install-bootstrap.sh
@@ -50,13 +50,14 @@ chmod +x install-bootstrap.sh
 
 ### 工作流程
 
-1. **下载安装脚本**：从 GitHub 下载 `install.sh`
-2. **检测平台**：自动检测 Linux 或 macOS
-3. **检查 Python**：验证 Python 3 是否已安装，如未安装则自动安装
-4. **下载 deploy 包**：从最新的 GitHub Release 下载 `deploy-scripts-*.tar.gz`
-5. **解压脚本**：将脚本包解压到当前目录
-6. **安装依赖**：创建虚拟环境并安装 Python 依赖
-7. **启动向导**：运行交互式安装向导
+1. **获取最新版本**：从 GitHub API 获取最新的 Release 版本
+2. **下载部署包**：从 GitHub Release 下载 `deploy-scripts-*.tar.gz`
+3. **解压部署包**：将脚本包解压到临时目录
+4. **运行安装脚本**：执行解压后的 `install.sh`
+5. **检测平台**：自动检测 Linux 或 macOS
+6. **检查 Python**：验证 Python 3 是否已安装，如未安装则自动安装
+7. **安装依赖**：创建虚拟环境并安装 Python 依赖
+8. **启动向导**：运行交互式安装向导
 
 ## 本地部署
 

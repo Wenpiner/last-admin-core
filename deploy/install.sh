@@ -11,18 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # 配置
-GITHUB_REPO="Wenpiner/last-admin"
-DEPLOY_SCRIPTS_DIR="deploy"
-TEMP_DIR=$(mktemp -d)
-
-# 清理临时文件
-cleanup() {
-    if [ -d "$TEMP_DIR" ]; then
-        rm -rf "$TEMP_DIR"
-    fi
-}
-
-trap cleanup EXIT
+DEPLOY_SCRIPTS_DIR="."
 
 # 平台检测
 detect_platform() {
@@ -34,72 +23,7 @@ detect_platform() {
     echo -e "${GREEN}检测到平台: $PLATFORM${NC}"
 }
 
-# 获取最新的 Release 版本
-get_latest_release() {
-    echo -e "${YELLOW}正在获取最新的 Release 版本...${NC}"
 
-    LATEST_RELEASE=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name"' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
-
-    if [ -z "$LATEST_RELEASE" ]; then
-        echo -e "${RED}✗ 无法获取最新的 Release 版本${NC}"
-        return 1
-    fi
-
-    echo -e "${GREEN}✓ 最新版本: $LATEST_RELEASE${NC}"
-    echo "$LATEST_RELEASE"
-}
-
-# 下载 deploy 脚本包
-download_deploy_scripts() {
-    local version=$1
-    local version_num=${version#v}
-    local download_url="https://github.com/${GITHUB_REPO}/releases/download/${version}/deploy-scripts-${version_num}.tar.gz"
-
-    echo -e "${YELLOW}正在从 GitHub 下载 deploy 脚本包...${NC}"
-    echo -e "${YELLOW}下载地址: $download_url${NC}"
-
-    if ! curl -fsSL -o "${TEMP_DIR}/deploy-scripts.tar.gz" "$download_url"; then
-        echo -e "${RED}✗ 下载失败${NC}"
-        return 1
-    fi
-
-    echo -e "${GREEN}✓ 下载完成${NC}"
-}
-
-# 解压 deploy 脚本包
-extract_deploy_scripts() {
-    echo -e "${YELLOW}正在解压 deploy 脚本包...${NC}"
-
-    if ! tar -xzf "${TEMP_DIR}/deploy-scripts.tar.gz" -C "$TEMP_DIR"; then
-        echo -e "${RED}✗ 解压失败${NC}"
-        return 1
-    fi
-
-    # 将解压的 deploy 目录复制到当前目录
-    if [ -d "${TEMP_DIR}/deploy" ]; then
-        cp -r "${TEMP_DIR}/deploy" .
-        echo -e "${GREEN}✓ 解压完成${NC}"
-        return 0
-    else
-        echo -e "${RED}✗ 解压后未找到 deploy 目录${NC}"
-        return 1
-    fi
-}
-
-# 检查是否需要下载脚本
-check_and_download_scripts() {
-    if [ ! -d "$DEPLOY_SCRIPTS_DIR" ]; then
-        echo -e "${YELLOW}未检测到本地 deploy 目录，将从 GitHub 下载...${NC}"
-
-        local latest_version
-        latest_version=$(get_latest_release) || return 1
-
-        download_deploy_scripts "$latest_version" || return 1
-        extract_deploy_scripts || return 1
-    else
-        echo -e "${GREEN}✓ 检测到本地 deploy 目录${NC}"
-    fi
-}
 
 # 检查 Python 是否已安装
 check_python() {
@@ -185,9 +109,6 @@ main() {
     echo -e "${GREEN}================================${NC}\n"
 
     detect_platform
-
-    # 检查并下载 deploy 脚本（如果需要）
-    check_and_download_scripts || exit 1
 
     if ! check_python; then
         case "$PLATFORM" in

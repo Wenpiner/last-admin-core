@@ -25,18 +25,17 @@ wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-
 
 ## 🔧 安装步骤
 
-### 步骤 1：运行安装脚本
+### 步骤 1：运行引导脚本
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
-脚本会自动：
-- ✅ 检测操作系统
-- ✅ 检查/安装 Python 3
-- ✅ 从 GitHub 下载最新的部署脚本
-- ✅ 安装 Python 依赖
-- ✅ 启动交互式安装向导
+引导脚本会自动：
+- ✅ 获取最新的 Release 版本
+- ✅ 从 GitHub Release 下载部署包
+- ✅ 解压部署包
+- ✅ 运行安装脚本
 
 ### 步骤 2：按照向导配置
 
