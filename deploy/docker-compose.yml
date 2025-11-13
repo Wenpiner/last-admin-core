@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres-myproject:
+    image: postgres:18-alpine
+    container_name: postgres-myproject
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: myproject_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_myproject_data:/var/lib/postgresql/data
+    networks:
+      - myproject-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - db
+
+  # Redis Cache
+  redis-myproject:
+    image: redis:7-alpine
+    container_name: redis-myproject
+    command: redis-server --appendonly yes --requirepass redis123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_myproject_data:/data
+    networks:
+      - myproject-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - cache
+
+  # API Service
+  api-myproject:
+    image: wenpiner/last-admin-api:latest
+    container_name: api-myproject
+    environment:
+      # 数据库配置
+      DB_HOST: postgres-myproject
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: myproject_db
+      DB_SSL_MODE: disable
+      DB_TYPE: postgres
+      
+      # Redis 配置
+      REDIS_HOST: redis-myproject:6379
+      REDIS_PASSWORD: redis123
+      REDIS_DB: 0
+      REDIS_POOL_SIZE: 10
+      
+      # 认证配置
+      AUTH_ACCESS_SECRET: fY2KqOG%&G@d^Xp1*kIW@*1UKLEEPuNz
+      AUTH_ACCESS_EXPIRE: 360000
+      OAUTH_STATE_SECRET: y#62cyB87JD4M1Ba%LUyfOs^$pJzYgr!
+      
+      # 验证码配置
+      CAPTCHA_TYPE: digit
+      CAPTCHA_STORE_TYPE: redis
+      
+      # RPC 服务
+      RPC_TARGET: rpc-myproject:8080
+      
+      # 部署环境
+      DEPLOY_ENV: dev
+    ports:
+      - "8889:8889"
+    networks:
+      - myproject-network
+    depends_on:
+      postgres-myproject:
+        condition: service_healthy
+      redis-myproject:
+        condition: service_healthy
+      rpc-myproject:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8889/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # RPC Service
+  rpc-myproject:
+    image: wenpiner/last-admin-rpc:latest
+    container_name: rpc-myproject
+    environment:
+      # 数据库配置
+      DB_HOST: postgres-myproject
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: myproject_db
+      DB_SSL_MODE: disable
+      DB_TYPE: postgres
+      
+      # Redis 配置
+      REDIS_HOST: redis-myproject:6379
+      REDIS_PASSWORD: redis123
+      REDIS_DB: 0
+      REDIS_POOL_SIZE: 10
+      
+      # 认证配置
+      OAUTH_STATE_SECRET: y#62cyB87JD4M1Ba%LUyfOs^$pJzYgr!
+      
+      # 服务端口
+      SERVER_PORT: "8080"
+      
+      # 部署环境
+      DEPLOY_ENV: dev
+    ports:
+      - "8080:8080"
+    networks:
+      - myproject-network
+    depends_on:
+      postgres-myproject:
+        condition: service_healthy
+      redis-myproject:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  myproject-network:
+    driver: bridge
+
+volumes:
+  postgres_myproject_data:
+    driver: local
+  redis_myproject_data:
+    driver: local
+

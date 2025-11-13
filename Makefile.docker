@@ -1,0 +1,196 @@
+# Docker 构建 Makefile
+# 支持 buildx 多平台编译
+
+# ============================================================================
+# 变量定义
+# ============================================================================
+
+# Docker 镜像仓库
+DOCKER_REGISTRY ?= wenpiner
+IMAGE_NAME_API ?= last-admin-api
+IMAGE_NAME_RPC ?= last-admin-rpc
+
+# 版本号
+VERSION ?= latest
+BUILD_DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+GIT_COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+# 支持的平台
+PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7
+
+# 完整的镜像名称
+API_IMAGE := $(DOCKER_REGISTRY)/$(IMAGE_NAME_API):$(VERSION)
+RPC_IMAGE := $(DOCKER_REGISTRY)/$(IMAGE_NAME_RPC):$(VERSION)
+
+# ============================================================================
+# 帮助信息
+# ============================================================================
+
+.PHONY: help
+help:
+	@echo "Docker 构建命令:"
+	@echo ""
+	@echo "  make docker-build-api          - 构建 API 镜像 (本地)"
+	@echo "  make docker-build-rpc          - 构建 RPC 镜像 (本地)"
+	@echo "  make docker-build              - 构建 API 和 RPC 镜像 (本地)"
+	@echo ""
+	@echo "  make docker-buildx-api         - 使用 buildx 构建 API 镜像 (多平台)"
+	@echo "  make docker-buildx-rpc         - 使用 buildx 构建 RPC 镜像 (多平台)"
+	@echo "  make docker-buildx             - 使用 buildx 构建 API 和 RPC 镜像 (多平台)"
+	@echo ""
+	@echo "  make docker-push-api           - 推送 API 镜像到仓库"
+	@echo "  make docker-push-rpc           - 推送 RPC 镜像到仓库"
+	@echo "  make docker-push               - 推送 API 和 RPC 镜像到仓库"
+	@echo ""
+	@echo "  make docker-buildx-push-api    - 使用 buildx 构建并推送 API 镜像"
+	@echo "  make docker-buildx-push-rpc    - 使用 buildx 构建并推送 RPC 镜像"
+	@echo "  make docker-buildx-push        - 使用 buildx 构建并推送 API 和 RPC 镜像"
+	@echo ""
+	@echo "  make docker-clean              - 清理本地镜像"
+	@echo "  make docker-info               - 显示 Docker 信息"
+	@echo ""
+	@echo "变量:"
+	@echo "  VERSION=$(VERSION)"
+	@echo "  PLATFORMS=$(PLATFORMS)"
+	@echo "  DOCKER_REGISTRY=$(DOCKER_REGISTRY)"
+	@echo ""
+
+# ============================================================================
+# 本地构建 (单平台)
+# ============================================================================
+
+.PHONY: docker-build-api
+docker-build-api:
+	@echo "构建 API 镜像: $(API_IMAGE)"
+	docker build -f Dockerfile.api -t $(API_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		.
+	@echo "✓ API 镜像构建完成: $(API_IMAGE)"
+
+.PHONY: docker-build-rpc
+docker-build-rpc:
+	@echo "构建 RPC 镜像: $(RPC_IMAGE)"
+	docker build -f Dockerfile.rpc -t $(RPC_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		.
+	@echo "✓ RPC 镜像构建完成: $(RPC_IMAGE)"
+
+.PHONY: docker-build
+docker-build: docker-build-api docker-build-rpc
+	@echo "✓ 所有镜像构建完成"
+
+# ============================================================================
+# buildx 多平台构建
+# ============================================================================
+
+.PHONY: docker-buildx-api
+docker-buildx-api:
+	@echo "使用 buildx 构建 API 镜像 (多平台): $(API_IMAGE)"
+	@echo "支持平台: $(PLATFORMS)"
+	docker buildx build -f Dockerfile.api \
+		--platform $(PLATFORMS) \
+		-t $(API_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--load \
+		.
+	@echo "✓ API 镜像构建完成: $(API_IMAGE)"
+
+.PHONY: docker-buildx-rpc
+docker-buildx-rpc:
+	@echo "使用 buildx 构建 RPC 镜像 (多平台): $(RPC_IMAGE)"
+	@echo "支持平台: $(PLATFORMS)"
+	docker buildx build -f Dockerfile.rpc \
+		--platform $(PLATFORMS) \
+		-t $(RPC_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--load \
+		.
+	@echo "✓ RPC 镜像构建完成: $(RPC_IMAGE)"
+
+.PHONY: docker-buildx
+docker-buildx: docker-buildx-api docker-buildx-rpc
+	@echo "✓ 所有镜像构建完成 (多平台)"
+
+# ============================================================================
+# 推送镜像
+# ============================================================================
+
+.PHONY: docker-push-api
+docker-push-api:
+	@echo "推送 API 镜像: $(API_IMAGE)"
+	docker push $(API_IMAGE)
+	@echo "✓ API 镜像推送完成"
+
+.PHONY: docker-push-rpc
+docker-push-rpc:
+	@echo "推送 RPC 镜像: $(RPC_IMAGE)"
+	docker push $(RPC_IMAGE)
+	@echo "✓ RPC 镜像推送完成"
+
+.PHONY: docker-push
+docker-push: docker-push-api docker-push-rpc
+	@echo "✓ 所有镜像推送完成"
+
+# ============================================================================
+# buildx 构建并推送
+# ============================================================================
+
+.PHONY: docker-buildx-push-api
+docker-buildx-push-api:
+	@echo "使用 buildx 构建并推送 API 镜像 (多平台): $(API_IMAGE)"
+	docker buildx build -f Dockerfile.api \
+		--platform $(PLATFORMS) \
+		-t $(API_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--push \
+		.
+	@echo "✓ API 镜像构建并推送完成"
+
+.PHONY: docker-buildx-push-rpc
+docker-buildx-push-rpc:
+	@echo "使用 buildx 构建并推送 RPC 镜像 (多平台): $(RPC_IMAGE)"
+	docker buildx build -f Dockerfile.rpc \
+		--platform $(PLATFORMS) \
+		-t $(RPC_IMAGE) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--push \
+		.
+	@echo "✓ RPC 镜像构建并推送完成"
+
+.PHONY: docker-buildx-push
+docker-buildx-push: docker-buildx-push-api docker-buildx-push-rpc
+	@echo "✓ 所有镜像构建并推送完成"
+
+# ============================================================================
+# 清理和信息
+# ============================================================================
+
+.PHONY: docker-clean
+docker-clean:
+	@echo "清理本地镜像..."
+	docker rmi $(API_IMAGE) 2>/dev/null || true
+	docker rmi $(RPC_IMAGE) 2>/dev/null || true
+	@echo "✓ 清理完成"
+
+.PHONY: docker-info
+docker-info:
+	@echo "Docker 信息:"
+	@echo "  API 镜像: $(API_IMAGE)"
+	@echo "  RPC 镜像: $(RPC_IMAGE)"
+	@echo "  版本: $(VERSION)"
+	@echo "  构建日期: $(BUILD_DATE)"
+	@echo "  Git 提交: $(GIT_COMMIT)"
+	@echo "  支持平台: $(PLATFORMS)"
+	@echo ""
+	@echo "Docker 版本:"
+	@docker --version
+	@echo ""
+	@echo "Docker buildx 信息:"
+	@docker buildx version || echo "buildx 未安装"
+

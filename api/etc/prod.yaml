@@ -8,7 +8,7 @@ Auth:
   AccessExpire: ${AUTH_ACCESS_EXPIRE}
 
 I18nConf:
-  Dir: ""
+  Dir: ${I18N_DIR}
 
 # 项目配置
 ProjectConf:
@@ -17,7 +17,7 @@ ProjectConf:
 # 验证码配置
 CaptchaConf:
   # 验证码类型: digit(数字), string(字符串), math(数学), chinese(中文), audio(音频), random(随机)
-  Type: random
+  Type: ${CAPTCHA_TYPE}
 
   # 数字验证码配置
   Digit:
@@ -110,39 +110,39 @@ CaptchaConf:
   # 存储配置
   Store:
     # 存储类型: memory(内存), redis(Redis)
-    Type: redis
+    Type: ${CAPTCHA_STORE_TYPE}
     # 过期时间 (分钟)
     Expire: "5m"
     # Key前缀
     KeyPrefix: "captcha:"
     # Redis配置
     Redis:
-      Addr: "127.0.0.1:16379"
-      Password: "redis123"
-      DB: 0
-      PoolSize: 10
+      Addr: ${REDIS_HOST}
+      Password: ${REDIS_PASSWORD}
+      DB: ${REDIS_DB}
+      PoolSize: ${REDIS_POOL_SIZE}
 
 # Redis配置
 RedisConf:
-  Host: "127.0.0.1:16379"
-  Password: "redis123"
-  DB: 0
-  PoolSize: 10
+  Host: ${REDIS_HOST}
+  Password: ${REDIS_PASSWORD}
+  DB: ${REDIS_DB}
+  PoolSize: ${REDIS_POOL_SIZE}
 
 # Rpc 服务
 CoreRpc:
-  Target: "127.0.0.1:8080"
+  Target: ${RPC_TARGET}
 
 # Casbin数据库配置
 CasbinDatabaseConf:
-  Host: "127.0.0.1"
-  Port: 5432
-  Username: "postgres"
-  Password: "postgres"
-  DatabaseName: "last_admin"
-  SSLMode: "disable"
-  DBType: "postgres"
+  Host: ${DB_HOST}
+  Port: ${DB_PORT}
+  Username: ${DB_USER}
+  Password: "${DB_PASSWORD}"
+  DatabaseName: ${DB_NAME}
+  SSLMode: ${DB_SSL_MODE}
+  DBType: ${DB_TYPE}
   MaxOpenConns: 100
   MaxIdleConns: 10
   CacheTime: 300
-  DBPath: ""
+  DBPath: ${DB_PATH}

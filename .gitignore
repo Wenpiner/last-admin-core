@@ -1,0 +1,15 @@
+# ignore
+**/.idea
+**/.vscode
+**/.DS_Store
+**/logs
+**/adhoc
+**/coverage.txt
+**/WARP.md
+
+.env
+
+venv/
+.venv
+
+__pycache__/

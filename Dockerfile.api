@@ -1,0 +1,103 @@
+# ============================================================================
+# 阶段 1: 构建阶段
+# ============================================================================
+FROM golang:1.24.2-alpine3.20 AS builder
+
+# 设置构建元数据
+LABEL stage=builder
+
+# 设置构建参数
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+# 安装构建依赖
+RUN apk add --no-cache git=2.45.2-r0 ca-certificates=20240705-r0 tzdata=2024b-r0
+
+# 设置工作目录
+WORKDIR /build
+
+# 复制 go.mod 和 go.sum
+COPY go.mod go.sum ./
+
+# 下载依赖
+RUN go mod download
+
+# 复制源代码
+COPY . .
+
+# 构建二进制文件
+# 使用 CGO_ENABLED=0 确保静态链接，支持多平台
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-s -w" -o api ./api/core.go
+
+# 验证二进制文件是否存在
+RUN test -f /build/api || (echo "Failed to build api binary" && exit 1)
+
+# ============================================================================
+# 阶段 2: 运行阶段
+# ============================================================================
+FROM alpine:3.20
+
+# 设置镜像元数据
+LABEL maintainer="Wenpiner <wenpiner@gmail.com>"
+LABEL org.opencontainers.image.title="Last Admin API"
+LABEL org.opencontainers.image.description="Last Admin API Service - Go-Zero based microservice"
+LABEL org.opencontainers.image.authors="Wenpiner"
+LABEL org.opencontainers.image.source="https://github.com/wenpiner/last-admin-core"
+LABEL org.opencontainers.image.documentation="https://github.com/wenpiner/last-admin-core/blob/main/README.md"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.version="1.0.0"
+
+# 安装运行时依赖
+RUN apk add --no-cache ca-certificates=20240705-r0 tzdata=2024b-r0
+
+# 创建非 root 用户
+RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制二进制文件
+COPY --from=builder /build/api .
+
+# 复制配置文件
+COPY --from=builder /build/api/etc ./etc
+
+# 从构建阶段复制 i18n 配置文件到 etc 目录
+COPY --from=builder /build/api/internal/i18n/locale ./etc/i18n/locale
+
+# 创建 i18n 自定义配置目录（用于外部挂载）
+RUN mkdir -p /app/etc/i18n/custom
+
+# 设置权限
+RUN chown -R app:app /app
+
+# 切换到非 root 用户
+USER app
+
+# 暴露端口
+# 8889: API 服务端口
+# 6060: 健康检查端口
+# 6470: Prometheus 指标端口
+EXPOSE 8889 6060 6470
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:6060/healthz || exit 1
+
+# 设置默认的 i18n 目录环境变量
+# 默认值: /app/etc/i18n/locale (内置 i18n 文件)
+# 可以通过 -e I18N_DIR=/app/etc/i18n/custom 来使用自定义 i18n 文件
+# 或通过 -v /path/to/i18n:/app/etc/i18n/custom 来挂载自定义 i18n 文件
+ENV I18N_DIR="/app/etc/i18n/locale"
+
+# 设置时区环境变量
+# 默认值: Asia/Shanghai
+# 可以通过 -e TZ=America/New_York 来指定其他时区
+ENV TZ="Asia/Shanghai"
+
+# 启动应用
+ENTRYPOINT ["./api"]
+CMD ["-f", "etc/prod.yaml"]
+
