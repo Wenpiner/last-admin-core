@@ -29,7 +29,12 @@ COPY . .
 # 构建二进制文件
 # 使用 CGO_ENABLED=0 确保静态链接，支持多平台
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-    go build -ldflags="-s -w" -o rpc ./rpc/core.go
+    go build -ldflags="-s -w" -o rpc ./rpc/core.go && \
+    echo "Build completed successfully" && \
+    ls -lh /build/
+
+# 验证二进制文件是否存在
+RUN test -f /build/rpc || (echo "Failed to build rpc binary" && ls -lh /build/ && exit 1)
 
 # ============================================================================
 # 阶段 2: 运行阶段
