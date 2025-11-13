@@ -33,9 +33,6 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     echo "Build completed successfully" && \
     ls -lh /build/
 
-# 验证二进制文件是否存在
-RUN [ -f /build/api/core ] || (echo "Failed to build api binary" && ls -lh /build/ && exit 1)
-
 # ============================================================================
 # 阶段 2: 运行阶段
 # ============================================================================
