@@ -40,7 +40,6 @@ jobs:
 
       - name: Create deploy scripts archive
         run: |
-          cd last-admin-core
           tar -czf deploy-scripts-${{ steps.version.outputs.version }}.tar.gz deploy/
           ls -lh deploy-scripts-*.tar.gz
 
@@ -48,7 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: steps.version.outputs.is_tag == 'true'
         with:
-          files: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          files: deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,7 +56,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
         with:
-          files: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          files: deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
           tag_name: deploy-${{ steps.version.outputs.version }}
           draft: false
           prerelease: true
@@ -68,6 +67,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deploy-scripts-${{ steps.version.outputs.version }}
-          path: last-admin-core/deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
+          path: deploy-scripts-${{ steps.version.outputs.version }}.tar.gz
           retention-days: 30
 
