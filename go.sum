@@ -232,6 +232,8 @@ github.com/wenpiner/last-admin-common v1.0.1 h1:GymLd7HzCJQmfq02AOFPj22REATUMAhm
 github.com/wenpiner/last-admin-common v1.0.1/go.mod h1:/xHq0uW7PEdhuto1Db9eETY+XtXFu+Omvtf6I4xf0Ec=
 github.com/wenpiner/last-admin-common v1.0.2 h1:pbag3qOn9hwNBIzBrxRVpz6yLBWKA+rB3WcbtYyEZx8=
 github.com/wenpiner/last-admin-common v1.0.2/go.mod h1:/xHq0uW7PEdhuto1Db9eETY+XtXFu+Omvtf6I4xf0Ec=
+github.com/wenpiner/last-admin-common v1.0.3 h1:o5GVs3j90O56Rv3CQ/VTGwi889ZJyMoU766UGy/8byk=
+github.com/wenpiner/last-admin-common v1.0.3/go.mod h1:/xHq0uW7PEdhuto1Db9eETY+XtXFu+Omvtf6I4xf0Ec=
 github.com/wenpiner/last-admin-zero v1.9.2 h1:5wEIJTntWCH7a28PAKrb8n+ewq5RGtCcu9gXRMRr6/c=
 github.com/wenpiner/last-admin-zero v1.9.2/go.mod h1:Cr2ijf756iF9XbwzJGlBZYroP23dO8jddxZF4maF3J0=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

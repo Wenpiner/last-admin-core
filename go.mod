@@ -20,7 +20,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.16.0
-	github.com/wenpiner/last-admin-common v1.0.2
+	github.com/wenpiner/last-admin-common v1.0.3
 	github.com/zeromicro/go-zero v1.9.2
 	golang.org/x/oauth2 v0.24.0
 	google.golang.org/grpc v1.65.0
