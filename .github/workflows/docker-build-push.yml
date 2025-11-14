@@ -84,7 +84,6 @@ jobs:
 
       - name: Create deploy.tar.gz
         run: |
-          cd last-admin-core
           tar -czf deploy.tar.gz deploy/
           ls -lh deploy.tar.gz
 
@@ -168,7 +167,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           body_path: release_notes.md
           files: |
-            last-admin-core/deploy.tar.gz
+            deploy.tar.gz
           draft: false
           prerelease: false
         env:
