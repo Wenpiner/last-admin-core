@@ -61,16 +61,23 @@ fi
 VERSION_NUM=${LATEST_RELEASE#v}
 echo -e "${GREEN}✓ 最新版本: $LATEST_RELEASE${NC}"
 
-# 从 Release 信息中提取 SHA256
-# 尝试从 Release body 中提取 SHA256（格式: **SHA256**: `xxxxx`）
-EXPECTED_SHA256=$(echo "$RELEASE_INFO" | grep -o '\*\*SHA256\*\*: `[^`]*`' | sed -E 's/.*`([^`]+)`.*/\1/')
+# 从 Release assets 中提取 SHA256 文件 URL
+# 查找 deploy.tar.gz.sha256 的下载 URL
+SHA256_FILE_URL=$(echo "$RELEASE_INFO" | grep -o '"browser_download_url": "[^"]*deploy\.tar\.gz\.sha256"' | sed -E 's/.*"([^"]+)".*/\1/')
 
-if [ -z "$EXPECTED_SHA256" ]; then
-    echo -e "${YELLOW}⚠ 未找到 SHA256 校验值，将跳过校验${NC}"
+if [ -z "$SHA256_FILE_URL" ]; then
+    echo -e "${YELLOW}⚠ 未找到 SHA256 文件，将跳过校验${NC}"
     SKIP_SHA256_CHECK=true
 else
-    echo -e "${GREEN}✓ SHA256: ${EXPECTED_SHA256:0:16}...${NC}"
-    SKIP_SHA256_CHECK=false
+    # 下载 SHA256 文件
+    EXPECTED_SHA256=$(curl -s "$SHA256_FILE_URL")
+    if [ -z "$EXPECTED_SHA256" ]; then
+        echo -e "${YELLOW}⚠ 无法读取 SHA256 值，将跳过校验${NC}"
+        SKIP_SHA256_CHECK=true
+    else
+        echo -e "${GREEN}✓ SHA256: ${EXPECTED_SHA256:0:16}...${NC}"
+        SKIP_SHA256_CHECK=false
+    fi
 fi
 
 # 下载部署包（带重试机制）
