@@ -36,7 +36,7 @@ func NewRegisterUserLogic(r *http.Request, svcCtx *svc.ServiceContext) *Register
 func (l *RegisterUserLogic) RegisterUser(req *types.RegisterRequest) (resp *types.BaseResponse, err error) {
 	// 校验是否开启注册
 	response, err := l.svcCtx.ConfigurationRpc.ValidateConfiguration(l.ctx, &core.ValidateConfigurationRequest{
-		Key: enums.ConfigurationRegister,
+		Key: enums.ConfigurationKeyRegister,
 		Exp: "value == 'true'",
 	})
 	if err != nil {

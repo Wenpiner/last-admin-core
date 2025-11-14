@@ -3,6 +3,7 @@ package configurationservicelogic
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/wenpiner/last-admin-common/ctx/rolectx"
@@ -34,7 +35,13 @@ func NewConfigurationPermissionChecker(casbin *casbin.Enforcer, logger logx.Logg
 
 // CheckReadPermission 检查读权限
 // 返回 error 表示无权限或检查失败
+// 注意：如果 group 以 /public 开头，则跳过权限检查（公开配置）
 func (c *ConfigurationPermissionChecker) CheckReadPermission(ctx context.Context, group string) error {
+	// 如果是公开配置，跳过权限检查
+	if strings.HasPrefix(group, "/public") {
+		return nil
+	}
+
 	roleIds, ok := rolectx.GetRoleFromContext(ctx)
 	if !ok || len(roleIds) == 0 {
 		c.logger.Errorw("从上下文中读取Role失败", logx.Field("detail", "roleIds is empty"))
@@ -46,7 +53,13 @@ func (c *ConfigurationPermissionChecker) CheckReadPermission(ctx context.Context
 
 // CheckWritePermission 检查写权限
 // 返回 error 表示无权限或检查失败
+// 注意：如果 group 以 /public 开头，则跳过权限检查（公开配置）
 func (c *ConfigurationPermissionChecker) CheckWritePermission(ctx context.Context, group string) error {
+	// 如果是公开配置，跳过权限检查
+	if strings.HasPrefix(group, "/public") {
+		return nil
+	}
+
 	roleIds, ok := rolectx.GetRoleFromContext(ctx)
 	if !ok || len(roleIds) == 0 {
 		c.logger.Errorw("从上下文中读取Role失败", logx.Field("detail", "roleIds is empty"))
@@ -59,6 +72,7 @@ func (c *ConfigurationPermissionChecker) CheckWritePermission(ctx context.Contex
 // GetAllowedGroups 获取允许的配置分组列表
 // operation: "read" 或 "write"，如果为空则返回所有操作的分组
 // 返回允许的分组列表，如果无权限则返回空列表
+// 注意：公开配置（/public 开头）对所有人都可访问，会自动包含在结果中
 func (c *ConfigurationPermissionChecker) GetAllowedGroups(ctx context.Context, operation string) ([]string, error) {
 	roleIds, ok := rolectx.GetRoleFromContext(ctx)
 	if !ok || len(roleIds) == 0 {
@@ -123,7 +137,13 @@ func (c *ConfigurationPermissionChecker) checkPermission(roleIds []string, group
 }
 
 // CheckPermissionWithMessage 检查权限并返回自定义错误消息
+// 注意：如果 group 以 /public 开头，则跳过权限检查（公开配置）
 func (c *ConfigurationPermissionChecker) CheckPermissionWithMessage(ctx context.Context, group string, operation string, errorMessage string) error {
+	// 如果是公开配置，跳过权限检查
+	if strings.HasPrefix(group, "/public") {
+		return nil
+	}
+
 	roleIds, ok := rolectx.GetRoleFromContext(ctx)
 	if !ok || len(roleIds) == 0 {
 		c.logger.Errorw("从上下文中读取Role失败", logx.Field("detail", "roleIds is empty"))

@@ -33,7 +33,7 @@ func NewInitLogic(r *http.Request, svcCtx *svc.ServiceContext) *InitLogic {
 func (l *InitLogic) Init() (resp *types.BaseDataInfo, err error) {
 	// 校验是否开启初始化
 	response, _ := l.svcCtx.ConfigurationRpc.GetConfiguration(l.ctx, &core.StringRequest{
-		Value: enums.ConfigurationInit,
+		Value: enums.ConfigurationKeyInit,
 	})
 	// 检查是否开启初始化
 	if response != nil && response.Value == "true" {

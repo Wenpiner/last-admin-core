@@ -1,0 +1,32 @@
+syntax = "v1"
+
+import "../base.api"
+
+info (
+	title:   "公共配置相关接口"
+	desc:    "公共配置相关接口"
+	author:  "Wenpiner"
+	email:   "wenpiner@gmail.com"
+	version: "1.0.0"
+)
+
+type (
+	VbenPreference {
+		BaseDataInfo
+		Data map[string]interface{} `json:"data"` // 配置数据 / Configuration data
+	}
+)
+
+@server (
+	prefix: /public/config
+	group:  publicConfig
+	tags:   "公共配置"
+)
+service Core {
+	@doc (
+		summary: "获取VBen Preference配置"
+	)
+	@handler GetVbenPreference
+	get /vben_preference returns (VbenPreference)
+}
+

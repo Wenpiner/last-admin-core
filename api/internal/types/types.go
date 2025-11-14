@@ -622,6 +622,11 @@ type UserListResponse struct {
 	Data UserListInfo `json:"data"` // 用户列表 / User list
 }
 
+type VbenPreference struct {
+	BaseDataInfo
+	Data map[string]interface{} `json:"data"` // 配置数据 / Configuration data
+}
+
 type VerifyTotpRequest struct {
 	UserId string `json:"userId"` // 用户ID / User ID
 	Code   string `json:"code"`   // 验证码 / Verification code

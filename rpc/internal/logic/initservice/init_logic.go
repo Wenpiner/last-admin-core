@@ -859,15 +859,17 @@ func (l *InitLogic) initConfiguration() error {
 	configurations = append(configurations, l.svcCtx.DBEnt.Configuration.Create().
 		SetName("注册").
 		SetGroup(enums.ConfigurationGroupSystem).
-		SetKey(enums.ConfigurationRegister).
+		SetKey(enums.ConfigurationKeyRegister).
 		SetValue("false").
 		SetDescription("是否开启注册"))
 	configurations = append(configurations, l.svcCtx.DBEnt.Configuration.Create().
 		SetName("初始化").
 		SetGroup(enums.ConfigurationGroupSystem).
-		SetKey(enums.ConfigurationInit).
+		SetKey(enums.ConfigurationKeyInit).
 		SetValue("true").
 		SetDescription("是否开启初始化"))
+	
+
 
 	err := l.svcCtx.DBEnt.Configuration.CreateBulk(configurations...).Exec(l.ctx)
 	if err != nil {
