@@ -352,19 +352,41 @@ class Installer:
         api_image = f"{self.data['API_IMAGE_REPO']}:{self.data['API_IMAGE_TAG']}"
         rpc_image = f"{self.data['RPC_IMAGE_REPO']}:{self.data['RPC_IMAGE_TAG']}"
 
+        # 处理 API 镜像
         if not docker_image_exists(api_image):
             if not pull_docker_image(api_image):
                 console.print(f"[red]✗ 无法拉取 API 镜像: {api_image}[/red]")
                 return False
         else:
             console.print(f"[green]✓ API 镜像已存在: {api_image}[/green]")
+            # 如果使用 latest 标签，询问是否强制重新拉取
+            if self.data['API_IMAGE_TAG'] == 'latest':
+                if self.prompts.prompt_confirm(
+                    f"API 镜像使用 latest 标签，是否强制重新拉取以获取最新版本?",
+                    default=False
+                ):
+                    if not pull_docker_image(api_image):
+                        console.print(f"[red]✗ 无法拉取 API 镜像: {api_image}[/red]")
+                        return False
+                    console.print(f"[green]✓ API 镜像已更新: {api_image}[/green]")
 
+        # 处理 RPC 镜像
         if not docker_image_exists(rpc_image):
             if not pull_docker_image(rpc_image):
                 console.print(f"[red]✗ 无法拉取 RPC 镜像: {rpc_image}[/red]")
                 return False
         else:
             console.print(f"[green]✓ RPC 镜像已存在: {rpc_image}[/green]")
+            # 如果使用 latest 标签，询问是否强制重新拉取
+            if self.data['RPC_IMAGE_TAG'] == 'latest':
+                if self.prompts.prompt_confirm(
+                    f"RPC 镜像使用 latest 标签，是否强制重新拉取以获取最新版本?",
+                    default=False
+                ):
+                    if not pull_docker_image(rpc_image):
+                        console.print(f"[red]✗ 无法拉取 RPC 镜像: {rpc_image}[/red]")
+                        return False
+                    console.print(f"[green]✓ RPC 镜像已更新: {rpc_image}[/green]")
 
         console.print("[green]✓ Docker 镜像已准备就绪[/green]")
         return True

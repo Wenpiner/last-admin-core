@@ -50,9 +50,12 @@ services:
     image: {API_IMAGE_REPO}:{API_IMAGE_TAG}
     container_name: api-{PROJECT_NAME}
     environment:
+      # 服务端口（数字类型，不用引号）
+      SERVER_PORT: 8889
+
       # 数据库配置
       DB_HOST: {DB_HOST}
-      DB_PORT: "{DB_PORT}"
+      DB_PORT: {DB_PORT}
       DB_USER: {DB_USER}
       DB_PASSWORD: {DB_PASSWORD}
       DB_NAME: {DB_NAME}
@@ -86,9 +89,6 @@ services:
       DEPLOY_ENV: {DEPLOY_ENV}
     ports:
       - "{API_PORT}:8889"
-    volumes:
-      # 可选: 挂载自定义 i18n 文件
-      # - ./i18n:/app/etc/i18n/custom
     networks:
       - {DOCKER_NETWORK}
     depends_on:
@@ -110,9 +110,12 @@ services:
     image: {RPC_IMAGE_REPO}:{RPC_IMAGE_TAG}
     container_name: rpc-{PROJECT_NAME}
     environment:
+      # 服务端口（数字类型，不用引号）
+      SERVER_PORT: 8080
+
       # 数据库配置
       DB_HOST: {DB_HOST}
-      DB_PORT: "{DB_PORT}"
+      DB_PORT: {DB_PORT}
       DB_USER: {DB_USER}
       DB_PASSWORD: {DB_PASSWORD}
       DB_NAME: {DB_NAME}
@@ -124,13 +127,10 @@ services:
       REDIS_PASSWORD: {REDIS_PASSWORD}
       REDIS_DB: {REDIS_DB}
       REDIS_POOL_SIZE: {REDIS_POOL_SIZE}
-      
+
       # 认证配置
       OAUTH_STATE_SECRET: {OAUTH_STATE_SECRET}
-      
-      # 服务端口
-      SERVER_PORT: "8080"
-      
+
       # 部署环境
       DEPLOY_ENV: {DEPLOY_ENV}
     ports:
