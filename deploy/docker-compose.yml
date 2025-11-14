@@ -1,0 +1,71 @@
+version: '3.8'
+services:
+  api-last-admin:
+    image: wenpiner/last-admin-api:latest
+    container_name: api-last-admin
+    environment:
+      SERVER_PORT: 8889
+      DB_HOST: postgres-myproject
+      DB_PORT: 5433
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: myproject_db
+      DB_SSL_MODE: disable
+      DB_TYPE: postgres
+      REDIS_HOST: redis-myproject:6379
+      REDIS_PASSWORD: redis123
+      REDIS_DB: 0
+      REDIS_POOL_SIZE: 10
+      AUTH_ACCESS_SECRET: fY2KqOG%&G@d^Xp1*kIW@*1UKLEEPuNz
+      AUTH_ACCESS_EXPIRE: 360000
+      OAUTH_STATE_SECRET: y#62cyB87JD4M1Ba%LUyfOs^$pJzYgr!
+      CAPTCHA_TYPE: digit
+      CAPTCHA_STORE_TYPE: redis
+      I18N_DIR: /app/etc/i18n/locale
+      RPC_TARGET: rpc-last-admin:8080
+      DEPLOY_ENV: prod
+    ports:
+    - 8889:8889
+    networks:
+    - lastadmin-network
+    depends_on:
+      rpc-last-admin:
+        condition: service_started
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8889/health
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  rpc-last-admin:
+    image: wenpiner/last-admin-rpc:latest
+    container_name: rpc-last-admin
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: postgres-myproject
+      DB_PORT: 5433
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: myproject_db
+      DB_SSL_MODE: disable
+      DB_TYPE: postgres
+      REDIS_HOST: redis-myproject:6379
+      REDIS_PASSWORD: redis123
+      REDIS_DB: 0
+      REDIS_POOL_SIZE: 10
+      OAUTH_STATE_SECRET: y#62cyB87JD4M1Ba%LUyfOs^$pJzYgr!
+      DEPLOY_ENV: prod
+    ports:
+    - 8080:8080
+    networks:
+    - lastadmin-network
+    depends_on: {}
+    restart: unless-stopped
+networks:
+  lastadmin-network:
+    driver: bridge
+volumes: {}

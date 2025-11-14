@@ -45,6 +45,19 @@ class Installer:
         self.config.create_if_not_exists()
         self.prompts = PromptManager(self.config)
         self.data = {}
+        self.skip_deploy = False  # 是否跳过部署步骤
+
+        # 检查是否已经部署过（docker-compose.yml 存在）
+        docker_compose_path = os.path.join(self.install_dir, "docker-compose.yml")
+        self.is_deployed = os.path.exists(docker_compose_path)
+
+        # 锁定的配置项（已部署后不能修改）
+        self.locked_configs = {
+            "PROJECT_NAME": "项目名称（已部署，不能修改）",
+            "DOCKER_NETWORK": "Docker 网络（已部署，不能修改）",
+            "DB_DEPLOY_MODE": "数据库部署方式（已部署，不能修改）",
+            "REDIS_DEPLOY_MODE": "Redis 部署方式（已部署，不能修改）",
+        }
     
     def print_header(self):
         """打印标题"""
@@ -56,24 +69,37 @@ class Installer:
     def stage_1_project_info(self):
         """第 1 阶段：项目基本信息"""
         console.print("\n[bold cyan]第 1 阶段：项目基本信息[/bold cyan]")
-        
-        project_name = self.prompts.prompt_project_name()
-        self.config.set("PROJECT_NAME", project_name)
-        self.data["PROJECT_NAME"] = project_name
-        
+
+        # 如果已部署，PROJECT_NAME 被锁定
+        if self.is_deployed:
+            project_name = self.config.get("PROJECT_NAME", "lastadmin")
+            console.print(f"[cyan]项目名称（已锁定）: {project_name}[/cyan]")
+            self.data["PROJECT_NAME"] = project_name
+        else:
+            project_name = self.prompts.prompt_project_name()
+            self.config.set("PROJECT_NAME", project_name)
+            self.data["PROJECT_NAME"] = project_name
+
         deploy_env = self.prompts.prompt_deploy_env()
         self.config.set("DEPLOY_ENV", deploy_env)
         self.data["DEPLOY_ENV"] = deploy_env
-        
+
         console.print("[green]✓ 项目基本信息已保存[/green]")
     
     def stage_2_docker_network(self):
         """第 2 阶段：Docker 网络配置"""
         console.print("\n[bold cyan]第 2 阶段：Docker 网络配置[/bold cyan]")
-        
+
+        # 如果已部署，DOCKER_NETWORK 被锁定
+        if self.is_deployed:
+            network_name = self.config.get("DOCKER_NETWORK", "")
+            console.print(f"[cyan]Docker 网络（已锁定）: {network_name}[/cyan]")
+            self.data["DOCKER_NETWORK"] = network_name
+            return True
+
         existing_networks = get_docker_networks()
         network_choice = self.prompts.prompt_docker_network(existing_networks)
-        
+
         if network_choice == "创建新网络":
             network_name = f"{self.data['PROJECT_NAME']}-network"
             if not docker_network_exists(network_name):
@@ -85,7 +111,7 @@ class Installer:
             self.data["DOCKER_NETWORK"] = network_name
         else:
             self.data["DOCKER_NETWORK"] = network_choice
-        
+
         self.config.set("DOCKER_NETWORK", self.data["DOCKER_NETWORK"])
         return True
     
@@ -110,15 +136,24 @@ class Installer:
     def stage_4_deploy_mode(self):
         """第 4 阶段：组件部署方案"""
         console.print("\n[bold cyan]第 4 阶段：组件部署方案[/bold cyan]")
-        
-        db_mode = self.prompts.prompt_deploy_mode("database")
-        self.config.set("DB_DEPLOY_MODE", db_mode)
-        self.data["DB_DEPLOY_MODE"] = db_mode
-        
-        redis_mode = self.prompts.prompt_deploy_mode("redis")
-        self.config.set("REDIS_DEPLOY_MODE", redis_mode)
-        self.data["REDIS_DEPLOY_MODE"] = redis_mode
-        
+
+        # 如果已部署，部署方式被锁定
+        if self.is_deployed:
+            db_mode = self.config.get("DB_DEPLOY_MODE", "docker")
+            redis_mode = self.config.get("REDIS_DEPLOY_MODE", "docker")
+            console.print(f"[cyan]数据库部署方式（已锁定）: {db_mode}[/cyan]")
+            console.print(f"[cyan]Redis 部署方式（已锁定）: {redis_mode}[/cyan]")
+            self.data["DB_DEPLOY_MODE"] = db_mode
+            self.data["REDIS_DEPLOY_MODE"] = redis_mode
+        else:
+            db_mode = self.prompts.prompt_deploy_mode("database")
+            self.config.set("DB_DEPLOY_MODE", db_mode)
+            self.data["DB_DEPLOY_MODE"] = db_mode
+
+            redis_mode = self.prompts.prompt_deploy_mode("redis")
+            self.config.set("REDIS_DEPLOY_MODE", redis_mode)
+            self.data["REDIS_DEPLOY_MODE"] = redis_mode
+
         console.print("[green]✓ 组件部署方案已保存[/green]")
     
     def stage_5_ports(self):
@@ -389,12 +424,57 @@ class Installer:
                     console.print(f"[green]✓ RPC 镜像已更新: {rpc_image}[/green]")
 
         console.print("[green]✓ Docker 镜像已准备就绪[/green]")
+
+        # 启动服务
+        console.print("\n[cyan]正在启动服务...[/cyan]")
+        if not self._start_services():
+            console.print("[red]✗ 启动服务失败[/red]")
+            return False
+
+        console.print("[green]✓ 服务已启动[/green]")
         return True
+
+    def _start_services(self) -> bool:
+        """启动 Docker 服务"""
+        try:
+            import subprocess
+
+            # 进入安装目录并执行 docker compose up -d
+            result = subprocess.run(
+                ['docker', 'compose', 'up', '-d'],
+                cwd=self.install_dir,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 分钟超时
+            )
+
+            if result.returncode != 0:
+                console.print(f"[red]✗ docker compose up -d 失败[/red]")
+                console.print(f"[red]错误信息: {result.stderr}[/red]")
+                return False
+
+            # 显示启动的服务
+            console.print(result.stdout)
+            return True
+        except subprocess.TimeoutExpired:
+            console.print("[red]✗ 启动服务超时（5 分钟）[/red]")
+            return False
+        except Exception as e:
+            console.print(f"[red]✗ 启动服务出错: {e}[/red]")
+            return False
     
     def run(self):
         """运行安装流程"""
         try:
             self.print_header()
+
+            # 如果已经部署过，显示警告
+            if self.is_deployed:
+                console.print("\n[yellow]⚠ 检测到已部署的配置，某些配置项已被锁定[/yellow]")
+                console.print("[cyan]锁定的配置项：[/cyan]")
+                for key, desc in self.locked_configs.items():
+                    console.print(f"  • {desc}")
+                console.print()
 
             self.stage_1_project_info()
             self.stage_2_docker_network()
@@ -408,8 +488,15 @@ class Installer:
 
             self.show_summary()
 
+            env_file = os.path.join(self.install_dir, ".env")
+
+            # 如果设置了跳过部署标志，直接保存配置并退出
+            if self.skip_deploy:
+                console.print(f"\n[green]✓ 配置已保存到: {env_file}[/green]")
+                console.print("[cyan]已跳过部署步骤（--skip-deploy 标志）[/cyan]")
+                return
+
             if self.prompts.prompt_confirm("\n是否继续部署?", default=True):
-                env_file = os.path.join(self.install_dir, ".env")
                 console.print(f"\n[green]✓ 配置已保存到: {env_file}[/green]")
 
                 # 执行部署步骤
@@ -424,7 +511,6 @@ class Installer:
                     console.print("\n[red]✗ 部署失败，请检查错误信息[/red]")
                     sys.exit(1)
             else:
-                env_file = os.path.join(self.install_dir, ".env")
                 console.print(f"\n[yellow]⚠ 部署已取消，配置已保存到: {env_file}[/yellow]")
 
         except KeyboardInterrupt:
@@ -436,11 +522,92 @@ class Installer:
 
 
 if __name__ == "__main__":
-    # 从命令行参数获取安装目录
-    install_dir = None
-    if len(sys.argv) > 1:
-        install_dir = sys.argv[1]
+    import argparse
 
-    installer = Installer(install_dir)
+    parser = argparse.ArgumentParser(
+        description="Last Admin 安装向导",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+示例:
+  # 交互式安装
+  python3 install.py
+
+  # 指定安装目录
+  python3 install.py /opt/last-admin
+
+  # 非交互式安装（使用环境变量）
+  PROJECT_NAME=myapp DEPLOY_ENV=prod python3 install.py /opt/last-admin < /dev/null
+
+  # 非交互式安装（使用 --config 参数）
+  python3 install.py /opt/last-admin --config PROJECT_NAME=myapp --config DEPLOY_ENV=prod < /dev/null
+
+支持的环境变量:
+  PROJECT_NAME, DEPLOY_ENV, API_PORT, RPC_PORT, DB_PORT, REDIS_PORT,
+  DB_TYPE, DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_SSL_MODE,
+  REDIS_PASSWORD, REDIS_DB, REDIS_POOL_SIZE, REDIS_HOST,
+  API_IMAGE_REPO, API_IMAGE_TAG, RPC_IMAGE_REPO, RPC_IMAGE_TAG,
+  DOCKER_NETWORK, DB_DEPLOY_MODE, REDIS_DEPLOY_MODE,
+  CAPTCHA_TYPE, CAPTCHA_STORE_TYPE
+        """
+    )
+
+    parser.add_argument(
+        "install_dir",
+        nargs="?",
+        default=None,
+        help="安装目录（默认: 当前目录）"
+    )
+
+    parser.add_argument(
+        "--config",
+        action="append",
+        dest="config_overrides",
+        default=[],
+        help="配置覆盖（格式: KEY=VALUE），可以多次使用"
+    )
+
+    parser.add_argument(
+        "--skip-deploy",
+        action="store_true",
+        help="仅生成配置，不执行部署"
+    )
+
+    args = parser.parse_args()
+
+    installer = Installer(args.install_dir)
+
+    # 应用配置覆盖（来自命令行参数）
+    for config_override in args.config_overrides:
+        if "=" in config_override:
+            key, value = config_override.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+            # 如果已部署且该配置被锁定，则不覆盖
+            if installer.is_deployed and key in installer.locked_configs:
+                console.print(f"[yellow]⚠ 配置 {key} 被忽略（已部署，配置已锁定）[/yellow]")
+                continue
+            installer.config.set(key, value)
+
+    # 应用配置覆盖（来自环境变量）
+    env_config_keys = [
+        "PROJECT_NAME", "DEPLOY_ENV", "API_PORT", "RPC_PORT", "DB_PORT", "REDIS_PORT",
+        "DB_TYPE", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_HOST", "DB_SSL_MODE",
+        "REDIS_PASSWORD", "REDIS_DB", "REDIS_POOL_SIZE", "REDIS_HOST",
+        "API_IMAGE_REPO", "API_IMAGE_TAG", "RPC_IMAGE_REPO", "RPC_IMAGE_TAG",
+        "DOCKER_NETWORK", "DB_DEPLOY_MODE", "REDIS_DEPLOY_MODE",
+        "CAPTCHA_TYPE", "CAPTCHA_STORE_TYPE"
+    ]
+
+    for key in env_config_keys:
+        if key in os.environ:
+            # 如果已部署且该配置被锁定，则不覆盖
+            if installer.is_deployed and key in installer.locked_configs:
+                console.print(f"[yellow]⚠ 环境变量 {key} 被忽略（已部署，配置已锁定）[/yellow]")
+                continue
+            installer.config.set(key, os.environ[key])
+
+    # 设置跳过部署标志
+    installer.skip_deploy = args.skip_deploy
+
     installer.run()
 

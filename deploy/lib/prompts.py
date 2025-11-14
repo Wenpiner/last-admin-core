@@ -22,8 +22,8 @@ class PromptManager:
                 value = Prompt.ask(prompt, default=default)
             except EOFError:
                 # 非交互式环境，使用默认值
-                if default:
-                    console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default}[/yellow]")
+                if default is not None:
+                    console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default if default else '(空)'}[/yellow]")
                     return default
                 else:
                     console.print("[red]✗ 非交互式环境且无默认值，请提供输入[/red]")
@@ -69,11 +69,11 @@ class PromptManager:
                 port_str = Prompt.ask(prompt, default=str(default))
             except EOFError:
                 # 非交互式环境，使用默认值
-                if default:
+                if default and default > 0:
                     console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default}[/yellow]")
                     return default
                 else:
-                    console.print("[red]✗ 非交互式环境且无默认值，请提供输入[/red]")
+                    console.print("[red]✗ 非交互式环境且无有效默认值，请提供输入[/red]")
                     raise
 
             try:
