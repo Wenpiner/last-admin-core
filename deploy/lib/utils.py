@@ -132,16 +132,26 @@ def test_redis_connection(host: str, port: int, password: str, db: int) -> bool:
 
 
 def docker_compose_exists() -> bool:
-    """检查 docker-compose 是否已安装"""
+    """检查 docker compose 是否已安装"""
     try:
+        # 首先尝试新版本 docker compose
         subprocess.run(
-            ['docker-compose', '--version'],
+            ['docker', 'compose', '--version'],
             check=True,
             capture_output=True
         )
         return True
     except Exception:
-        return False
+        try:
+            # 如果新版本不可用，尝试老版本 docker-compose
+            subprocess.run(
+                ['docker-compose', '--version'],
+                check=True,
+                capture_output=True
+            )
+            return True
+        except Exception:
+            return False
 
 
 def pull_docker_image(image: str) -> bool:
@@ -175,6 +185,8 @@ def docker_image_exists(image: str) -> bool:
 def generate_docker_compose(config: dict, output_path: str = "docker-compose.yml") -> bool:
     """生成 docker-compose.yml 文件"""
     try:
+        import yaml
+
         # 读取模板文件
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "docker-compose.tpl")
 
@@ -183,17 +195,63 @@ def generate_docker_compose(config: dict, output_path: str = "docker-compose.yml
             return False
 
         with open(template_path, 'r', encoding='utf-8') as f:
-            template = f.read()
+            template_content = f.read()
 
         # 替换模板中的占位符
-        content = template
+        content = template_content
         for key, value in config.items():
             placeholder = "{" + key + "}"
             content = content.replace(placeholder, str(value))
 
+        # 解析 YAML
+        compose_config = yaml.safe_load(content)
+
+        # 根据部署方式移除不需要的服务
+        db_deploy_mode = config.get("DB_DEPLOY_MODE", "docker")
+        redis_deploy_mode = config.get("REDIS_DEPLOY_MODE", "docker")
+
+        services = compose_config.get("services", {})
+        volumes = compose_config.get("volumes", {})
+
+        # 如果数据库使用外部部署，移除 postgres 服务
+        if db_deploy_mode == "external":
+            project_name = config.get("PROJECT_NAME", "myproject")
+            postgres_service = f"postgres-{project_name}"
+            if postgres_service in services:
+                del services[postgres_service]
+
+            # 移除 postgres 数据卷
+            postgres_volume = f"postgres_{project_name}_data"
+            if postgres_volume in volumes:
+                del volumes[postgres_volume]
+
+            # 移除 depends_on 中的 postgres 依赖
+            for service_name in ["api-" + project_name, "rpc-" + project_name]:
+                if service_name in services and "depends_on" in services[service_name]:
+                    if postgres_service in services[service_name]["depends_on"]:
+                        del services[service_name]["depends_on"][postgres_service]
+
+        # 如果 Redis 使用外部部署，移除 redis 服务
+        if redis_deploy_mode == "external":
+            project_name = config.get("PROJECT_NAME", "myproject")
+            redis_service = f"redis-{project_name}"
+            if redis_service in services:
+                del services[redis_service]
+
+            # 移除 redis 数据卷
+            redis_volume = f"redis_{project_name}_data"
+            if redis_volume in volumes:
+                del volumes[redis_volume]
+
+            # 移除 depends_on 中的 redis 依赖
+            for service_name in ["api-" + project_name, "rpc-" + project_name]:
+                if service_name in services and "depends_on" in services[service_name]:
+                    if redis_service in services[service_name]["depends_on"]:
+                        del services[service_name]["depends_on"][redis_service]
+
         # 写入文件
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(content)
+            yaml.dump(compose_config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
         console.print(f"[green]✓ docker-compose.yml 已生成: {output_path}[/green]")
         return True

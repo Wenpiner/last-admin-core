@@ -51,25 +51,25 @@ services:
     container_name: api-{PROJECT_NAME}
     environment:
       # 数据库配置
-      DB_HOST: postgres-{PROJECT_NAME}
-      DB_PORT: "5432"
+      DB_HOST: {DB_HOST}
+      DB_PORT: "{DB_PORT}"
       DB_USER: {DB_USER}
       DB_PASSWORD: {DB_PASSWORD}
       DB_NAME: {DB_NAME}
       DB_SSL_MODE: {DB_SSL_MODE}
       DB_TYPE: {DB_TYPE}
-      
+
       # Redis 配置
-      REDIS_HOST: redis-{PROJECT_NAME}:6379
+      REDIS_HOST: {REDIS_HOST}
       REDIS_PASSWORD: {REDIS_PASSWORD}
       REDIS_DB: {REDIS_DB}
       REDIS_POOL_SIZE: {REDIS_POOL_SIZE}
-      
+
       # 认证配置
       AUTH_ACCESS_SECRET: {AUTH_ACCESS_SECRET}
       AUTH_ACCESS_EXPIRE: {AUTH_ACCESS_EXPIRE}
       OAUTH_STATE_SECRET: {OAUTH_STATE_SECRET}
-      
+
       # 验证码配置
       CAPTCHA_TYPE: {CAPTCHA_TYPE}
       CAPTCHA_STORE_TYPE: {CAPTCHA_STORE_TYPE}
@@ -111,16 +111,16 @@ services:
     container_name: rpc-{PROJECT_NAME}
     environment:
       # 数据库配置
-      DB_HOST: postgres-{PROJECT_NAME}
-      DB_PORT: "5432"
+      DB_HOST: {DB_HOST}
+      DB_PORT: "{DB_PORT}"
       DB_USER: {DB_USER}
       DB_PASSWORD: {DB_PASSWORD}
       DB_NAME: {DB_NAME}
       DB_SSL_MODE: {DB_SSL_MODE}
       DB_TYPE: {DB_TYPE}
-      
+
       # Redis 配置
-      REDIS_HOST: redis-{PROJECT_NAME}:6379
+      REDIS_HOST: {REDIS_HOST}
       REDIS_PASSWORD: {REDIS_PASSWORD}
       REDIS_DB: {REDIS_DB}
       REDIS_POOL_SIZE: {REDIS_POOL_SIZE}

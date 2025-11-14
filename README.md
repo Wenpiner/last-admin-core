@@ -112,12 +112,12 @@ last-admin-core/
 
 **Linux/macOS：**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 或使用 wget：
 ```bash
-wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 #### 方式 2：本地部署
@@ -141,7 +141,7 @@ cd deploy
 使用 Docker Compose 快速启动所有服务：
 ```bash
 cd deploy
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 部署文档

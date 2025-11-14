@@ -109,13 +109,13 @@ make clean
 cd last-admin-core/deploy
 
 # 启动所有服务
-docker-compose up -d
+docker compose up -d
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 停止服务
-docker-compose down
+docker compose down
 ```
 
 ### 服务说明

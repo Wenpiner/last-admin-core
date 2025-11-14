@@ -24,19 +24,20 @@ class PromptManager:
                 continue
             return value
     
-    def prompt_choice(self, prompt: str, choices: List[str], 
+    def prompt_choice(self, prompt: str, choices: List[str],
                      default: str = "") -> str:
         """选择提示"""
-        if not default:
+        if not default or default not in choices:
             default = choices[0]
-        
+
         console.print(f"\n{prompt}")
         for i, choice in enumerate(choices, 1):
             console.print(f"  {i}. {choice}")
-        
+
         while True:
             try:
-                choice_input = Prompt.ask("请选择", default=str(choices.index(default) + 1))
+                default_index = choices.index(default) + 1
+                choice_input = Prompt.ask("请选择", default=str(default_index))
                 index = int(choice_input) - 1
                 if 0 <= index < len(choices):
                     return choices[index]
@@ -88,10 +89,19 @@ class PromptManager:
     def prompt_docker_network(self, existing_networks: List[str]) -> str:
         """Docker 网络选择提示"""
         choices = ["创建新网络", "自定义输入"] + existing_networks
+
+        # 读取缓存的默认值
+        cached_network = self.config.get("DOCKER_NETWORK", "")
+        default_choice = "创建新网络"
+
+        # 如果缓存值在选项中，使用缓存值作为默认
+        if cached_network in choices:
+            default_choice = cached_network
+
         choice = self.prompt_choice(
             "Docker 网络",
             choices,
-            default="创建新网络"
+            default=default_choice
         )
 
         if choice == "自定义输入":

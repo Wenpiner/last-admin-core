@@ -12,6 +12,7 @@ NC='\033[0m'
 
 # 配置
 DEPLOY_SCRIPTS_DIR="."
+INSTALL_DIR=""
 
 # 平台检测
 detect_platform() {
@@ -69,6 +70,46 @@ install_python_linux() {
     echo -e "${GREEN}✓ Python 3 安装完成${NC}"
 }
 
+# 安装 python3-venv
+install_python_venv() {
+    echo -e "${YELLOW}正在安装 python3-venv...${NC}"
+
+    if command -v apt-get &> /dev/null; then
+        # Debian/Ubuntu
+        if sudo apt-get update && sudo apt-get install -y python3-venv; then
+            echo -e "${GREEN}✓ python3-venv 安装成功${NC}"
+            return 0
+        fi
+    elif command -v yum &> /dev/null; then
+        # CentOS/RHEL
+        if sudo yum install -y python3-venv; then
+            echo -e "${GREEN}✓ python3-venv 安装成功${NC}"
+            return 0
+        fi
+    elif command -v pacman &> /dev/null; then
+        # Arch Linux
+        if sudo pacman -S python-venv; then
+            echo -e "${GREEN}✓ python3-venv 安装成功${NC}"
+            return 0
+        fi
+    elif command -v brew &> /dev/null; then
+        # macOS
+        if brew install python3; then
+            echo -e "${GREEN}✓ python3-venv 安装成功${NC}"
+            return 0
+        fi
+    fi
+
+    # 如果自动安装失败，提示用户手动安装
+    echo -e "${RED}✗ 无法自动安装 python3-venv（可能没有 sudo 权限）${NC}"
+    echo -e "${YELLOW}请手动安装 python3-venv：${NC}"
+    echo -e "${YELLOW}  Ubuntu/Debian: sudo apt install python3-venv${NC}"
+    echo -e "${YELLOW}  CentOS/RHEL: sudo yum install python3-venv${NC}"
+    echo -e "${YELLOW}  Arch Linux: sudo pacman -S python-venv${NC}"
+    echo -e "${YELLOW}  macOS: brew install python3${NC}"
+    return 1
+}
+
 # 安装 Python 依赖
 install_dependencies() {
     echo -e "${YELLOW}正在安装 Python 依赖...${NC}"
@@ -77,8 +118,24 @@ install_dependencies() {
     cd "$DEPLOY_SCRIPTS_DIR" || return 1
 
     if [ ! -d "venv" ]; then
-        python3 -m venv venv
+        echo -e "${YELLOW}正在创建虚拟环境...${NC}"
+        if ! python3 -m venv venv; then
+            echo -e "${RED}✗ 虚拟环境创建失败${NC}"
+            install_python_venv || return 1
+
+            # 重新尝试创建虚拟环境
+            echo -e "${YELLOW}正在重新创建虚拟环境...${NC}"
+            if ! python3 -m venv venv; then
+                echo -e "${RED}✗ 虚拟环境创建仍然失败${NC}"
+                return 1
+            fi
+        fi
         echo -e "${GREEN}✓ 虚拟环境已创建${NC}"
+    fi
+
+    if [ ! -f "venv/bin/activate" ]; then
+        echo -e "${RED}✗ 虚拟环境激活脚本不存在${NC}"
+        return 1
     fi
 
     source venv/bin/activate
@@ -99,7 +156,40 @@ run_installer() {
     fi
 
     source venv/bin/activate
-    python3 install.py
+    python3 install.py "$INSTALL_DIR"
+}
+
+# 选择安装目录
+prompt_install_dir() {
+    echo -e "${YELLOW}请选择安装目录${NC}"
+    echo -e "  1. /opt/last-admin (推荐)"
+    echo -e "  2. 自定义目录"
+
+    read -p "请选择 [1-2] (默认: 1): " choice
+    choice=${choice:-1}
+
+    case $choice in
+        1)
+            INSTALL_DIR="/opt/last-admin"
+            ;;
+        2)
+            read -p "请输入安装目录 (默认: /opt/last-admin): " custom_dir
+            INSTALL_DIR=${custom_dir:-/opt/last-admin}
+            ;;
+        *)
+            echo -e "${RED}✗ 选择无效，使用默认目录${NC}"
+            INSTALL_DIR="/opt/last-admin"
+            ;;
+    esac
+
+    echo -e "${GREEN}✓ 安装目录已设置为: $INSTALL_DIR${NC}"
+
+    # 创建安装目录
+    if ! mkdir -p "$INSTALL_DIR"; then
+        echo -e "${RED}✗ 无法创建安装目录: $INSTALL_DIR${NC}"
+        echo -e "${YELLOW}请确保有足够的权限，或尝试使用 sudo${NC}"
+        return 1
+    fi
 }
 
 # 主函数
@@ -109,6 +199,11 @@ main() {
     echo -e "${GREEN}================================${NC}\n"
 
     detect_platform
+
+    # 提示用户选择安装目录
+    if ! prompt_install_dir; then
+        exit 1
+    fi
 
     if ! check_python; then
         case "$PLATFORM" in

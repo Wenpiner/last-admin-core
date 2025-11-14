@@ -19,6 +19,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
       - name: Checkout code
@@ -61,4 +64,113 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+  create-release:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Create deploy.tar.gz
+        run: |
+          cd last-admin-core
+          tar -czf deploy.tar.gz deploy/
+          ls -lh deploy.tar.gz
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          TAG=${{ steps.version.outputs.tag }}
+
+          cat > release_notes.md << 'EOF'
+          # Last Admin ${{ steps.version.outputs.tag }}
+
+          ## 🐳 Docker 镜像
+
+          ### 镜像信息
+          - **API 镜像**: `${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-api:${{ steps.version.outputs.version }}`
+          - **RPC 镜像**: `${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-rpc:${{ steps.version.outputs.version }}`
+          - **Latest 标签**: `${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-api:latest`
+
+          ### 拉取镜像
+
+          ```bash
+          # 拉取 API 镜像
+          docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-api:${{ steps.version.outputs.version }}
+
+          # 拉取 RPC 镜像
+          docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-rpc:${{ steps.version.outputs.version }}
+
+          # 或使用 latest 标签
+          docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-api:latest
+          docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_NAMESPACE }}/last-admin-rpc:latest
+          ```
+
+          ## 📦 部署脚本
+
+          部署脚本已打包为 `deploy.tar.gz`，包含：
+          - `install.sh` - 安装脚本
+          - `install.py` - Python 安装向导
+          - `lib/` - 依赖库
+          - `templates/` - 配置模板
+
+          ### 快速安装
+
+          ```bash
+          # 方式 1: 使用 bootstrap 脚本（推荐）
+          curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
+
+          # 方式 2: 手动下载和安装
+          tar -xzf deploy.tar.gz
+          cd deploy
+          chmod +x install.sh
+          ./install.sh
+          ```
+
+          ## 🚀 启动服务
+
+          ```bash
+          # 进入安装目录
+          cd /opt/last-admin
+
+          # 启动服务
+          docker compose up -d
+
+          # 查看日志
+          docker compose logs -f
+
+          # 停止服务
+          docker compose down
+          ```
+
+          ## 📝 更新日志
+
+          详见 [CHANGELOG](https://github.com/Wenpiner/last-admin-core/blob/main/CHANGELOG.md)
+          EOF
+
+          cat release_notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          body_path: release_notes.md
+          files: |
+            last-admin-core/deploy.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

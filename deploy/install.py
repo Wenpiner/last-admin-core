@@ -27,9 +27,21 @@ console = Console()
 
 class Installer:
     """安装器主类"""
-    
-    def __init__(self):
-        self.config = ConfigManager(".env")
+
+    def __init__(self, install_dir: str = None):
+        # 设置安装目录
+        if install_dir:
+            self.install_dir = install_dir
+        else:
+            self.install_dir = os.getcwd()
+
+        # 确保安装目录存在
+        os.makedirs(self.install_dir, exist_ok=True)
+
+        # 配置文件路径
+        env_file = os.path.join(self.install_dir, ".env")
+
+        self.config = ConfigManager(env_file)
         self.config.create_if_not_exists()
         self.prompts = PromptManager(self.config)
         self.data = {}
@@ -203,8 +215,9 @@ class Installer:
             db_host = f"postgres-{self.data['PROJECT_NAME']}"
             console.print(f"[cyan]ℹ Docker 部署模式，数据库主机已自动设置为: {db_host}[/cyan]")
         else:
+            # 外部部署时，需要用户输入数据库主机
             db_host = self.prompts.prompt_text(
-                "数据库主机",
+                "数据库主机 (外部部署)",
                 default=self.config.get("DB_HOST", "localhost")
             )
         self.config.set("DB_HOST", db_host)
@@ -242,8 +255,9 @@ class Installer:
             redis_host = f"redis-{self.data['PROJECT_NAME']}:6379"
             console.print(f"[cyan]ℹ Docker 部署模式，Redis 主机已自动设置为: {redis_host}[/cyan]")
         else:
+            # 外部部署时，需要用户输入 Redis 主机
             redis_host = self.prompts.prompt_text(
-                "Redis 主机",
+                "Redis 主机 (外部部署，格式: host:port)",
                 default=self.config.get("REDIS_HOST", "localhost:6379")
             )
         self.config.set("REDIS_HOST", redis_host)
@@ -317,19 +331,20 @@ class Installer:
         """第 10 阶段：部署服务"""
         console.print("\n[bold cyan]第 10 阶段：部署服务[/bold cyan]")
 
-        # 检查 docker-compose
+        # 检查 docker compose
         if not docker_compose_exists():
-            console.print("[red]✗ 未检测到 docker-compose，请先安装[/red]")
+            console.print("[red]✗ 未检测到 docker compose，请先安装[/red]")
             return False
 
-        console.print("[green]✓ docker-compose 已安装[/green]")
+        console.print("[green]✓ docker compose 已安装[/green]")
 
         # 生成 docker-compose.yml
         console.print("\n[cyan]正在生成 docker-compose.yml...[/cyan]")
-        if not generate_docker_compose(self.data):
+        docker_compose_path = os.path.join(self.install_dir, "docker-compose.yml")
+        if not generate_docker_compose(self.data, docker_compose_path):
             console.print("[red]✗ 生成 docker-compose.yml 失败[/red]")
             return False
-        console.print("[green]✓ docker-compose.yml 已生成[/green]")
+        console.print(f"[green]✓ docker-compose.yml 已生成: {docker_compose_path}[/green]")
 
         # 拉取 Docker 镜像
         console.print("\n[cyan]正在拉取 Docker 镜像...[/cyan]")
@@ -372,20 +387,23 @@ class Installer:
             self.show_summary()
 
             if self.prompts.prompt_confirm("\n是否继续部署?", default=True):
-                console.print("\n[green]✓ 配置已保存到 .env 文件[/green]")
+                env_file = os.path.join(self.install_dir, ".env")
+                console.print(f"\n[green]✓ 配置已保存到: {env_file}[/green]")
 
                 # 执行部署步骤
                 if self.stage_10_deploy():
                     console.print("\n[green]✓ 部署完成！[/green]")
                     console.print("\n[cyan]后续步骤:[/cyan]")
-                    console.print("  1. 使用 docker-compose 启动服务")
-                    console.print("  2. 检查服务日志: docker-compose logs -f")
-                    console.print("  3. 访问 API: http://localhost:8889")
+                    console.print(f"  1. 进入安装目录: cd {self.install_dir}")
+                    console.print("  2. 使用 docker compose 启动服务: docker compose up -d")
+                    console.print("  3. 检查服务日志: docker compose logs -f")
+                    console.print("  4. 访问 API: http://localhost:8889")
                 else:
                     console.print("\n[red]✗ 部署失败，请检查错误信息[/red]")
                     sys.exit(1)
             else:
-                console.print("\n[yellow]⚠ 部署已取消，配置已保存[/yellow]")
+                env_file = os.path.join(self.install_dir, ".env")
+                console.print(f"\n[yellow]⚠ 部署已取消，配置已保存到: {env_file}[/yellow]")
 
         except KeyboardInterrupt:
             console.print("\n[yellow]⚠ 安装已中断，配置已保存，下次运行时将继续[/yellow]")
@@ -396,6 +414,11 @@ class Installer:
 
 
 if __name__ == "__main__":
-    installer = Installer()
+    # 从命令行参数获取安装目录
+    install_dir = None
+    if len(sys.argv) > 1:
+        install_dir = sys.argv[1]
+
+    installer = Installer(install_dir)
     installer.run()
 

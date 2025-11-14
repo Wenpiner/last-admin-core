@@ -7,13 +7,13 @@
 ### Linux/macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 或使用 wget：
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh | bash
+wget -qO- https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh | bash
 ```
 
 ## 📋 前置要求
@@ -89,10 +89,10 @@ curl -fsSL https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/insta
 
 ```bash
 # 查看服务状态
-docker-compose ps
+docker compose ps
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 访问 API
 curl http://localhost:8889/api/v1/health
@@ -108,8 +108,8 @@ bash install.sh
 ## 🐳 Docker Compose 快速启动
 
 ```bash
-cd last-admin/last-admin-core/deploy
-docker-compose up -d
+cd last-admin-core/deploy
+docker compose up -d
 ```
 
 ## 🔍 常见问题
@@ -119,7 +119,7 @@ docker-compose up -d
 A: 检查网络连接，或手动下载脚本：
 
 ```bash
-curl -fsSL -o install-bootstrap.sh https://raw.githubusercontent.com/Wenpiner/last-admin/main/last-admin-core/install-bootstrap.sh
+curl -fsSL -o install-bootstrap.sh https://raw.githubusercontent.com/Wenpiner/last-admin-core/main/install-bootstrap.sh
 chmod +x install-bootstrap.sh
 ./install-bootstrap.sh
 ```
@@ -145,7 +145,7 @@ docker pull <image-name>
 A: 编辑 `deploy/.env` 文件，然后重启服务：
 
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ## 📚 更多信息
@@ -157,9 +157,9 @@ docker-compose restart
 
 如遇到问题，请：
 
-1. 查看日志：`docker-compose logs`
+1. 查看日志：`docker compose logs`
 2. 检查配置：`cat deploy/.env`
-3. 提交 Issue：https://github.com/Wenpiner/last-admin/issues
+3. 提交 Issue：https://github.com/Wenpiner/last-admin-core/issues
 
 ## ✨ 下一步
 
