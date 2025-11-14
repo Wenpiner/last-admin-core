@@ -42,6 +42,43 @@ if ! command -v sha256sum &> /dev/null && ! command -v shasum &> /dev/null; then
     exit 1
 fi
 
+if ! command -v jq &> /dev/null; then
+    echo -e "${YELLOW}⚠ 未检测到 jq，正在安装...${NC}"
+
+    # 检测操作系统并安装 jq
+    if command -v apt &> /dev/null; then
+        # Debian/Ubuntu
+        sudo apt update -qq && sudo apt-get install -y jq > /dev/null 2>&1
+    if command -v apt-get &> /dev/null; then
+        # Debian/Ubuntu
+        sudo apt-get update -qq && sudo apt-get install -y jq > /dev/null 2>&1
+    elif command -v yum &> /dev/null; then
+        # CentOS/RHEL
+        sudo yum install -y jq > /dev/null 2>&1
+    elif command -v brew &> /dev/null; then
+        # macOS
+        brew install jq > /dev/null 2>&1
+    elif command -v apk &> /dev/null; then
+        # Alpine
+        sudo apk add --no-cache jq > /dev/null 2>&1
+    else
+        echo -e "${RED}✗ 无法自动安装 jq，请手动安装：${NC}"
+        echo -e "${RED}  - Ubuntu/Debian: sudo apt-get install jq${NC}"
+        echo -e "${RED}  - CentOS/RHEL: sudo yum install jq${NC}"
+        echo -e "${RED}  - macOS: brew install jq${NC}"
+        echo -e "${RED}  - Alpine: apk add jq${NC}"
+        exit 1
+    fi
+
+    # 验证安装
+    if ! command -v jq &> /dev/null; then
+        echo -e "${RED}✗ jq 安装失败${NC}"
+        exit 1
+    fi
+
+    echo -e "${GREEN}✓ jq 已安装${NC}"
+fi
+
 # 创建部署目录
 echo -e "${YELLOW}正在初始化部署目录: $DEPLOY_HOME${NC}"
 mkdir -p "$DEPLOY_HOME"
@@ -51,7 +88,7 @@ echo -e "${GREEN}✓ 部署目录已创建${NC}"
 echo -e "${YELLOW}正在获取最新的 Release 版本...${NC}"
 
 RELEASE_INFO=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest")
-LATEST_RELEASE=$(echo "$RELEASE_INFO" | grep '"tag_name"' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+LATEST_RELEASE=$(echo "$RELEASE_INFO" | jq -r '.tag_name // empty' 2>/dev/null)
 
 if [ -z "$LATEST_RELEASE" ]; then
     echo -e "${RED}✗ 无法获取最新的 Release 版本${NC}"
@@ -61,23 +98,19 @@ fi
 VERSION_NUM=${LATEST_RELEASE#v}
 echo -e "${GREEN}✓ 最新版本: $LATEST_RELEASE${NC}"
 
-# 从 Release assets 中提取 SHA256 文件 URL
-# 查找 deploy.tar.gz.sha256 的下载 URL
-SHA256_FILE_URL=$(echo "$RELEASE_INFO" | grep -o '"browser_download_url": "[^"]*deploy\.tar\.gz\.sha256"' | sed -E 's/.*"([^"]+)".*/\1/')
+# 从 Release assets 中提取 deploy.tar.gz 的 SHA256
+# 查找 assets 数组中 name 为 "deploy.tar.gz" 的项，获取其 digest
+DIGEST=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name == "deploy.tar.gz") | .digest // empty' 2>/dev/null)
 
-if [ -z "$SHA256_FILE_URL" ]; then
-    echo -e "${YELLOW}⚠ 未找到 SHA256 文件，将跳过校验${NC}"
+if [ -z "$DIGEST" ]; then
+    echo -e "${YELLOW}⚠ 未找到 deploy.tar.gz 的 SHA256，将跳过校验${NC}"
     SKIP_SHA256_CHECK=true
+    EXPECTED_SHA256=""
 else
-    # 下载 SHA256 文件（使用 -L 跟随重定向）
-    EXPECTED_SHA256=$(curl -sL "$SHA256_FILE_URL")
-    if [ -z "$EXPECTED_SHA256" ]; then
-        echo -e "${YELLOW}⚠ 无法读取 SHA256 值，将跳过校验${NC}"
-        SKIP_SHA256_CHECK=true
-    else
-        echo -e "${GREEN}✓ SHA256: ${EXPECTED_SHA256:0:16}...${NC}"
-        SKIP_SHA256_CHECK=false
-    fi
+    # digest 格式为 "sha256:xxxxx"，需要提取哈希值部分
+    EXPECTED_SHA256="${DIGEST#sha256:}"
+    echo -e "${GREEN}✓ SHA256: ${EXPECTED_SHA256:0:16}...${NC}"
+    SKIP_SHA256_CHECK=false
 fi
 
 # 下载部署包（带重试机制）
@@ -92,9 +125,14 @@ for mirror in "${GITHUB_MIRRORS[@]}"; do
     DOWNLOAD_URL="${mirror}${BASE_URL}"
     MIRROR_NAME="$mirror"
 
+    # 如果MIRROR_NAME为空则是Github.com
+    if [ -z "$MIRROR_NAME" ]; then
+        MIRROR_NAME="https://github.com"
+    fi
+
     echo -e "${YELLOW}尝试从 $MIRROR_NAME 下载...${NC}"
 
-    if curl -fsSL -o "${DEPLOY_HOME}/deploy.tar.gz" "$DOWNLOAD_URL" 2>/dev/null; then
+    if curl -fsSL --max-time 20 -o "${DEPLOY_HOME}/deploy.tar.gz" "$DOWNLOAD_URL" 2>/dev/null; then
         # 验证 SHA256
         if [ "$SKIP_SHA256_CHECK" = false ]; then
             if command -v sha256sum &> /dev/null; then
