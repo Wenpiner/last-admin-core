@@ -14,11 +14,21 @@ class PromptManager:
     def __init__(self, config: ConfigManager):
         self.config = config
     
-    def prompt_text(self, prompt: str, default: str = "", 
+    def prompt_text(self, prompt: str, default: str = "",
                    validator=None) -> str:
         """文本输入提示"""
         while True:
-            value = Prompt.ask(prompt, default=default)
+            try:
+                value = Prompt.ask(prompt, default=default)
+            except EOFError:
+                # 非交互式环境，使用默认值
+                if default:
+                    console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default}[/yellow]")
+                    return default
+                else:
+                    console.print("[red]✗ 非交互式环境且无默认值，请提供输入[/red]")
+                    raise
+
             if validator and not validator(value):
                 console.print("[red]✗ 输入格式不正确，请重试[/red]")
                 continue
@@ -37,7 +47,13 @@ class PromptManager:
         while True:
             try:
                 default_index = choices.index(default) + 1
-                choice_input = Prompt.ask("请选择", default=str(default_index))
+                try:
+                    choice_input = Prompt.ask("请选择", default=str(default_index))
+                except EOFError:
+                    # 非交互式环境，使用默认值
+                    console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default}[/yellow]")
+                    return default
+
                 index = int(choice_input) - 1
                 if 0 <= index < len(choices):
                     return choices[index]
@@ -45,28 +61,43 @@ class PromptManager:
                 pass
             console.print("[red]✗ 选择无效，请重试[/red]")
     
-    def prompt_port(self, prompt: str, default: int = 0, 
+    def prompt_port(self, prompt: str, default: int = 0,
                    check_available: bool = True) -> int:
         """端口输入提示"""
         while True:
-            port_str = Prompt.ask(prompt, default=str(default))
+            try:
+                port_str = Prompt.ask(prompt, default=str(default))
+            except EOFError:
+                # 非交互式环境，使用默认值
+                if default:
+                    console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {default}[/yellow]")
+                    return default
+                else:
+                    console.print("[red]✗ 非交互式环境且无默认值，请提供输入[/red]")
+                    raise
+
             try:
                 port = int(port_str)
                 if port < 1 or port > 65535:
                     console.print("[red]✗ 端口号必须在 1-65535 之间[/red]")
                     continue
-                
+
                 if check_available and not check_port_available(port):
                     console.print(f"[red]✗ 端口 {port} 已被占用，请选择其他端口[/red]")
                     continue
-                
+
                 return port
             except ValueError:
                 console.print("[red]✗ 请输入有效的端口号[/red]")
     
     def prompt_confirm(self, prompt: str, default: bool = True) -> bool:
         """确认提示"""
-        return Confirm.ask(prompt, default=default)
+        try:
+            return Confirm.ask(prompt, default=default)
+        except EOFError:
+            # 非交互式环境，使用默认值
+            console.print(f"[yellow]⚠ 非交互式环境，使用默认值: {'是' if default else '否'}[/yellow]")
+            return default
     
     def prompt_project_name(self) -> str:
         """项目名称提示"""

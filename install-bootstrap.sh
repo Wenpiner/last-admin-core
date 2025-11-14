@@ -69,8 +69,8 @@ if [ -z "$SHA256_FILE_URL" ]; then
     echo -e "${YELLOW}⚠ 未找到 SHA256 文件，将跳过校验${NC}"
     SKIP_SHA256_CHECK=true
 else
-    # 下载 SHA256 文件
-    EXPECTED_SHA256=$(curl -s "$SHA256_FILE_URL")
+    # 下载 SHA256 文件（使用 -L 跟随重定向）
+    EXPECTED_SHA256=$(curl -sL "$SHA256_FILE_URL")
     if [ -z "$EXPECTED_SHA256" ]; then
         echo -e "${YELLOW}⚠ 无法读取 SHA256 值，将跳过校验${NC}"
         SKIP_SHA256_CHECK=true

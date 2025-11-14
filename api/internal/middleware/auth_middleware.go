@@ -8,8 +8,8 @@ import (
 	"github.com/wenpiner/last-admin-common/ctx/rolectx"
 	last_i18n "github.com/wenpiner/last-admin-common/last-i18n"
 	last_redis "github.com/wenpiner/last-admin-common/last-redis"
+	last_casbin "github.com/wenpiner/last-admin-common/plugins/casbin"
 	"github.com/zeromicro/go-zero/core/errorx"
-	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -50,32 +50,10 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		if check(m.cbn, roles, obj, act) {
+		if last_casbin.Check(m.cbn, "api", roles, obj, act) {
 			next(w, r)
 		} else {
 			httpx.Error(w, errorx.NewApiForbiddenError(m.trans.Trans(r.Context(), "common.api-forbidden")))
 		}
 	}
-}
-
-// Casbin check
-func check(cbn *casbin.Enforcer, rolesIds []string, obj, act string) bool {
-	var reqs [][]any
-	for _, v := range rolesIds {
-		reqs = append(reqs, []any{v, "api", obj, act})
-	}
-
-	res, err := cbn.BatchEnforce(reqs)
-	if err != nil {
-		logx.Errorw("验证 Casbin 异常", logx.Field("error", err))
-		return false
-	}
-
-	for _, v := range res {
-		if v {
-			return true
-		}
-	}
-
-	return false
 }
