@@ -87,11 +87,17 @@ jobs:
           tar -czf deploy.tar.gz deploy/
           ls -lh deploy.tar.gz
 
+          # 计算 SHA256
+          SHA256=$(sha256sum deploy.tar.gz | awk '{print $1}')
+          echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
+        id: deploy_package
+
       - name: Generate Release Notes
         id: release_notes
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.version.outputs.tag }}
+          SHA256=${{ steps.deploy_package.outputs.sha256 }}
 
           cat > release_notes.md << 'EOF'
           # Last Admin ${{ steps.version.outputs.tag }}
@@ -124,6 +130,15 @@ jobs:
           - `install.py` - Python 安装向导
           - `lib/` - 依赖库
           - `templates/` - 配置模板
+
+          ### 文件校验
+
+          **SHA256**: `${{ steps.deploy_package.outputs.sha256 }}`
+
+          验证文件完整性：
+          ```bash
+          echo "${{ steps.deploy_package.outputs.sha256 }}  deploy.tar.gz" | sha256sum -c
+          ```
 
           ### 快速安装
 
