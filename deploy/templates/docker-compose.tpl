@@ -63,7 +63,7 @@ services:
       DB_TYPE: {DB_TYPE}
 
       # Redis 配置
-      REDIS_HOST: {REDIS_HOST}
+      REDIS_HOST: {REDIS_HOST}:{REDIS_PORT}
       REDIS_PASSWORD: {REDIS_PASSWORD}
       REDIS_DB: {REDIS_DB}
       REDIS_POOL_SIZE: {REDIS_POOL_SIZE}
@@ -123,7 +123,7 @@ services:
       DB_TYPE: {DB_TYPE}
 
       # Redis 配置
-      REDIS_HOST: {REDIS_HOST}
+      REDIS_HOST: {REDIS_HOST}:{REDIS_PORT}
       REDIS_PASSWORD: {REDIS_PASSWORD}
       REDIS_DB: {REDIS_DB}
       REDIS_POOL_SIZE: {REDIS_POOL_SIZE}
@@ -146,7 +146,7 @@ services:
 
 networks:
   {DOCKER_NETWORK}:
-    driver: bridge
+    external: true
 
 volumes:
   postgres_{PROJECT_NAME}_data:
