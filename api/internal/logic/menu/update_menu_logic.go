@@ -33,7 +33,7 @@ func (l *UpdateMenuLogic) UpdateMenu(req *types.MenuInfo) (resp *types.BaseRespo
 	_, err = l.svcCtx.MenuRpc.CreateOrUpdateMenu(l.ctx, &core.MenuInfo{
 		Id:          req.ID,
 		MenuCode:    &req.Name,
-		MenuName:    &req.Meta.Title,
+		MenuName:    &req.Name,
 		ParentId:    req.ParentId,
 		MenuPath:    &req.Path,
 		State:       req.State,
