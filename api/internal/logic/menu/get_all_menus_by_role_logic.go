@@ -74,7 +74,7 @@ func ConvertToMenuInfo(menus []*core.MenuInfo) []types.MenuInfo {
 			Meta:       meta,
 			ParentId:   m.ParentId,
 			State:      m.State,
-			ID:         *m.Id,
+			ID:         m.Id,
 			Service:    pointer.GetString(m.ServiceName),
 			Permission: m.Permission,
 			CreatedAt:  m.CreatedAt,
