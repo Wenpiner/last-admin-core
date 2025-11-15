@@ -72,6 +72,7 @@ func (l *CreateOrUpdateMenuLogic) CreateOrUpdateMenu(in *core.MenuInfo) (*core.M
 			SetIsCache(l.getIsCacheFromMeta(in.Meta)).
 			SetIsTab(l.getIsTabFromMeta(in.Meta)).
 			SetIsAffix(l.getIsAffixFromMeta(in.Meta)).
+			SetNillableLink(l.getLinkFromMeta(in.Meta)).
 			Save(l.ctx)
 	} else {
 		// 更新
@@ -82,22 +83,74 @@ func (l *CreateOrUpdateMenuLogic) CreateOrUpdateMenu(in *core.MenuInfo) (*core.M
 		updateQuery := tx.Menu.UpdateOneID(pointer.GetUint32(in.Id)).
 			SetNillableMenuCode(in.MenuCode).
 			SetNillableMenuName(in.MenuName).
-			SetNillableMenuPath(in.MenuPath).
 			SetNillableComponent(in.Component).
-			SetNillableRedirect(in.Redirect).
 			SetNillableServiceName(in.ServiceName).
 			SetNillableMenuType(in.MenuType).
-			SetNillableFrameSrc(l.getFrameSrcFromMeta(in.Meta)).
 			SetNillableDescription(in.Description).
 			SetNillableState(in.State).
 			SetNillableSort(in.Sort).
-			SetNillableIcon(l.getIconFromMeta(in.Meta)).
-			SetNillablePermission(in.Permission).
-			SetNillableIsHidden(l.getNillableIsHiddenFromMeta(in.Meta)).
-			SetNillableIsBreadcrumb(l.getNillableIsBreadcrumbFromMeta(in.Meta)).
-			SetNillableIsCache(l.getNillableIsCacheFromMeta(in.Meta)).
-			SetNillableIsTab(l.getNillableIsTabFromMeta(in.Meta)).
-			SetNillableIsAffix(l.getNillableIsAffixFromMeta(in.Meta))
+			SetNillableIcon(l.getIconFromMeta(in.Meta))
+
+		// 进行Clear判断，如果某个值是nil则代表需清空
+		if in.MenuPath == nil {
+			updateQuery.ClearMenuPath()
+		} else {
+			updateQuery.SetNillableMenuPath(in.MenuPath)
+		}
+		if in.Redirect == nil {
+			updateQuery.ClearRedirect()
+		} else {
+			updateQuery.SetNillableRedirect(in.Redirect)
+		}
+		if in.Permission == nil {
+			updateQuery.ClearPermission()
+		} else {
+			updateQuery.SetNillablePermission(in.Permission)
+		}
+
+		if in.Meta != nil && in.Meta.FrameSrc != nil {
+			updateQuery.SetNillableFrameSrc(in.Meta.FrameSrc)
+		} else {
+			updateQuery.ClearFrameSrc()
+		}
+
+		if in.Meta != nil && in.Meta.Link != nil {
+			updateQuery.SetNillableLink(in.Meta.Link)
+		} else {
+			updateQuery.ClearLink()
+		}
+
+		if in.Meta != nil && in.Meta.IsHidden != nil {
+			updateQuery.SetIsHidden(pointer.GetBool(in.Meta.IsHidden))
+		} else {
+			updateQuery.ClearIsHidden()
+		}
+
+		if in.Meta != nil && in.Meta.IsBreadcrumb != nil {
+			updateQuery.SetIsBreadcrumb(pointer.GetBool(in.Meta.IsBreadcrumb))
+		} else {
+			updateQuery.ClearIsBreadcrumb()
+		}
+
+		if in.Meta != nil && in.Meta.IsCache != nil {
+			updateQuery.SetIsCache(pointer.GetBool(in.Meta.IsCache))
+		} else {
+			updateQuery.ClearIsCache()
+		}
+
+		if in.Meta != nil && in.Meta.IsTab != nil {
+			updateQuery.SetIsTab(pointer.GetBool(in.Meta.IsTab))
+		} else {
+			updateQuery.ClearIsTab()
+		}
+
+		if in.Meta != nil && in.Meta.IsAffix != nil {
+			updateQuery.SetIsAffix(pointer.GetBool(in.Meta.IsAffix))
+		} else {
+			updateQuery.ClearIsAffix()
+		}
+
+		
 
 		// 如果更新了父菜单ID，需要重新计算层级
 		if in.ParentId != nil {
@@ -105,7 +158,7 @@ func (l *CreateOrUpdateMenuLogic) CreateOrUpdateMenu(in *core.MenuInfo) (*core.M
 			if err != nil {
 				return nil, err
 			}
-			updateQuery = updateQuery.SetMenuLevel(menuLevel)
+			updateQuery.SetMenuLevel(menuLevel)
 		}
 
 		menu, err = updateQuery.Save(l.ctx)
@@ -131,7 +184,7 @@ func (l *CreateOrUpdateMenuLogic) validateCreate(in *core.MenuInfo) error {
 	if in.ServiceName == nil || *in.ServiceName == "" {
 		return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
 	}
-	
+
 	// 根据菜单类型进行特定验证
 	menuType := pointer.GetString(in.MenuType)
 	switch menuType {
@@ -145,8 +198,10 @@ func (l *CreateOrUpdateMenuLogic) validateCreate(in *core.MenuInfo) error {
 		}
 	case "menu":
 		// 菜单时应该保证路由地址、组件地址
-		if in.MenuPath == nil || *in.MenuPath == "" {
-			return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
+		if in.Meta == nil || in.Meta.Link == nil || *in.Meta.Link == "" {
+			if in.MenuPath == nil || *in.MenuPath == "" {
+				return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
+			}
 		}
 		if in.Component == nil || *in.Component == "" {
 			return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
@@ -199,8 +254,10 @@ func (l *CreateOrUpdateMenuLogic) validateUpdate(in *core.MenuInfo) error {
 			}
 		case "menu":
 			// 菜单时应该保证路由地址、组件地址、图标
-			if in.MenuPath != nil && *in.MenuPath == "" {
-				return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
+			if in.Meta == nil || in.Meta.Link == nil || *in.Meta.Link == "" {
+				if in.MenuPath == nil || *in.MenuPath == "" {
+					return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
+				}
 			}
 			if in.Component != nil && *in.Component == "" {
 				return errorx.NewInvalidArgumentError(last_i18n.ValidationFailed)
@@ -253,7 +310,6 @@ func (l *CreateOrUpdateMenuLogic) getIconFromMeta(meta *core.MenuMeta) *string {
 	}
 	return meta.Icon
 }
-
 
 // 从 Meta 中获取是否隐藏
 func (l *CreateOrUpdateMenuLogic) getIsHiddenFromMeta(meta *core.MenuMeta) bool {
@@ -345,4 +401,10 @@ func (l *CreateOrUpdateMenuLogic) getFrameSrcFromMeta(meta *core.MenuMeta) *stri
 	return meta.FrameSrc
 }
 
-
+// 从 Meta 中获取外链地址
+func (l *CreateOrUpdateMenuLogic) getLinkFromMeta(meta *core.MenuMeta) *string {
+	if meta == nil || meta.Link == nil {
+		return nil
+	}
+	return meta.Link
+}

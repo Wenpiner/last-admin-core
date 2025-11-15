@@ -38,14 +38,14 @@ func (l *GetRoleApiLogic) GetRoleApi(req *types.StringIDRequest) (resp *types.Ro
 		return nil, err
 	}
 
-	result, err := l.svcCtx.Casbin.GetFilteredPolicy(0, *role.RoleCode)
+	result, err := l.svcCtx.Casbin.GetFilteredPolicy(0, *role.RoleCode, "api")
 	if err != nil {
 		return nil, err
 	}
 
 	var apiList []string
 	for _, v := range result {
-		apiList = append(apiList, fmt.Sprintf("%s|%s", v[2], v[1]))
+		apiList = append(apiList, fmt.Sprintf("%s|%s", v[3], v[2]))
 	}
 
 	resp = &types.RoleApiListResponse{
