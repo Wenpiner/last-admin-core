@@ -288,12 +288,12 @@ type MenuInfo struct {
 	Component   *string    `json:"component,optional"`   // 组件 / Component
 	Meta        Meta       `json:"meta"`                 // 菜单元数据 / Menu meta data
 	ParentId    *uint32    `json:"parentId,optional"`    // 父级菜单ID / Parent menu ID
-	ID          *uint32    `json:"id"`                   // 菜单ID / Menu ID
+	ID          *uint32    `json:"id,optional"`          // 菜单ID / Menu ID
 	Children    []MenuInfo `json:"children,optional"`    // 子菜单 / Children menu
-	State       *bool      `json:"state"`                // 菜单状态 / Menu state
+	State       *bool      `json:"state,optional"`       // 菜单状态 / Menu state
 	Service     string     `json:"service"`              // 服务名称 / Service name
-	Permission  *string    `json:"permission"`           // 权限标识 / Permission identifier
-	CreatedAt   *int64     `json:"createdAt"`            // 创建时间 / Creation time
+	Permission  *string    `json:"permission,optional"`  // 权限标识 / Permission identifier
+	CreatedAt   *int64     `json:"createdAt,optional"`   // 创建时间 / Creation time
 	Type        string     `json:"type"`                 // 菜单类型 / Menu type
 	Description *string    `json:"description,optional"` // 描述 / Description
 }
