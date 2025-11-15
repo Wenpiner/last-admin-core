@@ -31,7 +31,7 @@ func NewUpdateMenuLogic(r *http.Request, svcCtx *svc.ServiceContext) *UpdateMenu
 
 func (l *UpdateMenuLogic) UpdateMenu(req *types.MenuInfo) (resp *types.BaseResponse, err error) {
 	_, err = l.svcCtx.MenuRpc.CreateOrUpdateMenu(l.ctx, &core.MenuInfo{
-		Id:          &req.ID,
+		Id:          req.ID,
 		MenuCode:    &req.Name,
 		MenuName:    &req.Meta.Title,
 		ParentId:    req.ParentId,
