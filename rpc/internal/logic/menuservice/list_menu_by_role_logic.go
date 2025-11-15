@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/wenpiner/last-admin-core/rpc/ent"
 	"github.com/wenpiner/last-admin-core/rpc/ent/menu"
 	"github.com/wenpiner/last-admin-core/rpc/ent/role"
@@ -70,7 +71,7 @@ func (l *ListMenuByRoleLogic) ListMenuByRole(in *core.StringRequest) (*core.Menu
 	roles, err := l.svcCtx.DBEnt.Role.Query().
 		Where(role.RoleCodeIn(validRoleCodes...)).
 		WithMenus(func(q *ent.MenuQuery) {
-			q.Order(ent.Asc(menu.FieldMenuLevel), ent.Asc(menu.FieldSort)) // 按排序字段和ID排序
+			q.Order(menu.ByMenuLevel(), menu.BySort(sql.OrderDesc())) // 按排序字段和ID排序
 			q.Where(menu.State(true))
 		}).
 		All(l.ctx)
