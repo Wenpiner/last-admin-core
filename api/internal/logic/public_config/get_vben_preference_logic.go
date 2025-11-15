@@ -1,4 +1,4 @@
-package publicConfig
+package public_config
 
 import (
 	"context"

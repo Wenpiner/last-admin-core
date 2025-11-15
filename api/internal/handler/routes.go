@@ -16,7 +16,7 @@ import (
 	menu "github.com/wenpiner/last-admin-core/api/internal/handler/menu"
 	oauth "github.com/wenpiner/last-admin-core/api/internal/handler/oauth"
 	position "github.com/wenpiner/last-admin-core/api/internal/handler/position"
-	publicConfig "github.com/wenpiner/last-admin-core/api/internal/handler/publicConfig"
+	public_config "github.com/wenpiner/last-admin-core/api/internal/handler/public_config"
 	public_user "github.com/wenpiner/last-admin-core/api/internal/handler/public_user"
 	role "github.com/wenpiner/last-admin-core/api/internal/handler/role"
 	token "github.com/wenpiner/last-admin-core/api/internal/handler/token"
@@ -321,7 +321,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				// 获取VBen Preference配置
 				Method:  http.MethodGet,
 				Path:    "/vben_preference",
-				Handler: publicConfig.GetVbenPreferenceHandler(serverCtx),
+				Handler: public_config.GetVbenPreferenceHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/public/config"),

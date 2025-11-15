@@ -19,7 +19,7 @@ type (
 
 @server (
 	prefix: /public/config
-	group:  publicConfig
+	group:  public_config
 	tags:   "公共配置"
 )
 service Core {
