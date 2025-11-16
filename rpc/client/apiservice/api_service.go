@@ -53,6 +53,9 @@ type (
 	OauthProviderListRequest           = core.OauthProviderListRequest
 	OauthProviderListResponse          = core.OauthProviderListResponse
 	OauthRedirectResponse              = core.OauthRedirectResponse
+	OperationLogInfo                   = core.OperationLogInfo
+	OperationLogListRequest            = core.OperationLogListRequest
+	OperationLogListResponse           = core.OperationLogListResponse
 	PositionInfo                       = core.PositionInfo
 	PositionListRequest                = core.PositionListRequest
 	PositionListResponse               = core.PositionListResponse
@@ -67,6 +70,7 @@ type (
 	RoleMenuRequest                    = core.RoleMenuRequest
 	StringListResponse                 = core.StringListResponse
 	StringRequest                      = core.StringRequest
+	TimeRangeQuery                     = core.TimeRangeQuery
 	TokenInfo                          = core.TokenInfo
 	TokenListRequest                   = core.TokenListRequest
 	TokenListResponse                  = core.TokenListResponse

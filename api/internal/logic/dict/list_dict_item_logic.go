@@ -36,9 +36,10 @@ func (l *ListDictItemLogic) ListDictItem(req *types.DictItemListRequest) (resp *
 			PageNumber: req.Page.CurrentPage,
 			PageSize:   req.Page.PageSize,
 		},
-		DictId: &req.DictId,
-		Label:  &req.Label,
-		Value:  &req.Value,
+		DictId: req.DictId,
+		Label:  req.Label,
+		Value:  req.Value,
+		DictCode: req.DictCode,
 	})
 
 	if err != nil {

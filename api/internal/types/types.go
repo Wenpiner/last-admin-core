@@ -212,9 +212,10 @@ type DictItemListInfo struct {
 
 type DictItemListRequest struct {
 	PageRequest
-	DictId uint32 `json:"dictId,optional"` // 字典ID / Dictionary ID
-	Label  string `json:"label,optional"`  // 字典子项标签 / Dictionary item label
-	Value  string `json:"value,optional"`  // 字典子项值 / Dictionary item value
+	DictId   *uint32 `json:"dictId,optional"`   // 字典ID / Dictionary ID
+	DictCode *string `json:"dictCode,optional"` // 字典编码 / Dictionary code
+	Label    *string `json:"label,optional"`    // 字典子项标签 / Dictionary item label
+	Value    *string `json:"value,optional"`    // 字典子项值 / Dictionary item value
 }
 
 type DictItemListResponse struct {

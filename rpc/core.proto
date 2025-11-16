@@ -148,6 +148,8 @@ message DictItemListRequest {
   optional string label = 3;
   // 字典子项值
   optional string value = 4;
+  // 字典代码
+  optional string dict_code = 5;
 }
 
 message DictItemListResponse {

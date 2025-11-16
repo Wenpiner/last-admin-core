@@ -5,7 +5,9 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/wenpiner/last-admin-common/utils/pointer"
+	"github.com/wenpiner/last-admin-core/rpc/ent"
 	"github.com/wenpiner/last-admin-core/rpc/ent/dictitem"
+	"github.com/wenpiner/last-admin-core/rpc/ent/dicttype"
 	"github.com/wenpiner/last-admin-core/rpc/ent/predicate"
 	"github.com/wenpiner/last-admin-core/rpc/internal/utils/errorhandler"
 
@@ -42,7 +44,11 @@ func (l *ListDictItemLogic) ListDictItem(in *core.DictItemListRequest) (*core.Di
 		predicates = append(predicates, dictitem.ItemValueContains(*in.Value))
 	}
 
-	page, err := l.svcCtx.DBEnt.DictItem.Query().Where(predicates...).Order(dictitem.BySortOrder(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	page, err := l.svcCtx.DBEnt.DictItem.Query().WithDictType(func(dtq *ent.DictTypeQuery) {
+		if in.DictCode != nil {
+			dtq.Where(dicttype.DictTypeCodeEQ(*in.DictCode))
+		}
+	}).Where(predicates...).Order(dictitem.BySortOrder(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}

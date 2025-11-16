@@ -2,7 +2,7 @@
 // goctl 1.9.0
 // Source: core.proto
 
-package roleservice
+package operationlogservice
 
 import (
 	"context"
@@ -91,96 +91,28 @@ type (
 	VerifyTotpCodeResponse             = core.VerifyTotpCodeResponse
 	VerifyTotpSetupRequest             = core.VerifyTotpSetupRequest
 
-	RoleService interface {
-		// 创建或更新角色
-		CreateOrUpdateRole(ctx context.Context, in *RoleInfo, opts ...grpc.CallOption) (*RoleInfo, error)
-		// 删除角色
-		DeleteRole(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*BaseResponse, error)
-		// 获取角色
-		GetRole(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleInfo, error)
-		// 获取角色列表
-		ListRole(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
-		// 通过值获取角色
-		GetRoleByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleInfo, error)
-		// 为角色分配菜单
-		AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error)
-		// 为角色分配API
-		AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error)
-		// 获取角色菜单
-		GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error)
-		// 为角色分配配置项分组权限
-		AssignConfigurationGroup(ctx context.Context, in *RoleConfigurationGroupRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error)
-		// 获取角色配置项分组权限
-		GetConfigurationGroup(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error)
+	OperationLogService interface {
+		CreateOperationLog(ctx context.Context, in *OperationLogInfo, opts ...grpc.CallOption) (*BaseResponse, error)
+		ListOperationLog(ctx context.Context, in *OperationLogListRequest, opts ...grpc.CallOption) (*OperationLogListResponse, error)
 	}
 
-	defaultRoleService struct {
+	defaultOperationLogService struct {
 		cli zrpc.Client
 	}
 )
 
-func NewRoleService(cli zrpc.Client) RoleService {
-	return &defaultRoleService{
+func NewOperationLogService(cli zrpc.Client) OperationLogService {
+	return &defaultOperationLogService{
 		cli: cli,
 	}
 }
 
-// 创建或更新角色
-func (m *defaultRoleService) CreateOrUpdateRole(ctx context.Context, in *RoleInfo, opts ...grpc.CallOption) (*RoleInfo, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.CreateOrUpdateRole(ctx, in, opts...)
+func (m *defaultOperationLogService) CreateOperationLog(ctx context.Context, in *OperationLogInfo, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := core.NewOperationLogServiceClient(m.cli.Conn())
+	return client.CreateOperationLog(ctx, in, opts...)
 }
 
-// 删除角色
-func (m *defaultRoleService) DeleteRole(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*BaseResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.DeleteRole(ctx, in, opts...)
-}
-
-// 获取角色
-func (m *defaultRoleService) GetRole(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleInfo, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.GetRole(ctx, in, opts...)
-}
-
-// 获取角色列表
-func (m *defaultRoleService) ListRole(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.ListRole(ctx, in, opts...)
-}
-
-// 通过值获取角色
-func (m *defaultRoleService) GetRoleByValue(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleInfo, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.GetRoleByValue(ctx, in, opts...)
-}
-
-// 为角色分配菜单
-func (m *defaultRoleService) AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.AssignMenu(ctx, in, opts...)
-}
-
-// 为角色分配API
-func (m *defaultRoleService) AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.AssignApi(ctx, in, opts...)
-}
-
-// 获取角色菜单
-func (m *defaultRoleService) GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.GetMenu(ctx, in, opts...)
-}
-
-// 为角色分配配置项分组权限
-func (m *defaultRoleService) AssignConfigurationGroup(ctx context.Context, in *RoleConfigurationGroupRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.AssignConfigurationGroup(ctx, in, opts...)
-}
-
-// 获取角色配置项分组权限
-func (m *defaultRoleService) GetConfigurationGroup(ctx context.Context, in *StringRequest, opts ...grpc.CallOption) (*RoleConfigurationGroupListResponse, error) {
-	client := core.NewRoleServiceClient(m.cli.Conn())
-	return client.GetConfigurationGroup(ctx, in, opts...)
+func (m *defaultOperationLogService) ListOperationLog(ctx context.Context, in *OperationLogListRequest, opts ...grpc.CallOption) (*OperationLogListResponse, error) {
+	client := core.NewOperationLogServiceClient(m.cli.Conn())
+	return client.ListOperationLog(ctx, in, opts...)
 }

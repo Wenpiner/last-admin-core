@@ -3324,3 +3324,132 @@ var ConfigurationService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rpc/core.proto",
 }
+
+const (
+	OperationLogService_CreateOperationLog_FullMethodName = "/core.OperationLogService/CreateOperationLog"
+	OperationLogService_ListOperationLog_FullMethodName   = "/core.OperationLogService/ListOperationLog"
+)
+
+// OperationLogServiceClient is the client API for OperationLogService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type OperationLogServiceClient interface {
+	CreateOperationLog(ctx context.Context, in *OperationLogInfo, opts ...grpc.CallOption) (*BaseResponse, error)
+	ListOperationLog(ctx context.Context, in *OperationLogListRequest, opts ...grpc.CallOption) (*OperationLogListResponse, error)
+}
+
+type operationLogServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperationLogServiceClient(cc grpc.ClientConnInterface) OperationLogServiceClient {
+	return &operationLogServiceClient{cc}
+}
+
+func (c *operationLogServiceClient) CreateOperationLog(ctx context.Context, in *OperationLogInfo, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, OperationLogService_CreateOperationLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operationLogServiceClient) ListOperationLog(ctx context.Context, in *OperationLogListRequest, opts ...grpc.CallOption) (*OperationLogListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperationLogListResponse)
+	err := c.cc.Invoke(ctx, OperationLogService_ListOperationLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperationLogServiceServer is the server API for OperationLogService service.
+// All implementations must embed UnimplementedOperationLogServiceServer
+// for forward compatibility
+type OperationLogServiceServer interface {
+	CreateOperationLog(context.Context, *OperationLogInfo) (*BaseResponse, error)
+	ListOperationLog(context.Context, *OperationLogListRequest) (*OperationLogListResponse, error)
+	mustEmbedUnimplementedOperationLogServiceServer()
+}
+
+// UnimplementedOperationLogServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedOperationLogServiceServer struct {
+}
+
+func (UnimplementedOperationLogServiceServer) CreateOperationLog(context.Context, *OperationLogInfo) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOperationLog not implemented")
+}
+func (UnimplementedOperationLogServiceServer) ListOperationLog(context.Context, *OperationLogListRequest) (*OperationLogListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOperationLog not implemented")
+}
+func (UnimplementedOperationLogServiceServer) mustEmbedUnimplementedOperationLogServiceServer() {}
+
+// UnsafeOperationLogServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperationLogServiceServer will
+// result in compilation errors.
+type UnsafeOperationLogServiceServer interface {
+	mustEmbedUnimplementedOperationLogServiceServer()
+}
+
+func RegisterOperationLogServiceServer(s grpc.ServiceRegistrar, srv OperationLogServiceServer) {
+	s.RegisterService(&OperationLogService_ServiceDesc, srv)
+}
+
+func _OperationLogService_CreateOperationLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperationLogInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperationLogServiceServer).CreateOperationLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperationLogService_CreateOperationLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperationLogServiceServer).CreateOperationLog(ctx, req.(*OperationLogInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperationLogService_ListOperationLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperationLogListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperationLogServiceServer).ListOperationLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperationLogService_ListOperationLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperationLogServiceServer).ListOperationLog(ctx, req.(*OperationLogListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperationLogService_ServiceDesc is the grpc.ServiceDesc for OperationLogService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperationLogService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "core.OperationLogService",
+	HandlerType: (*OperationLogServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateOperationLog",
+			Handler:    _OperationLogService_CreateOperationLog_Handler,
+		},
+		{
+			MethodName: "ListOperationLog",
+			Handler:    _OperationLogService_ListOperationLog_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rpc/core.proto",
+}
