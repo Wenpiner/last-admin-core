@@ -33,8 +33,7 @@ func (DictItem) Fields() []ent.Field {
 			MaxLen(100).
 			NotEmpty().
 			Comment("字典项标签 / Dictionary item label"),
-		field.String("item_value").
-			MaxLen(100).
+		field.Text("item_value").
 			NotEmpty().
 			Comment("字典项值 / Dictionary item value"),
 		field.String("item_color").

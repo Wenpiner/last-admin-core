@@ -115,7 +115,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间 / Deleted time"},
 		{Name: "state", Type: field.TypeBool, Nullable: true, Comment: "状态 / State", Default: true},
 		{Name: "item_label", Type: field.TypeString, Size: 100, Comment: "字典项标签 / Dictionary item label"},
-		{Name: "item_value", Type: field.TypeString, Size: 100, Comment: "字典项值 / Dictionary item value"},
+		{Name: "item_value", Type: field.TypeString, Size: 2147483647, Comment: "字典项值 / Dictionary item value"},
 		{Name: "item_color", Type: field.TypeString, Nullable: true, Size: 20, Comment: "字典项颜色 / Dictionary item color"},
 		{Name: "item_css", Type: field.TypeString, Nullable: true, Size: 100, Comment: "字典项CSS / Dictionary item CSS"},
 		{Name: "sort_order", Type: field.TypeInt, Comment: "排序 / Sort order", Default: 0},

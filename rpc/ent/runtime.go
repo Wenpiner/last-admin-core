@@ -271,21 +271,7 @@ func init() {
 	// dictitemDescItemValue is the schema descriptor for item_value field.
 	dictitemDescItemValue := dictitemFields[1].Descriptor()
 	// dictitem.ItemValueValidator is a validator for the "item_value" field. It is called by the builders before save.
-	dictitem.ItemValueValidator = func() func(string) error {
-		validators := dictitemDescItemValue.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(item_value string) error {
-			for _, fn := range fns {
-				if err := fn(item_value); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	dictitem.ItemValueValidator = dictitemDescItemValue.Validators[0].(func(string) error)
 	// dictitemDescItemColor is the schema descriptor for item_color field.
 	dictitemDescItemColor := dictitemFields[2].Descriptor()
 	// dictitem.ItemColorValidator is a validator for the "item_color" field. It is called by the builders before save.
