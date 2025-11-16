@@ -138,11 +138,6 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "sys_dict_items_type_value_unique",
-				Unique:  true,
-				Columns: []*schema.Column{SysDictItemsColumns[11], SysDictItemsColumns[6]},
-			},
-			{
 				Name:    "dictitem_dict_type_id",
 				Unique:  false,
 				Columns: []*schema.Column{SysDictItemsColumns[11]},

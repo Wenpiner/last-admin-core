@@ -71,10 +71,6 @@ func (DictItem) Edges() []ent.Edge {
 // Indexes of the DictItem.
 func (DictItem) Indexes() []ent.Index {
 	return []ent.Index{
-		// 复合唯一索引：字典类型ID+字典项值
-		index.Fields("dict_type_id", "item_value").
-			Unique().
-			StorageKey("sys_dict_items_type_value_unique"),
 		// 普通索引：字典类型ID
 		index.Fields("dict_type_id"),
 	}
