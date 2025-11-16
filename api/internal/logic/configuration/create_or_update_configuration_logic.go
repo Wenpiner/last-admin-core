@@ -28,7 +28,7 @@ func NewCreateOrUpdateConfigurationLogic(r *http.Request, svcCtx *svc.ServiceCon
 	}
 }
 
-func (l *CreateOrUpdateConfigurationLogic) CreateOrUpdateConfiguration(req *types.ConfigurationInfo) (resp *types.ConfigurationInfo, err error) {
+func (l *CreateOrUpdateConfigurationLogic) CreateOrUpdateConfiguration(req *types.ConfigurationInfo) (resp *types.ModifyConfigurationResponse, err error) {
 	// 将 API ConfigurationInfo 转换为 RPC ConfigurationInfo
 	rpcReq := ConvertApiConfigurationInfoToRpcConfigurationInfo(req)
 
@@ -39,6 +39,13 @@ func (l *CreateOrUpdateConfigurationLogic) CreateOrUpdateConfiguration(req *type
 	}
 
 	// 将 RPC 响应转换为 API 响应
-	resp = ConvertRpcConfigurationInfoToApiConfigurationInfo(rpcResp)
+	info := ConvertRpcConfigurationInfoToApiConfigurationInfo(rpcResp)
+	resp = &types.ModifyConfigurationResponse{
+		BaseDataInfo: types.BaseDataInfo{
+			Code:    0,
+			Message: "success",
+		},
+		Data: *info,
+	}
 	return resp, nil
 }

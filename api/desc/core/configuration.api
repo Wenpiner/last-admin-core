@@ -59,7 +59,7 @@ service Core {
 		summary: "新增/更新配置"
 	)
 	@handler CreateOrUpdateConfigurationHandler
-	post /createOrUpdate (ConfigurationInfo) returns (ConfigurationInfo)
+	post /createOrUpdate (ConfigurationInfo) returns (ModifyConfigurationResponse)
 
 	@doc (
 		summary: "删除配置"

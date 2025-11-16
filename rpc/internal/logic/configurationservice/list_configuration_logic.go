@@ -45,7 +45,7 @@ func (l *ListConfigurationLogic) ListConfiguration(in *core.ConfigurationListReq
 
 	// 获取当前角色允许的读权限分组列表
 	permChecker := NewConfigurationPermissionChecker(l.svcCtx.Casbin, l.Logger)
-	allowedGroups, err := permChecker.GetAllowedGroups(l.ctx, OperationRead)
+	allowedGroups, err := permChecker.GetAllowedGroups(l.ctx, "")
 	if err != nil {
 		return nil, err
 	}
