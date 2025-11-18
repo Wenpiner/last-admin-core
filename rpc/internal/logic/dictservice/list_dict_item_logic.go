@@ -34,9 +34,15 @@ func NewListDictItemLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 // 获取字典子项列表
 func (l *ListDictItemLogic) ListDictItem(in *core.DictItemListRequest) (*core.DictItemListResponse, error) {
 	var predicates []predicate.DictItem
+	var dictTypePredicates []predicate.DictType
 	if in.DictId != nil {
-		predicates = append(predicates, dictitem.DictTypeIDEQ(uint32(*in.DictId)))
+		dictTypePredicates = append(dictTypePredicates, dicttype.IDEQ(uint32(*in.DictId)))
 	}
+
+	if in.DictCode != nil {
+		dictTypePredicates = append(dictTypePredicates, dicttype.DictTypeCodeEQ(*in.DictCode))
+	}
+
 	if in.Label != nil {
 		predicates = append(predicates, dictitem.ItemLabelContains(*in.Label))
 	}
@@ -44,11 +50,10 @@ func (l *ListDictItemLogic) ListDictItem(in *core.DictItemListRequest) (*core.Di
 		predicates = append(predicates, dictitem.ItemValueContains(*in.Value))
 	}
 
-	page, err := l.svcCtx.DBEnt.DictItem.Query().WithDictType(func(dtq *ent.DictTypeQuery) {
-		if in.DictCode != nil {
-			dtq.Where(dicttype.DictTypeCodeEQ(*in.DictCode))
-		}
-	}).Where(predicates...).Order(dictitem.BySortOrder(sql.OrderDesc())).Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	page, err := l.svcCtx.DBEnt.DictType.Query().Where(dictTypePredicates...).WithDictItems(func(diq *ent.DictItemQuery) {
+		diq.Where(predicates...).Order(dictitem.BySortOrder(sql.OrderDesc()))
+	}).QueryDictItems().Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
+	
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}
