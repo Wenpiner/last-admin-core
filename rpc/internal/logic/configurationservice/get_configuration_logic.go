@@ -29,6 +29,8 @@ func NewGetConfigurationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 // 获取配置
 func (l *GetConfigurationLogic) GetConfiguration(in *core.StringRequest) (*core.ConfigurationInfo, error) {
+	// 检查读权限
+	permChecker := NewConfigurationPermissionChecker(l.svcCtx.Casbin, l.Logger)
 	// 先从缓存获取
 	if value, ok := l.svcCtx.ConfigurationCache.Get(in.Value); ok {
 		// 分割 group 和 value
@@ -37,8 +39,6 @@ func (l *GetConfigurationLogic) GetConfiguration(in *core.StringRequest) (*core.
 			return nil, err
 		}
 
-		// 检查读权限
-		permChecker := NewConfigurationPermissionChecker(l.svcCtx.Casbin, l.Logger)
 		if err := permChecker.CheckReadPermission(l.ctx, group); err != nil {
 			return nil, err
 		}
@@ -58,7 +58,6 @@ func (l *GetConfigurationLogic) GetConfiguration(in *core.StringRequest) (*core.
 	}
 
 	// 检查读权限
-	permChecker := NewConfigurationPermissionChecker(l.svcCtx.Casbin, l.Logger)
 	if err := permChecker.CheckReadPermission(l.ctx, config.Group); err != nil {
 		return nil, err
 	}
