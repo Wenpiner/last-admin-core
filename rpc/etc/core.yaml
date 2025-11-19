@@ -43,13 +43,15 @@ CasbinConf:
     e = some(where (p.eft == allow))
 
     [matchers]
-    # m = g(r.sub, p.sub) && r.dom == p.dom && keyMatch2(r.obj,p.obj) && (r.act == p.act || p.act == '*')
-    # 核心改动：增加了 r.dom == p.dom
+    # 使用自定义 permissionMatch 函数处理权限继承
     # 1. 检查用户(r.sub)是否属于角色(p.sub)
     # 2. 检查请求的域(r.dom)是否与策略的域(p.dom)完全匹配
     # 3. 检查资源路径(r.obj)是否匹配 (继续使用 keyMatch2)
-    # 4. 检查动作(r.act)是否匹配 (如果 p.act == '*' 则表示允许所有动作)
-    m = g(r.sub, p.sub) && r.dom == p.dom && keyMatch2(r.obj, p.obj) && (r.act == p.act || p.act == '*')
+    # 4. 检查动作(r.act)是否匹配，支持权限继承
+    # permissionMatch 函数处理权限继承规则：
+    #   - write 权限包含 read 权限（用于 configuration 域）
+    #   - admin 权限包含所有权限
+    m = g(r.sub, p.sub) && r.dom == p.dom && keyMatch2(r.obj, p.obj) && permissionMatch(p.act, r.act)
 
 # Redis配置
 RedisConf:

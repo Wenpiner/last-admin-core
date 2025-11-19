@@ -44,16 +44,16 @@ func (l *ListDictItemLogic) ListDictItem(in *core.DictItemListRequest) (*core.Di
 	}
 
 	if in.Label != nil {
-		predicates = append(predicates, dictitem.ItemLabelContains(*in.Label))
+		predicates = append(predicates, dictitem.ItemLabelEQ(*in.Label))
 	}
 	if in.Value != nil {
-		predicates = append(predicates, dictitem.ItemValueContains(*in.Value))
+		predicates = append(predicates, dictitem.ItemValueEQ(*in.Value))
 	}
 
 	page, err := l.svcCtx.DBEnt.DictType.Query().Where(dictTypePredicates...).WithDictItems(func(diq *ent.DictItemQuery) {
 		diq.Where(predicates...).Order(dictitem.BySortOrder(sql.OrderDesc()))
 	}).QueryDictItems().Page(l.ctx, in.Page.PageNumber, in.Page.PageSize)
-	
+
 	if err != nil {
 		return nil, errorhandler.DBEntError(l.Logger, err, in)
 	}

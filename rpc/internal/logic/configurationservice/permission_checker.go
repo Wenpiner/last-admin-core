@@ -116,17 +116,21 @@ func (c *ConfigurationPermissionChecker) GetAllowedGroups(ctx context.Context, o
 
 // checkPermission 内部方法：检查权限
 // 如果任何一个角色拥有指定的权限，则返回 nil
+// 权限继承关系由 Casbin 的自定义 permissionMatch 函数处理：
+// - write 权限包含 read 权限
+// - admin 权限包含所有权限
 func (c *ConfigurationPermissionChecker) checkPermission(roleIds []string, group string, operation string) error {
 	for _, roleId := range roleIds {
-		// 检查该角色是否拥有指定的权限
-		// 策略格式: [roleId, "configuration", group, operation]
-		policies, err := c.casbin.GetFilteredPolicy(0, roleId, ConfigurationResourceType, group, operation)
+		// 使用 Casbin 的 Enforce 方法检查权限
+		// 参数: [roleId, "configuration", group, operation]
+		// Casbin 会通过 permissionMatch 函数处理权限继承
+		allowed, err := c.casbin.Enforce(roleId, ConfigurationResourceType, group, operation)
 		if err != nil {
-			c.logger.Errorw("获取 Casbin 策略失败", logx.Field("detail", err.Error()))
+			c.logger.Errorw("Casbin 权限检查失败", logx.Field("detail", err.Error()))
 			return err
 		}
 
-		if len(policies) > 0 {
+		if allowed {
 			// 找到了权限
 			return nil
 		}
