@@ -1,13 +1,12 @@
 Name: core.rpc
 ListenOn: 0.0.0.0:8080
-Timeout: 100000
 
 DatabaseConf:
   Host: 127.0.0.1
-  Port: 25432
+  Port: 5432
   Username: postgres
-  Password: "ShMM3@8J"
-  DatabaseName: iRas
+  Password: "postgres"
+  DatabaseName: last_admin
   SSLMode: disable
   DBType: postgres
   MaxOpenConns: 100
@@ -56,7 +55,7 @@ CasbinConf:
 
 # Redis配置
 RedisConf:
-  Host: "127.0.0.1:6379"
-  Password: "ynQ28*8g"
+  Host: "127.0.0.1:16379"
+  Password: "redis123"
   DB: 0
   PoolSize: 10

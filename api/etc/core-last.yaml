@@ -1,11 +1,10 @@
 Name: core.api
 Host: 0.0.0.0
-Port: 18889
-Timeout: 100000
+Port: 8889
 
 # 认证配置
 Auth:
-  AccessSecret: "zb2P5PPpry4OZTcvCmsaoECpaEA2*f!&"
+  AccessSecret: "2Av^fwbPzdcJyt&&EjFmZVk5BmZDbTVo"
   AccessExpire: 360000
 
 I18nConf:
@@ -120,8 +119,8 @@ CaptchaConf:
     KeyPrefix: "captcha:"
     # Redis配置
     Redis:
-      Addr: "127.0.0.1:6379"
-      Password: "ynQ28*8g"
+      Addr: "127.0.0.1:16379"
+      Password: "redis123"
       DB: 0
       PoolSize: 10
 
@@ -135,7 +134,6 @@ RedisConf:
 # Rpc 服务
 CoreRpc:
   Target: "127.0.0.1:8080"
-  Timeout: 10000
 
 # Casbin配置
 CasbinConf:
@@ -178,10 +176,10 @@ CasbinConf:
 # Casbin数据库配置
 CasbinDatabaseConf:
   Host: "127.0.0.1"
-  Port: 25432
+  Port: 5432
   Username: "postgres"
-  Password: "ShMM3@8J"
-  DatabaseName: "iRas"
+  Password: "postgres"
+  DatabaseName: "last_admin"
   SSLMode: "disable"
   DBType: "postgres"
   MaxOpenConns: 100
