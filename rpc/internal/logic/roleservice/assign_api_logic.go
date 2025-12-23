@@ -42,7 +42,7 @@ func (l *AssignApiLogic) AssignApi(in *core.RoleApiRequest) (*core.BaseResponse,
 	// 为角色分配API
 	var policies [][]string
 	for _, api := range apis {
-		policies = append(policies, []string{role.RoleCode, api.Path, api.Method})
+		policies = append(policies, []string{role.RoleCode, "api", api.Path, api.Method})
 	}
 
 	// 查询旧策略
