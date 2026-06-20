@@ -31,7 +31,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w" -o rpc/core ./rpc/core.go && \
     CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-    go build -ldflags="-s -w" -o rpc/reset_super_api ./scripts/reset_super_api/main.go && \
+    go build -ldflags="-s -w" -o rpc/reset_super_api ./rpc/reset_super_api/main.go && \
     echo "Build completed successfully" && \
     ls -lh /build/rpc/
 
