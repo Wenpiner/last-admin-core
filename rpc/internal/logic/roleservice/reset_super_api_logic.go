@@ -38,6 +38,19 @@ func (l *ResetSuperApiLogic) ResetSuperApi(in *core.ID32Request) (*core.BaseResp
 		return nil, errorx.NewInvalidArgumentError("只能重置超级管理员角色")
 	}
 
+	// 2.5 查询系统中所有的菜单 ID 并分配给超级管理员
+	menuIds, err := l.svcCtx.DBEnt.Menu.Query().IDs(l.ctx)
+	if err != nil {
+		return nil, errorhandler.DBEntError(l.Logger, err, in)
+	}
+
+	if len(menuIds) > 0 {
+		err = l.svcCtx.DBEnt.Role.UpdateOneID(roleEntity.ID).ClearMenus().AddMenuIDs(menuIds...).Exec(l.ctx)
+		if err != nil {
+			return nil, errorhandler.DBEntError(l.Logger, err, in)
+		}
+	}
+
 	// 3. 查询系统中所有的 API
 	apis, err := l.svcCtx.DBEnt.API.Query().All(l.ctx)
 	if err != nil {

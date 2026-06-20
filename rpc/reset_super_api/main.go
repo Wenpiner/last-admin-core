@@ -39,6 +39,19 @@ func main() {
 		log.Fatalf("查询角色编码 '%s' 失败或该角色不存在: %v", *roleCode, err)
 	}
 
+	// 0.5 查询所有菜单 ID 并分配给该角色
+	menuIds, err := dbEnt.Menu.Query().IDs(ctx)
+	if err != nil {
+		log.Fatalf("查询菜单失败: %v", err)
+	}
+
+	if len(menuIds) > 0 {
+		err = dbEnt.Role.UpdateOneID(roleEntity.ID).ClearMenus().AddMenuIDs(menuIds...).Exec(ctx)
+		if err != nil {
+			log.Fatalf("更新角色菜单权限失败: %v", err)
+		}
+	}
+
 	// 1. 查询所有 API
 	apis, err := dbEnt.API.Query().All(ctx)
 	if err != nil {
