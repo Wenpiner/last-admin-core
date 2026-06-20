@@ -67,9 +67,9 @@ func ConvertToApiInfo(apiList []*core.ApiInfo) []types.ApiInfo {
 	var result []types.ApiInfo
 	for _, api := range apiList {
 		result = append(result, types.ApiInfo{
-			ID:          pointer.GetUint32(api.Id),
-			CreatedAt:   *api.CreatedAt,
-			UpdatedAt:   *api.UpdatedAt,
+			ID:          api.Id,
+			CreatedAt:   api.CreatedAt,
+			UpdatedAt:   api.UpdatedAt,
 			Name:        pointer.GetString(api.Name),
 			Method:      pointer.GetString(api.Method),
 			Path:        pointer.GetString(api.Path),

@@ -99,6 +99,12 @@ service Core {
 	post /assign/api (RoleApiRequest) returns (BaseResponse)
 
 	@doc (
+		summary: "重置超级管理员API权限"
+	)
+	@handler ResetSuperAdminApiHandler
+	post /resetSuperApi (ID32Request) returns (BaseResponse)
+
+	@doc (
 		summary: "获取角色API"
 	)
 	@handler GetRoleApiHandler

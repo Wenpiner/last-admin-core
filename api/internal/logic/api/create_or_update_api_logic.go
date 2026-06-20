@@ -32,9 +32,9 @@ func NewCreateOrUpdateApiLogic(r *http.Request, svcCtx *svc.ServiceContext) *Cre
 
 func (l *CreateOrUpdateApiLogic) CreateOrUpdateApi(req *types.ApiInfo) (resp *types.ApiInfo, err error) {
 	apiResult, err := l.svcCtx.ApiRpc.CreateOrUpdateApi(l.ctx, &core.ApiInfo{
-		Id:          &req.ID,
-		CreatedAt:   &req.CreatedAt,
-		UpdatedAt:   &req.UpdatedAt,
+		Id:          req.ID,
+		CreatedAt:   req.CreatedAt,
+		UpdatedAt:   req.UpdatedAt,
 		Name:        &req.Name,
 		Method:      &req.Method,
 		Path:        &req.Path,
@@ -49,9 +49,9 @@ func (l *CreateOrUpdateApiLogic) CreateOrUpdateApi(req *types.ApiInfo) (resp *ty
 	}
 
 	resp = &types.ApiInfo{
-		ID:          pointer.GetUint32(apiResult.Id),
-		CreatedAt:   *apiResult.CreatedAt,
-		UpdatedAt:   *apiResult.UpdatedAt,
+		ID:          apiResult.Id,
+		CreatedAt:   apiResult.CreatedAt,
+		UpdatedAt:   apiResult.UpdatedAt,
 		Name:        pointer.GetString(apiResult.Name),
 		Method:      pointer.GetString(apiResult.Method),
 		Path:        pointer.GetString(apiResult.Path),

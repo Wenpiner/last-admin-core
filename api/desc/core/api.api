@@ -12,16 +12,16 @@ info (
 
 type (
 	ApiInfo {
-		ID          uint32 `json:"id"` // API ID
-		CreatedAt   int64  `json:"createdAt"` // 创建时间 / Creation time
-		UpdatedAt   int64  `json:"updatedAt"` // 更新时间 / Update time
-		Name        string `json:"name,optional"` // API名称 / API name
-		Method      string `json:"method"` // 请求方法 / Request method
-		Path        string `json:"path"` // 请求路径 / Request path
-		Description string `json:"description,optional"` // API描述 / API description
-		IsRequired  bool   `json:"isRequired"` // 是否必填 / Whether it is required
-		ServiceName string `json:"serviceName"` // 服务名称 / Service name
-		ApiGroup    string `json:"apiGroup"` // API分组 / API group
+		ID          *uint32 `json:"id,optional"` // API ID
+		CreatedAt   *int64  `json:"createdAt,optional"` // 创建时间 / Creation time
+		UpdatedAt   *int64  `json:"updatedAt,optional"` // 更新时间 / Update time
+		Name        string  `json:"name,optional"` // API名称 / API name
+		Method      string  `json:"method"` // 请求方法 / Request method
+		Path        string  `json:"path"` // 请求路径 / Request path
+		Description string  `json:"description,optional"` // API描述 / API description
+		IsRequired  bool    `json:"isRequired"` // 是否必填 / Whether it is required
+		ServiceName string  `json:"serviceName"` // 服务名称 / Service name
+		ApiGroup    string  `json:"apiGroup"` // API分组 / API group
 	}
 	ApiListRequest {
 		PageRequest

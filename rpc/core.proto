@@ -245,6 +245,8 @@ service RoleService {
   rpc AssignMenu(RoleMenuRequest) returns (BaseResponse);
   // 为角色分配API
   rpc AssignApi(RoleApiRequest) returns (BaseResponse);
+  // 重置超级管理员API权限
+  rpc ResetSuperApi(ID32Request) returns (BaseResponse);
   // 获取角色菜单
   rpc GetMenu(ID32Request) returns (RoleMenuListResponse);
   // 为角色分配配置项分组权限
@@ -473,10 +475,10 @@ message UserListResponse {
 // TOTP相关消息类型
 message TotpSetupResponse {
   string secret_key = 1;
-  string qr_code_content = 2;// 二维码内容，不是URL
+  string qr_code_content = 2; // 二维码内容，不是URL
   repeated string backup_codes = 3;
   string device_name = 4;
-  string issuer = 5;// 发行者名称，用于TOTP应用显示
+  string issuer = 5; // 发行者名称，用于TOTP应用显示
 }
 
 message VerifyTotpSetupRequest {
@@ -705,8 +707,8 @@ message CreateTokenRequest {
 
 // 清理过期Token请求
 message CleanExpiredTokensRequest {
-  optional string token_type = 1;// 如果不指定，则清理所有类型的过期token
-  optional int64 before_time = 2;// 清理指定时间之前的token，如果不指定则清理所有过期token
+  optional string token_type = 1; // 如果不指定，则清理所有类型的过期token
+  optional int64 before_time = 2; // 清理指定时间之前的token，如果不指定则清理所有过期token
 }
 
 // 清理过期Token响应

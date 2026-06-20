@@ -612,6 +612,7 @@ const (
 	RoleService_GetRoleByValue_FullMethodName           = "/core.RoleService/GetRoleByValue"
 	RoleService_AssignMenu_FullMethodName               = "/core.RoleService/AssignMenu"
 	RoleService_AssignApi_FullMethodName                = "/core.RoleService/AssignApi"
+	RoleService_ResetSuperApi_FullMethodName            = "/core.RoleService/ResetSuperApi"
 	RoleService_GetMenu_FullMethodName                  = "/core.RoleService/GetMenu"
 	RoleService_AssignConfigurationGroup_FullMethodName = "/core.RoleService/AssignConfigurationGroup"
 	RoleService_GetConfigurationGroup_FullMethodName    = "/core.RoleService/GetConfigurationGroup"
@@ -635,6 +636,8 @@ type RoleServiceClient interface {
 	AssignMenu(ctx context.Context, in *RoleMenuRequest, opts ...grpc.CallOption) (*BaseResponse, error)
 	// 为角色分配API
 	AssignApi(ctx context.Context, in *RoleApiRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 重置超级管理员API权限
+	ResetSuperApi(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*BaseResponse, error)
 	// 获取角色菜单
 	GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error)
 	// 为角色分配配置项分组权限
@@ -721,6 +724,16 @@ func (c *roleServiceClient) AssignApi(ctx context.Context, in *RoleApiRequest, o
 	return out, nil
 }
 
+func (c *roleServiceClient) ResetSuperApi(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, RoleService_ResetSuperApi_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *roleServiceClient) GetMenu(ctx context.Context, in *ID32Request, opts ...grpc.CallOption) (*RoleMenuListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RoleMenuListResponse)
@@ -769,6 +782,8 @@ type RoleServiceServer interface {
 	AssignMenu(context.Context, *RoleMenuRequest) (*BaseResponse, error)
 	// 为角色分配API
 	AssignApi(context.Context, *RoleApiRequest) (*BaseResponse, error)
+	// 重置超级管理员API权限
+	ResetSuperApi(context.Context, *ID32Request) (*BaseResponse, error)
 	// 获取角色菜单
 	GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error)
 	// 为角色分配配置项分组权限
@@ -802,6 +817,9 @@ func (UnimplementedRoleServiceServer) AssignMenu(context.Context, *RoleMenuReque
 }
 func (UnimplementedRoleServiceServer) AssignApi(context.Context, *RoleApiRequest) (*BaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignApi not implemented")
+}
+func (UnimplementedRoleServiceServer) ResetSuperApi(context.Context, *ID32Request) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetSuperApi not implemented")
 }
 func (UnimplementedRoleServiceServer) GetMenu(context.Context, *ID32Request) (*RoleMenuListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
@@ -951,6 +969,24 @@ func _RoleService_AssignApi_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoleService_ResetSuperApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ID32Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServiceServer).ResetSuperApi(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleService_ResetSuperApi_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServiceServer).ResetSuperApi(ctx, req.(*ID32Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RoleService_GetMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ID32Request)
 	if err := dec(in); err != nil {
@@ -1039,6 +1075,10 @@ var RoleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AssignApi",
 			Handler:    _RoleService_AssignApi_Handler,
+		},
+		{
+			MethodName: "ResetSuperApi",
+			Handler:    _RoleService_ResetSuperApi_Handler,
 		},
 		{
 			MethodName: "GetMenu",
