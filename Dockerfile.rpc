@@ -30,8 +30,10 @@ COPY . .
 # 使用 CGO_ENABLED=0 确保静态链接，支持多平台
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w" -o rpc/core ./rpc/core.go && \
+    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-s -w" -o rpc/reset_super_api ./scripts/reset_super_api/main.go && \
     echo "Build completed successfully" && \
-    ls -lh /build/
+    ls -lh /build/rpc/
 
 # ============================================================================
 # 阶段 2: 运行阶段
@@ -59,6 +61,7 @@ WORKDIR /app
 
 # 从构建阶段复制二进制文件
 COPY --from=builder /build/rpc/core .
+COPY --from=builder /build/rpc/reset_super_api .
 
 # 复制配置文件
 COPY --from=builder /build/rpc/etc ./etc
