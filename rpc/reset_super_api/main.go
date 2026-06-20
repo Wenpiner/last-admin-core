@@ -51,7 +51,7 @@ func main() {
 	// 3. 构建策略
 	var policies [][]string
 	for _, apiItem := range apis {
-		policies = append(policies, []string{roleEntity.RoleCode, apiItem.Path, apiItem.Method})
+		policies = append(policies, []string{roleEntity.RoleCode, "api", apiItem.Path, apiItem.Method})
 	}
 
 	// 4. 清理旧策略并添加新策略

@@ -47,7 +47,7 @@ func (l *ResetSuperApiLogic) ResetSuperApi(in *core.ID32Request) (*core.BaseResp
 	// 4. 为超级管理员分配所有 API
 	var policies [][]string
 	for _, apiItem := range apis {
-		policies = append(policies, []string{roleEntity.RoleCode, apiItem.Path, apiItem.Method})
+		policies = append(policies, []string{roleEntity.RoleCode, "api", apiItem.Path, apiItem.Method})
 	}
 
 	// 5. 查询并清理超级管理员旧策略
